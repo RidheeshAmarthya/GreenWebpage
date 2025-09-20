@@ -88,8 +88,13 @@
                 
             </div>
             <div class="col-12 col-lg">
-                <p class="mbr-side-description mbr-fonts-style mb-0 align-center display-7">
-                    Green International Eximp, established in 2000, is a leading India–China textile trading company specializing in premium woven and knitted fabrics, including cotton, polyester, nylon, rayon, and specialty blends. With offices and production facilities in both countries, we ensure high quality, reliability, and timely global deliveries. Backed by over two decades of expertise in fabric technology, supply chain management, and international shipping, we are committed to excellence, innovation, and trusted long-term partnerships.</p>
+                <div class="mbr-side-description mbr-fonts-style align-center">
+                    <p><strong>Green International Eximp</strong>, established in 2000, is a leading India–China textile trading company specializing in premium woven and knitted fabrics, including cotton, polyester, nylon, rayon, and specialty blends.</p>
+                    
+                    <p>With offices and production facilities in both countries, we ensure high quality, reliability, and timely global deliveries.</p>
+                    
+                    <p>Backed by over two decades of expertise in fabric technology, supply chain management, and international shipping, we are committed to excellence, innovation, and trusted long-term partnerships.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -107,32 +112,30 @@
         </div>
       </div>
     </div>
-    <div class="grid-container">
-      <div class="grid-container-1" style="transform: translate3d(-200px, 0px, 0px);">
-        <div class="grid-item">
+    <div class="scrollable-brands-container">
+      <div class="brands-scroll-wrapper">
+        <div class="brand-item">
           <img src="assets/images/target-logo.jpeg" alt="Target Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/walmart-logo.png" alt="Walmart Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/superdry-logo.wine.png" alt="Superdry Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/ck-logo.png" alt="Calvin Klein Logo">
         </div>
-      </div>
-      <div class="grid-container-2" style="transform: translate3d(-70px, 0px, 0px);">
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/chaps-logo-1.png" alt="Chaps Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/tommy-logo.png" alt="Tommy Hilfiger Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/ikea-logo.png" alt="IKEA Logo">
         </div>
-        <div class="grid-item">
+        <div class="brand-item">
           <img src="assets/images/hnm-logo.png" alt="H&M Logo">
         </div>
       </div>
@@ -227,8 +230,9 @@
                         </h5>
                         <ul class="list mbr-fonts-style display-7">
                             <li class="mbr-text item-wrap">Phone: <a href="tel:+91 9810639056" class="text-primary">+91 9810639056</a></li>
+                            <li class="mbr-text item-wrap">Landline: <a href="tel:+91 0124-4799566" class="text-primary">+91 0124-4799566</a></li>
                             <li class="mbr-text item-wrap">WhatsApp: <a href="https://wa.me/9810639056" class="text-primary">+91 9810639056</a></li>
-                            <li class="mbr-text item-wrap">Email: <a href="mailto:venu@greeninternationalindia.com" class="text-primary">venu@greeninternationalindia.com</a></li>
+                            <li class="mbr-text item-wrap">Email: <a href="mailto:sales@greeninternationalindia.com" class="text-primary">sales@greeninternationalindia.com</a></li>
                             <li class="mbr-text item-wrap">Address: 326, 3rd Floor, Tower-B, Badshahpur Sohna Rd, Spazedge, Sector 47, Gurugram, Haryana 122002</li>
                         </ul>
                     </div>
@@ -310,7 +314,22 @@
             </div>
         </div>
     </div>
-</section><script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>  <script src="assets/smoothscroll/smooth-scroll.js"></script>  <script src="assets/ytplayer/index.js"></script>  <script src="assets/dropdown/js/navbar-dropdown.js"></script>  <script src="assets/vimeoplayer/player.js"></script>  <script src="assets/scrollgallery/scroll-gallery.js"></script>  <script src="assets/theme/js/script.js"></script>  <script src="assets/formoid/formoid.min.js"></script>  
+</section><script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>  <script src="assets/smoothscroll/smooth-scroll.js"></script>  <script src="assets/ytplayer/index.js"></script>  <script src="assets/dropdown/js/navbar-dropdown.js"></script>  <script src="assets/vimeoplayer/player.js"></script>  <script src="assets/scrollgallery/scroll-gallery.js"></script>  <script src="assets/theme/js/script.js"></script>  <script src="assets/formoid/formoid.min.js"></script>
+  
+  <script>
+    // Sticky navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.cid-uXjz86JSEW');
+      console.log('Scroll position:', window.scrollY); // Debug log
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+        console.log('Added scrolled class'); // Debug log
+      } else {
+        navbar.classList.remove('scrolled');
+        console.log('Removed scrolled class'); // Debug log
+      }
+    });
+  </script>  
   
   
 </body>

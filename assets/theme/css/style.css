@@ -955,6 +955,40 @@ blockquote {
     width: 300% !important;
     left: -100% !important;
   }
+}
+
+/* Mobile video responsiveness fix - heavily zoomed for full screen coverage */
+@media (max-width: 768px) {
+  .mbr-video-foreground {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(1.5) !important;
+    min-width: 150% !important;
+    min-height: 150% !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  
+  .mbr-background-video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  .mbr-background-video iframe {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(1.5) !important;
+    min-width: 150% !important;
+    min-height: 150% !important;
+    width: auto !important;
+    height: auto !important;
+  }
 }.engine {
 	position: absolute;
 	text-indent: -2400px;
