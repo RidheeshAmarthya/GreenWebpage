@@ -460,6 +460,8 @@
         duplicateOnce(wrapper);
         // Disable CSS animation to avoid transform/scrollLeft conflicts
         wrapper.style.animation = 'none';
+        // Improve iOS momentum scrolling behavior (no effect elsewhere)
+        try { container.style.webkitOverflowScrolling = 'touch'; } catch (_) {}
         container.querySelectorAll('img').forEach(function (img) {
           img.setAttribute('draggable', 'false');
           img.addEventListener('dragstart', function (e) { e.preventDefault(); });
@@ -470,7 +472,7 @@
         var startScrollLeft = 0;
         var idleTimer = null;
         var autoRAF = 0;
-        var speedPxPerSec = 40;
+        var speedPxPerSec = (("ontouchstart" in window) || (navigator.maxTouchPoints > 0)) ? 60 : 40;
         var lastTime = 0;
 
         function cycleWidth() {
@@ -479,7 +481,10 @@
           var first = wrapper.children[0];
           var cloneFirst = wrapper.children[originals];
           if (!first || !cloneFirst) return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
-          return cloneFirst.offsetLeft - first.offsetLeft;
+          var diff = cloneFirst.offsetLeft - first.offsetLeft;
+          // Fallback for browsers where offsetLeft doesn't advance as expected
+          if (diff <= 2) return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
+          return diff;
         }
 
         function wrapIfNeeded() {
