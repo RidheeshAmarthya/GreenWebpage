@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-  <link rel="shortcut icon" href="assets/images/green-logo.png" type="image/x-icon">
+  <link rel="shortcut icon" href="assets/green-logo-g.png" type="image/x-icon">
   <meta name="description" content="">
   
   
-  <title>Home</title>
+  <title>Green International</title>
   <link rel="stylesheet" href="assets/web/assets/mobirise-icons2/mobirise2.css">
   <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/dropdown/css/style.css">
@@ -59,16 +59,17 @@
 	</nav>
 </section>
 
-<section data-bs-version="5.1" class="header16 cid-uXjza79KMj mbr-fullscreen" data-bg-video="https://www.youtube.com/watch?v=jYHXqY9MwqY" id="header17-3">
+<section data-bs-version="5.1" class="header16 cid-uXjza79KMj mbr-fullscreen" data-bg-video="assets/landing-video.mp4" id="header17-3">
   
   
   <div class="container-fluid">
     <div class="row">
       <div class="content-wrap col-12 col-md-12">
         <h1 class="mbr-section-title mbr-fonts-style mbr-white mb-4 display-1">
-          <strong><br>Green International</strong></h1>
+          <strong><br>Green International</strong>
+          <strong><br>绿色国际进出口公司</strong></h1>
         
-        <p class="mbr-fonts-style mbr-text mbr-white mb-4 display-7">Leading supplier of premium fibers, yarns, and fabrics worldwide</p>
+        <p class="mbr-fonts-style mbr-text mbr-white mb-4 display-7">Leading supplier of fibers, yarns, and fabrics worldwide</p>
         
       </div>
     </div>
@@ -107,7 +108,7 @@
     <div class="row justify-content-center">
       <div class="col-12 content-head">
         <div class="mbr-section-head mb-5">
-          <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2"><strong>Brands we work with</strong></h4>
+          <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2"><strong>Brands we supply</strong></h4>
           
         </div>
       </div>
@@ -206,6 +207,50 @@
 	</div>
 </section>
 
+<section data-bs-version="5.1" class="gallery4" id="gallery04-certifications">
+  <style>
+    #gallery04-certifications { padding-top: 3rem; padding-bottom: 1rem; }
+    #gallery04-certifications .mbr-section-title { text-align: center; }
+    #gallery04-certifications .mbr-section-head { margin-bottom: 1rem !important; }
+    #gallery04-certifications .scrollable-brands-container { padding: 0.5rem 0; }
+    #gallery04-certifications .brand-item img { filter: none !important; opacity: 1 !important; }
+    #gallery04-certifications .brand-item img:hover { filter: none !important; opacity: 1 !important; transform: scale(1.05); }
+  </style>
+  
+  <div class="container-fluid gallery-wrapper">
+    <div class="row justify-content-center">
+      <div class="col-12 content-head">
+        <div class="mbr-section-head mb-5">
+          <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2"><strong>Certifications</strong></h4>
+          
+        </div>
+      </div>
+    </div>
+    <div class="scrollable-brands-container">
+      <div class="brands-scroll-wrapper">
+        <div class="brand-item">
+          <img src="assets/certifications/BCI logo 2.png" alt="BCI Certification Logo">
+        </div>
+        <div class="brand-item">
+          <img src="assets/certifications/Certification-masters-of-linen-SAFILIN-2025.png" alt="Masters of Linen Certification Logo">
+        </div>
+        <div class="brand-item">
+          <img src="assets/certifications/GLOBAL logo 2.png" alt="GLOBAL Certification Logo">
+        </div>
+        <div class="brand-item">
+          <img src="assets/certifications/GRS logo.png" alt="GRS Certification Logo">
+        </div>
+        <div class="brand-item">
+          <img src="assets/certifications/Oeko-tex_standard100_logo_rgb-2022.jpeg" alt="OEKO-TEX Standard 100 Certification Logo">
+        </div>
+        <div class="brand-item">
+          <img src="assets/certifications/tencel-logo 2.png" alt="TENCEL Certification Logo">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section data-bs-version="5.1" class="contacts02 map1 cid-uXk9i9lAt6" id="contacts02-9">
 
     
@@ -235,6 +280,10 @@
                             <li class="mbr-text item-wrap">Email: <a href="mailto:sales@greeninternationalindia.com" class="text-primary">sales@greeninternationalindia.com</a></li>
                             <li class="mbr-text item-wrap">Address: 326, 3rd Floor, Tower-B, Badshahpur Sohna Rd, Spazedge, Sector 47, Gurugram, Haryana 122002</li>
                         </ul>
+                        <div class="bg-light border rounded-3 p-3 mt-3 shadow-sm">
+                            <h6 class="mbr-fonts-style mb-2 display-7"><strong>China Office</strong></h6>
+                            <p class="mbr-fonts-style mb-0 display-7">Hutang Jiangcun, Gesi Industrial Zone <br>Wujin, Changzhou, China-213100</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -329,6 +378,63 @@
         console.log('Removed scrolled class'); // Debug log
       }
     });
+  </script>  
+  <script>
+    // Ensure Mobirise additional styles remain loaded even if theme script removes them
+    (function() {
+      function ensureAdditionalCss() {
+        var links = Array.prototype.slice.call(document.querySelectorAll('link[rel="stylesheet"]'));
+        var present = links.some(function(l) { return l.href && l.href.indexOf('mbr-additional.css') !== -1; });
+        if (!present) {
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'assets/mobirise/css/mbr-additional.css?v=ehfSVp';
+          document.head.appendChild(link);
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureAdditionalCss);
+      } else {
+        ensureAdditionalCss();
+      }
+    })();
+  </script>  
+  <script>
+    // Hide fixed background video when header is off-screen to avoid footer bleed
+    (function() {
+      var header = document.getElementById('header17-3');
+      if (!header) return;
+      var video;
+      function findVideo() {
+        video = header.querySelector('video');
+      }
+      function updateVisibility() {
+        if (!video) { findVideo(); if (!video) return; }
+        var rect = header.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        var visible = rect.bottom > 0 && rect.top < vh;
+        video.style.visibility = visible ? 'visible' : 'hidden';
+      }
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (!video) findVideo();
+            if (!video) return;
+            video.style.visibility = entry.isIntersecting ? 'visible' : 'hidden';
+          });
+        }, { threshold: 0.01 });
+        io.observe(header);
+      } else {
+        document.addEventListener('scroll', updateVisibility, { passive: true });
+        window.addEventListener('resize', updateVisibility);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function(){ findVideo(); updateVisibility(); });
+      } else {
+        findVideo(); updateVisibility();
+      }
+      setTimeout(function(){ findVideo(); updateVisibility(); }, 0);
+    })();
   </script>  
   
   

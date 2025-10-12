@@ -1,4 +1,29 @@
-@charset "UTF-8";
+/* Constrain background video to header only */
+#header17-3 {
+  position: relative;
+  overflow: hidden;
+}
+
+#header17-3 > video {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: cover !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* Ensure content overlays header video */
+#header17-3 .container,
+#header17-3 .container-fluid {
+  position: relative;
+  z-index: 1;
+}
 section {
   background-color: #ffffff;
 }
@@ -996,4 +1021,69 @@ blockquote {
 	padding: 0;
 	top: 0;
 	left: -2400px;
+}
+
+/* Unify transparency on mobile: when navbar is opened, match top bar and dropdown */
+@media (max-width: 991px) {
+  .cid-uXjz86JSEW .navbar-dropdown.opened,
+  .cid-uXjz86JSEW nav.opened {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .cid-uXjz86JSEW nav.opened .navbar-collapse {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .cid-uXjz86JSEW nav.opened .nav-link {
+    color: #000000 !important;
+  }
+
+  .cid-uXjz86JSEW nav.opened button.navbar-toggler .hamburger span {
+    background-color: #000000;
+  }
+
+  /* Keep dropdown list transparent inside the blurred container */
+  .cid-uXjz86JSEW nav.opened .dropdown-menu {
+    background: transparent !important;
+  }
+}
+
+/* Ensure all text turns black when mobile menu is opened (even at top) */
+@media (max-width: 991px) {
+  .cid-uXjz86JSEW nav.opened a,
+  .cid-uXjz86JSEW nav.opened .text-white,
+  .cid-uXjz86JSEW nav.opened .dropdown-item,
+  .cid-uXjz86JSEW nav.opened .navbar-nav .nav-link {
+    color: #000000 !important;
+  }
+
+  .cid-uXjz86JSEW nav.opened .dropdown-item:hover {
+    color: #000000 !important;
+    background-color: rgba(27, 31, 10, 0.06);
+  }
+
+  /* Flip logo to black for contrast when menu is opened */
+  .cid-uXjz86JSEW nav.opened .navbar-brand img,
+  .cid-uXjz86JSEW nav.opened .navbar-logo img {
+    filter: brightness(0) invert(0);
+  }
+}
+
+/* Remove any shadow while mobile menu is opened (even on scroll) */
+@media (max-width: 991px) {
+  .cid-uXjz86JSEW nav.opened,
+  .cid-uXjz86JSEW .navbar-dropdown.opened,
+  .cid-uXjz86JSEW nav.opened .navbar,
+  .cid-uXjz86JSEW nav.opened .navbar-collapse {
+    box-shadow: none !important;
+  }
+
+  .cid-uXjz86JSEW.scrolled nav.opened,
+  .cid-uXjz86JSEW.scrolled nav.opened .navbar,
+  .cid-uXjz86JSEW.scrolled nav.opened .navbar-collapse {
+    box-shadow: none !important;
+  }
 }
