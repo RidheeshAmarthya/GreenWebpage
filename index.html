@@ -437,6 +437,153 @@
     })();
   </script>  
   
+  <script>
+    // Infinite swipe-to-drag with seamless looping; JS drives auto-scroll (no CSS anim)
+    (function () {
+      function duplicateOnce(wrapper) {
+        if (wrapper.dataset.loopCloned === '1') return;
+        var children = Array.prototype.slice.call(wrapper.children);
+        if (children.length === 0) return;
+        var frag = document.createDocumentFragment();
+        children.forEach(function (node) { frag.appendChild(node.cloneNode(true)); });
+        wrapper.appendChild(frag);
+        wrapper.dataset.loopCloned = '1';
+      }
+
+      function initScrollable(container) {
+        var wrapper = container.querySelector('.brands-scroll-wrapper');
+        if (!wrapper) return;
+
+        // Prepare seamless content and prevent image ghost-drag
+        var originalCount = wrapper.children.length;
+        wrapper.dataset.originalCount = String(originalCount);
+        duplicateOnce(wrapper);
+        // Disable CSS animation to avoid transform/scrollLeft conflicts
+        wrapper.style.animation = 'none';
+        container.querySelectorAll('img').forEach(function (img) {
+          img.setAttribute('draggable', 'false');
+          img.addEventListener('dragstart', function (e) { e.preventDefault(); });
+        });
+
+        var isDragging = false;
+        var startX = 0;
+        var startScrollLeft = 0;
+        var idleTimer = null;
+        var autoRAF = 0;
+        var speedPxPerSec = 40;
+        var lastTime = 0;
+
+        function cycleWidth() {
+          // Measure distance from first original item to its first clone
+          var originals = parseInt(wrapper.dataset.originalCount || '0', 10) || Math.floor(wrapper.children.length / 2);
+          var first = wrapper.children[0];
+          var cloneFirst = wrapper.children[originals];
+          if (!first || !cloneFirst) return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
+          return cloneFirst.offsetLeft - first.offsetLeft;
+        }
+
+        function wrapIfNeeded() {
+          var w = cycleWidth();
+          if (container.scrollLeft >= w) {
+            container.scrollLeft -= w;
+          } else if (container.scrollLeft <= 0) {
+            container.scrollLeft += w;
+          }
+        }
+
+        function stopAuto() {
+          cancelAnimationFrame(autoRAF);
+        }
+
+        function startAuto() {
+          stopAuto();
+          lastTime = performance.now();
+          autoRAF = requestAnimationFrame(function step(now) {
+            var dt = Math.min(100, now - lastTime) / 1000;
+            lastTime = now;
+            var w = cycleWidth();
+            if (w > 0) {
+              var pos = container.scrollLeft + speedPxPerSec * dt;
+              // normalize to [0, w)
+              pos = ((pos % w) + w) % w;
+              container.scrollLeft = pos;
+            }
+            autoRAF = requestAnimationFrame(step);
+          });
+        }
+
+        function onDown(e) {
+          isDragging = true;
+          stopAuto();
+          startX = (e.touches ? e.touches[0].clientX : e.clientX);
+          startScrollLeft = container.scrollLeft;
+          container.classList.add('is-dragging');
+          container.style.cursor = 'grabbing';
+          container.style.userSelect = 'none';
+          e.preventDefault();
+        }
+
+        function onMove(e) {
+          if (!isDragging) return;
+          var x = (e.touches ? e.touches[0].clientX : e.clientX);
+          var dx = x - startX;
+          var w = cycleWidth();
+          var target = startScrollLeft - dx;
+          // Normalize position to [0, w) so it never hits a hard end
+          var pos = ((target % w) + w) % w;
+          container.scrollLeft = pos;
+          e.preventDefault();
+        }
+
+        function onUp() {
+          if (!isDragging) return;
+          isDragging = false;
+          container.classList.remove('is-dragging');
+          container.style.cursor = '';
+          container.style.userSelect = '';
+          clearTimeout(idleTimer);
+          idleTimer = setTimeout(function () {
+            startAuto();
+          }, 800);
+        }
+
+        // Start near middle of cycle to allow immediate bi-directional drag
+        try { container.scrollLeft = cycleWidth(); } catch (_) {}
+
+        // Recalculate and start auto after images load and on resize
+        function recalibrate() {
+          var w = cycleWidth();
+          if (w > 0) {
+            container.scrollLeft = ((container.scrollLeft % w) + w) % w;
+          }
+        }
+        window.addEventListener('load', function () { recalibrate(); startAuto(); });
+        window.addEventListener('resize', function () { recalibrate(); });
+        // Start auto in case images are already loaded
+        startAuto();
+
+        // Bind events
+        container.addEventListener('mousedown', onDown, { passive: false });
+        container.addEventListener('touchstart', onDown, { passive: false });
+        window.addEventListener('mousemove', onMove, { passive: false });
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchend', onUp);
+        window.addEventListener('mouseleave', onUp);
+      }
+
+      function initAll() {
+        document.querySelectorAll('.scrollable-brands-container').forEach(initScrollable);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+      } else {
+        initAll();
+      }
+    })();
+  </script>  
+  
   
 </body>
 </html>
