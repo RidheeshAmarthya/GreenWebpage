@@ -472,8 +472,15 @@
         var startScrollLeft = 0;
         var idleTimer = null;
         var autoRAF = 0;
-        var speedPxPerSec = (("ontouchstart" in window) || (navigator.maxTouchPoints > 0)) ? 60 : 40;
+        var isTouch = (("ontouchstart" in window) || (navigator.maxTouchPoints > 0));
+        var speedPxPerSec = isTouch ? 60 : 40;
         var lastTime = 0;
+        var momentumRAF = 0;
+        var isMomentum = false;
+        var velocity = 0; // px/s, updated during drag
+        var lastMoveX = 0;
+        var lastMoveTime = 0;
+        var decelPxPerSec2 = isTouch ? 7000 : 6000; // momentum deceleration (higher = more friction)
 
         function cycleWidth() {
           // Measure distance from first original item to its first clone
@@ -517,11 +524,55 @@
           });
         }
 
+        function stopMomentum() {
+          cancelAnimationFrame(momentumRAF);
+          isMomentum = false;
+        }
+
+        function startMomentum() {
+          stopMomentum();
+          var v = velocity;
+          if (Math.abs(v) < 20) {
+            // too slow; just resume auto soon
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(function () { startAuto(); }, 150);
+            return;
+          }
+          isMomentum = true;
+          var last = performance.now();
+          momentumRAF = requestAnimationFrame(function step(now) {
+            var dt = Math.min(100, now - last) / 1000;
+            last = now;
+            var w = cycleWidth();
+            if (w > 0) {
+              var pos = container.scrollLeft + v * dt;
+              pos = ((pos % w) + w) % w;
+              container.scrollLeft = pos;
+            }
+            // Apply constant deceleration toward 0
+            var s = v > 0 ? 1 : -1;
+            var newV = v - s * decelPxPerSec2 * dt;
+            if ((newV > 0) !== (v > 0) || Math.abs(newV) < 22) {
+              isMomentum = false;
+              momentumRAF = 0;
+              clearTimeout(idleTimer);
+              idleTimer = setTimeout(function () { startAuto(); }, 150);
+              return;
+            }
+            v = newV;
+            momentumRAF = requestAnimationFrame(step);
+          });
+        }
+
         function onDown(e) {
           isDragging = true;
           stopAuto();
+          stopMomentum();
           startX = (e.touches ? e.touches[0].clientX : e.clientX);
           startScrollLeft = container.scrollLeft;
+          velocity = 0;
+          lastMoveX = startX;
+          lastMoveTime = performance.now();
           container.classList.add('is-dragging');
           container.style.cursor = 'grabbing';
           container.style.userSelect = 'none';
@@ -537,6 +588,15 @@
           // Normalize position to [0, w) so it never hits a hard end
           var pos = ((target % w) + w) % w;
           container.scrollLeft = pos;
+          // update velocity (px/s) using pointer delta (opposite sign of scroll)
+          var now = performance.now();
+          var dt = now - lastMoveTime;
+          if (dt > 0) {
+            var instV = -(x - lastMoveX) * 1000 / dt; // -dx/dt
+            velocity = velocity * 0.8 + instV * 0.2; // low-pass filter
+            lastMoveX = x;
+            lastMoveTime = now;
+          }
           e.preventDefault();
         }
 
@@ -547,9 +607,7 @@
           container.style.cursor = '';
           container.style.userSelect = '';
           clearTimeout(idleTimer);
-          idleTimer = setTimeout(function () {
-            startAuto();
-          }, 800);
+          startMomentum();
         }
 
         // Start near middle of cycle to allow immediate bi-directional drag
