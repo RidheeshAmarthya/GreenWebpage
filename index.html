@@ -472,6 +472,9 @@
         var startScrollLeft = 0;
         var idleTimer = null;
         var autoRAF = 0;
+        var autoInterval = 0;
+        var autoPos = 0; // high-precision accumulator for smooth movement
+        var lastRafTick = 0; // last time rAF advanced (for fallback)
         var isTouch = (("ontouchstart" in window) || (navigator.maxTouchPoints > 0));
         var speedPxPerSec = isTouch ? 60 : 40;
         var lastTime = 0;
@@ -483,15 +486,8 @@
         var decelPxPerSec2 = isTouch ? 7000 : 6000; // momentum deceleration (higher = more friction)
 
         function cycleWidth() {
-          // Measure distance from first original item to its first clone
-          var originals = parseInt(wrapper.dataset.originalCount || '0', 10) || Math.floor(wrapper.children.length / 2);
-          var first = wrapper.children[0];
-          var cloneFirst = wrapper.children[originals];
-          if (!first || !cloneFirst) return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
-          var diff = cloneFirst.offsetLeft - first.offsetLeft;
-          // Fallback for browsers where offsetLeft doesn't advance as expected
-          if (diff <= 2) return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
-          return diff;
+          // Robust width of one full set (half the duplicated track)
+          return Math.max(1, Math.floor(wrapper.scrollWidth / 2));
         }
 
         function wrapIfNeeded() {
@@ -505,23 +501,35 @@
 
         function stopAuto() {
           cancelAnimationFrame(autoRAF);
+          clearInterval(autoInterval);
+          autoInterval = 0;
         }
 
         function startAuto() {
           stopAuto();
           lastTime = performance.now();
-          autoRAF = requestAnimationFrame(function step(now) {
-            var dt = Math.min(100, now - lastTime) / 1000;
-            lastTime = now;
+          lastRafTick = lastTime;
+          autoPos = container.scrollLeft;
+          function advance(dt) {
             var w = cycleWidth();
             if (w > 0) {
-              var pos = container.scrollLeft + speedPxPerSec * dt;
-              // normalize to [0, w)
-              pos = ((pos % w) + w) % w;
-              container.scrollLeft = pos;
+              autoPos += speedPxPerSec * dt;
+              autoPos = ((autoPos % w) + w) % w;
+              container.scrollLeft = Math.round(autoPos);
             }
+          }
+          autoRAF = requestAnimationFrame(function step(now) {
+            var dt = Math.min(50, now - lastTime) / 1000;
+            lastTime = now;
+            advance(dt);
+            lastRafTick = now;
             autoRAF = requestAnimationFrame(step);
           });
+          // Fallback interval for browsers throttling rAF
+          autoInterval = setInterval(function () {
+            var now = performance.now();
+            if (!document.hidden && now - lastRafTick > 200) advance(0.05);
+          }, 50);
         }
 
         function stopMomentum() {
@@ -570,6 +578,7 @@
           stopMomentum();
           startX = (e.touches ? e.touches[0].clientX : e.clientX);
           startScrollLeft = container.scrollLeft;
+          autoPos = container.scrollLeft;
           velocity = 0;
           lastMoveX = startX;
           lastMoveTime = performance.now();
@@ -610,18 +619,27 @@
           startMomentum();
         }
 
-        // Start near middle of cycle to allow immediate bi-directional drag
+        // Start near middle of cycle and nudge to ensure layout updates
         try { container.scrollLeft = cycleWidth(); } catch (_) {}
+        setTimeout(function () { container.scrollLeft = (container.scrollLeft + 1) | 0; container.scrollLeft = (container.scrollLeft - 1) | 0; }, 50);
 
         // Recalculate and start auto after images load and on resize
         function recalibrate() {
           var w = cycleWidth();
           if (w > 0) {
             container.scrollLeft = ((container.scrollLeft % w) + w) % w;
+            autoPos = container.scrollLeft;
           }
         }
         window.addEventListener('load', function () { recalibrate(); startAuto(); });
         window.addEventListener('resize', function () { recalibrate(); });
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) { recalibrate(); startAuto(); }
+        });
+        window.addEventListener('pageshow', function () { recalibrate(); startAuto(); });
+        window.addEventListener('orientationchange', function () {
+          setTimeout(function () { recalibrate(); startAuto(); }, 150);
+        });
         // Start auto in case images are already loaded
         startAuto();
 
