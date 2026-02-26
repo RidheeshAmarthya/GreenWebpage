@@ -58,12 +58,16 @@
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             border: 1px solid #eee;
+            width: 100%;
+            transition: all 0.3s ease;
         }
 
         .search-box input {
             border: none;
             padding: 10px 25px;
-            flex-grow: 1;
+            flex: 1;
+            min-width: 0;
+            /* Prevents input from overflowing flex container */
             font-size: 1.1rem;
             border-radius: 50px;
             outline: none;
@@ -77,6 +81,49 @@
             border-radius: 50px;
             font-weight: 700;
             transition: all 0.3s ease;
+            white-space: nowrap;
+            /* Prevents text from wrapping inside button */
+        }
+
+        @media (max-width: 440px) {
+            .search-box {
+                padding: 6px;
+                gap: 5px;
+            }
+
+            .search-box input {
+                padding: 8px 15px;
+                font-size: 1rem;
+            }
+
+            .search-box button {
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .search-box {
+                flex-direction: column;
+                background: transparent;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+
+            .search-box input {
+                background: white;
+                border: 1px solid #eee;
+                margin-bottom: 10px;
+                border-radius: 15px;
+                padding: 15px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            }
+
+            .search-box button {
+                width: 100%;
+                border-radius: 15px;
+                padding: 15px;
+            }
         }
 
         .search-box button:hover {
@@ -334,7 +381,7 @@
                 </p>
                 <div class="search-box">
                     <input type="text" id="order-id-input" placeholder="Tracking Number" autocomplete="off">
-                    <button id="track-btn">Track Order</button>
+                    <button id="track-btn">Track</button>
                 </div>
                 <div id="loading-spinner" class="spinner-border text-success" role="status">
                     <span class="visually-hidden">Loading...</span>
