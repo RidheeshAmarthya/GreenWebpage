@@ -70,7 +70,13 @@
             /* Prevents input from overflowing flex container */
             font-size: 1.1rem;
             border-radius: 50px;
-            outline: none;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-green);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.15);
         }
 
         .search-box button {
@@ -226,13 +232,14 @@
         /* Timeline Styles */
         .timeline {
             position: relative;
-            padding-left: 30px;
+            padding-left: 0;
+            margin-top: 40px;
         }
 
         .timeline::before {
             content: '';
             position: absolute;
-            left: 0;
+            left: 140px;
             top: 0;
             bottom: 0;
             width: 2px;
@@ -241,46 +248,107 @@
 
         .timeline-item {
             position: relative;
-            padding-bottom: 30px;
+            display: flex;
+            gap: 40px;
+            padding-bottom: 40px;
+            align-items: start;
         }
 
         .timeline-item:last-child {
             padding-bottom: 0;
         }
 
+        .timeline-date {
+            width: 120px;
+            text-align: right;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+            padding-top: 15px;
+            display: block;
+        }
+
         .timeline-dot {
             position: absolute;
-            left: -34px;
-            top: 5px;
+            left: 136px;
+            top: 18px;
             width: 10px;
             height: 10px;
             background: var(--primary-green);
             border-radius: 50%;
             box-shadow: 0 0 0 4px white;
+            z-index: 2;
         }
 
         .timeline-content {
-            background: #f8f9fa;
-            padding: 15px 25px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-green);
-            display: inline-block;
-            max-width: 90%;
-            min-width: 200px;
-            width: fit-content;
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 15px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            flex-grow: 1;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .timeline-date {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary-green);
-            margin-bottom: 5px;
-            display: block;
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 18px;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-left: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            transform: rotate(45deg);
+        }
+
+        .timeline-content:hover {
+            transform: translateX(5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.08);
+        }
+
+        .timeline-content:hover::before {
+            border-left-color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
         }
 
         .timeline-note {
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: #444;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 650px) {
+            .timeline::before {
+                left: 15px;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                gap: 10px;
+                padding-left: 40px;
+            }
+
+            .timeline-date {
+                width: auto;
+                text-align: left;
+                padding-top: 0;
+            }
+
+            .timeline-dot {
+                left: 11px;
+                top: 5px;
+            }
+
+            .timeline-content::before {
+                display: none;
+            }
         }
 
         #loading-spinner {
@@ -306,20 +374,72 @@
             width: 100%;
         }
 
-        .nav-track-btn {
-            border: 1.5px solid currentColor !important;
-            border-radius: 50px !important;
-            padding: 8px 25px !important;
-            margin-left: 15px;
-            transition: all 0.3s ease !important;
-            opacity: 0.9;
+        #tracker-nav-item {
+            margin-left: 15px !important;
+            padding-left: 0 !important;
         }
 
-        /* Always black text mode on tracker -> hover black bg, white text */
-        .menu .navbar-nav .nav-item .nav-track-btn:hover {
-            background: #000 !important;
+        .nav-track-btn {
+            background: var(--primary-green, #28a745) !important;
             color: #fff !important;
-            opacity: 1;
+            border: none !important;
+            border-radius: 50px !important;
+            padding: 10px 28px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-track-btn:hover {
+            background: #218838 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: #fff !important;
+        }
+
+        .nav-track-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Small pulse effect for attention */
+        @keyframes navPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+
+        .nav-track-btn {
+            animation: navPulse 2s infinite;
+        }
+
+        /* Force white text regardless of theme/scrolled state */
+        .cid-uXjz86JSEW .navbar-nav .nav-item .nav-track-btn,
+        .cid-uXjz86JSEW.scrolled .navbar-nav .nav-item .nav-track-btn {
+            color: #ffffff !important;
+            text-decoration: none !important;
+        }
+
+        /* Ensure mobile compatibility */
+        @media (max-width: 991px) {
+            #tracker-nav-item {
+                margin-left: 0 !important;
+                margin-top: 15px;
+            }
+
+            .nav-track-btn {
+                width: fit-content;
+            }
         }
     </style>
 </head>
@@ -362,9 +482,12 @@
                             <a class="nav-link link text-black text-primary display-4"
                                 href="index.html#contacts02-9">Contacts</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link link text-black text-primary display-4 nav-track-btn"
-                                href="tracker.html">Track Order</a>
+                        <li class="nav-item" id="tracker-nav-item" style="margin-left: 15px !important;">
+                            <a class="nav-link link display-4 nav-track-btn" href="tracker.html"
+                                style="color: #ffffff !important; text-decoration: none !important;">
+                                <span class="mobi-mbri mobi-mbri-delivery mbr-iconfont"
+                                    style="font-size: 1.2rem; color: #ffffff !important;"></span>Track Order
+                            </a>
                         </li>
                     </ul>
 
@@ -395,7 +518,6 @@
                         <h3 class="mb-0"><strong id="disp-order-id">Order ID: ---</strong></h3>
                         <p class="text-muted mb-0">Green International Tracking System</p>
                     </div>
-                    <div id="disp-commercial" class="status-badge status-pending">Pending</div>
                 </div>
 
                 <div class="info-grid">
@@ -406,6 +528,10 @@
                     <div class="info-item">
                         <label>Estimated Delivery</label>
                         <span id="disp-delivery-date">---</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Commercial Status</label>
+                        <span id="disp-commercial">---</span>
                     </div>
                 </div>
 
@@ -516,10 +642,7 @@
             document.getElementById('disp-order-id').textContent = `Order ID: ${data.order_id}`;
             document.getElementById('disp-pi-date').textContent = formatDate(data.pi_date);
             document.getElementById('disp-delivery-date').textContent = formatDate(data.delivery_date);
-
-            const commBadge = document.getElementById('disp-commercial');
-            commBadge.textContent = data.commercial;
-            commBadge.className = 'status-badge ' + (data.commercial.toLowerCase() === 'delivered' ? 'status-delivered' : 'status-pending');
+            document.getElementById('disp-commercial').textContent = data.commercial;
 
             // Setup color selector
             colorSelect.innerHTML = '';
@@ -556,9 +679,9 @@
                 const item = document.createElement('div');
                 item.className = 'timeline-item';
                 item.innerHTML = `
+                <div class="timeline-date">${formatDate(log.log_date)}</div>
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
-                    <span class="timeline-date">${formatDate(log.log_date)}</span>
                     <div class="timeline-note">${log.note}</div>
                 </div>
             `;
@@ -569,10 +692,11 @@
         function formatDate(dateStr) {
             if (!dateStr) return 'TBA';
             const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+            // Indian format: 02 Mar 2026
+            return date.toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
             });
         }
 

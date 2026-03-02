@@ -70,14 +70,6 @@
             color: white;
         }
 
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
         .table-hover tbody tr:hover {
             background-color: rgba(40, 167, 69, 0.05);
             cursor: pointer;
@@ -146,24 +138,17 @@
             font-size: 1.1rem;
         }
 
-        .admin-status-badge {
-            padding: 8px 15px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
         /* Timeline Styles */
         .timeline-match {
             position: relative;
-            padding-left: 30px;
+            padding-left: 0;
+            margin-top: 20px;
         }
 
         .timeline-match::before {
             content: '';
             position: absolute;
-            left: 0;
+            left: 140px;
             top: 0;
             bottom: 0;
             width: 2px;
@@ -172,47 +157,82 @@
 
         .timeline-item-match {
             position: relative;
+            display: flex;
+            gap: 40px;
             padding-bottom: 25px;
+            align-items: start;
         }
 
         .timeline-item-match:last-child {
             padding-bottom: 0;
         }
 
+        .timeline-date {
+            width: 120px;
+            text-align: right;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+            padding-top: 15px;
+            display: block;
+        }
+
         .timeline-dot {
             position: absolute;
-            left: -34px;
-            top: 5px;
+            left: 136px;
+            top: 18px;
             width: 10px;
             height: 10px;
             background: var(--primary-green);
             border-radius: 50%;
             box-shadow: 0 0 0 4px white;
+            z-index: 2;
         }
 
         .timeline-content-match {
-            background: #f8f9fa;
-            padding: 12px 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-green);
-            display: inline-block;
-            max-width: 100%;
-            min-width: 180px;
-            width: fit-content;
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 15px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            flex-grow: 1;
             position: relative;
+            transition: all 0.3s ease;
         }
 
-        .timeline-date {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--primary-green);
-            margin-bottom: 4px;
-            display: block;
+        .timeline-content-match::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 18px;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-left: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            transform: rotate(45deg);
+        }
+
+        .timeline-content-match:hover {
+            transform: translateX(5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.08);
+        }
+
+        .timeline-content-match:hover::before {
+            border-left-color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
         }
 
         .timeline-note {
             font-size: 0.95rem;
             color: #444;
+            line-height: 1.5;
+            padding-right: 60px;
+            /* Space for log-actions */
         }
 
         .log-actions {
@@ -227,6 +247,33 @@
 
         .timeline-content-match:hover .log-actions {
             opacity: 1;
+        }
+
+        @media (max-width: 650px) {
+            .timeline-match::before {
+                left: 15px;
+            }
+
+            .timeline-item-match {
+                flex-direction: column;
+                gap: 10px;
+                padding-left: 40px;
+            }
+
+            .timeline-date {
+                width: auto;
+                text-align: left;
+                padding-top: 0;
+            }
+
+            .timeline-dot {
+                left: 11px;
+                top: 5px;
+            }
+
+            .timeline-content-match::before {
+                display: none;
+            }
         }
 
         .color-card-admin {
@@ -313,7 +360,7 @@
                                     <th class="ps-4">Order ID</th>
                                     <th>PI Date</th>
                                     <th>Delivery Date</th>
-                                    <th>Status</th>
+                                    <th>Commercial Status</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -336,8 +383,8 @@
                     <div class="order-header-match">
                         <div>
                             <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
+                            <p class="text-muted mb-0">Green International Tracking System</p>
                         </div>
-                        <div id="detail-status-badge"></div>
                     </div>
 
                     <div class="info-grid">
@@ -575,6 +622,17 @@
         const ordersListView = document.getElementById('orders-list-view');
         const loadingOverlay = document.getElementById('loading-overlay');
 
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBA';
+            const date = new Date(dateStr);
+            // Indian format: 02 Mar 2026
+            return date.toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
         // Initialization
         async function init() {
             const { data } = await supabaseClient.auth.getUser();
@@ -663,9 +721,9 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="ps-4"><strong>${order.order_id}</strong></td>
-                    <td>${order.pi_date}</td>
-                    <td>${order.delivery_date}</td>
-                    <td><span class="status-badge ${order.commercial.toLowerCase() === 'delivered' ? 'bg-success' : 'bg-warning'}">${order.commercial}</span></td>
+                    <td>${formatDate(order.pi_date)}</td>
+                    <td>${formatDate(order.delivery_date)}</td>
+                    <td>${order.commercial}</td>
                     <td class="text-end pe-4">
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('${order.order_uuid}', event)">Delete</button>
                     </td>
@@ -691,13 +749,9 @@
             document.getElementById('breadcrumb-order-id').textContent = order.order_id;
 
             document.getElementById('detail-order-id').textContent = order.order_id;
-            document.getElementById('detail-pi-date').textContent = order.pi_date;
-            document.getElementById('detail-delivery-date').textContent = order.delivery_date;
+            document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
+            document.getElementById('detail-delivery-date').textContent = formatDate(order.delivery_date);
             document.getElementById('detail-commercial').textContent = order.commercial;
-
-            const badgeDiv = document.getElementById('detail-status-badge');
-            const status = order.commercial.toLowerCase();
-            badgeDiv.innerHTML = `<span class="admin-status-badge ${status === 'delivered' ? 'bg-success text-white' : 'bg-warning text-dark'}">${order.commercial}</span>`;
 
             fetchColors(order.order_uuid);
         }
@@ -813,9 +867,9 @@
 
                 let logsHtml = (color['Color-Logs'] || []).sort((a, b) => new Date(b.date) - new Date(a.date)).map(log => `
                     <div class="timeline-item-match">
+                        <div class="timeline-date">${formatDate(log.date)}</div>
                         <div class="timeline-dot"></div>
                         <div class="timeline-content-match">
-                            <span class="timeline-date">${log.date}</span>
                             <div class="timeline-note">${log.note}</div>
                             <div class="log-actions">
                                 <button class="btn btn-sm btn-light p-1" onclick='editLogPrompt(${JSON.stringify(log)})' title="Edit Log">✎</button>

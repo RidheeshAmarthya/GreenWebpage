@@ -31,26 +31,80 @@
       outline-offset: 0 !important;
     }
 
+    #tracker-nav-item {
+      margin-left: 15px !important;
+      padding-left: 0 !important;
+    }
+
     .nav-track-btn {
-      border: 1.5px solid currentColor !important;
-      border-radius: 50px !important;
-      padding: 8px 25px !important;
-      margin-left: 15px;
-      transition: all 0.3s ease !important;
-      opacity: 0.9;
-    }
-
-    /* Top of page: white text -> hover white bg, black text */
-    .menu .navbar-nav .nav-item .nav-track-btn:hover {
-      background: #fff !important;
-      color: #000 !important;
-      opacity: 1;
-    }
-
-    /* Scrolled: black text -> hover black bg, white text */
-    .menu.scrolled .navbar-nav .nav-item .nav-track-btn:hover {
-      background: #000 !important;
+      background: var(--primary-green, #28a745) !important;
       color: #fff !important;
+      border: none !important;
+      border-radius: 50px !important;
+      padding: 10px 28px !important;
+      font-weight: 700 !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-track-btn:hover {
+      background: #218838 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      color: #fff !important;
+    }
+
+    /* Force white text in all states including scrolled */
+    .cid-uXjz86JSEW .navbar-nav .nav-item .nav-track-btn,
+    .cid-uXjz86JSEW.scrolled .navbar-nav .nav-item .nav-track-btn {
+      color: #ffffff !important;
+      text-decoration: none !important;
+    }
+
+    .nav-track-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Small pulse effect for attention */
+    @keyframes navPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+      }
+    }
+
+    .nav-track-btn {
+      animation: navPulse 2s infinite;
+    }
+
+    /* Ensure mobile compatibility */
+    @media (max-width: 991px) {
+      .navbar-nav {
+        align-items: flex-start !important;
+      }
+
+      #tracker-nav-item {
+        margin-left: 0 !important;
+        margin-top: 15px;
+        padding-left: 0 !important;
+        text-align: left !important;
+        width: 100% !important;
+      }
+
+      .nav-track-btn {
+        width: fit-content !important;
+        justify-content: flex-start !important;
+      }
     }
   </style>
 
@@ -96,9 +150,12 @@
             <li class="nav-item">
               <a class="nav-link link text-white text-primary display-4" href="index.html#contacts02-9">Contacts</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link link text-white text-primary display-4 nav-track-btn" href="tracker.html">Track
-                Order</a>
+            <li class="nav-item" id="tracker-nav-item" style="margin-left: 15px !important;">
+              <a class="nav-link link display-4 nav-track-btn" href="tracker.html"
+                style="color: #ffffff !important; text-decoration: none !important;">
+                <span class="mobi-mbri mobi-mbri-delivery mbr-iconfont"
+                  style="font-size: 1.2rem; color: #ffffff !important;"></span>Track Order
+              </a>
             </li>
           </ul>
 
