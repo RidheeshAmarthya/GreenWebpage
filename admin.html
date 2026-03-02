@@ -46,6 +46,21 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
+        @media (max-width: 576px) {
+            #login-container {
+                margin: 50px 20px;
+                padding: 30px 20px;
+            }
+
+            #dashboard-container {
+                padding: 20px 10px;
+            }
+
+            .navbar-admin {
+                padding: 10px 0;
+            }
+        }
+
         /* Dashboard Styles */
         #dashboard-container {
             display: none;
@@ -78,6 +93,13 @@
         .btn-green:hover {
             background: var(--dark-green);
             color: white;
+        }
+
+        @media (max-width: 767px) {
+            .btn-sm-mobile {
+                padding: 5px 10px;
+                font-size: 0.85rem;
+            }
         }
 
         .table-hover tbody tr:hover {
@@ -284,6 +306,22 @@
             .timeline-content-match::before {
                 display: none;
             }
+
+            .log-actions {
+                opacity: 1;
+                /* Always visible on mobile */
+                right: 5px;
+                top: 5px;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 5px;
+                padding: 2px;
+            }
+
+            .timeline-note {
+                padding-right: 40px;
+                /* Reduced to match smaller buttons */
+                font-size: 0.9rem;
+            }
         }
 
         .color-card-admin {
@@ -301,6 +339,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .color-card-header h5 {
+                width: 100%;
+                text-align: center;
+            }
+
+            .color-card-header .d-flex {
+                width: 100%;
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .color-card-header .btn {
+                flex: 1;
+                font-size: 0.75rem;
+                padding: 5px;
+            }
         }
     </style>
 </head>
@@ -348,13 +407,16 @@
         <main class="container" style="margin-top: 100px;">
             <!-- Orders List View -->
             <div id="orders-list-view">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1><strong>Orders Management</strong></h1>
-                    <div class="d-flex gap-2">
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                    <h1 class="mb-0"><strong>Orders Management</strong></h1>
+                    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
                         <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
-                            style="width: 250px;">
-                        <button class="btn btn-outline-success" id="export-excel-btn">Export Excel</button>
-                        <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#addOrderModal">+ New
+                            style="flex: 1; min-width: 140px;">
+                        <button class="btn btn-outline-success btn-sm btn-md-normal"
+                            id="export-excel-btn">Export</button>
+                        <button class="btn btn-green btn-sm btn-md-normal" data-bs-toggle="modal"
+                            data-bs-target="#addOrderModal">+ New
                             Order</button>
                     </div>
                 </div>
@@ -390,11 +452,11 @@
                     </ol>
                 </nav>
 
-                <div class="result-card">
-                    <div class="order-header-match">
+                <div class="result-card" style="padding: 25px;">
+                    <div class="order-header-match flex-column flex-sm-row align-items-start align-items-sm-center">
                         <div>
                             <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
-                            <p class="text-muted mb-0">Green International Tracking System</p>
+                            <p class="text-muted mb-0 small">Green International Tracking System</p>
                         </div>
                     </div>
 
@@ -411,8 +473,9 @@
                             <label>Commercial Status</label>
                             <span id="detail-commercial"></span>
                         </div>
-                        <div class="info-item d-flex align-items-end justify-content-end">
-                            <button class="btn btn-outline-primary btn-sm" id="edit-order-btn">Edit Order</button>
+                        <div class="info-item d-flex align-items-center justify-content-sm-end mt-3 mt-sm-0">
+                            <button class="btn btn-outline-primary btn-sm w-100 w-sm-auto" id="edit-order-btn">Edit
+                                Order</button>
                         </div>
                     </div>
                 </div>
@@ -443,11 +506,11 @@
                             <input type="text" name="order_id" class="form-control" required placeholder="e.g. GIN-001">
                         </div>
                         <div class="row mb-3">
-                            <div class="col">
+                            <div class="col-12 col-sm-6 mb-3 mb-sm-0">
                                 <label class="form-label">PI Date</label>
                                 <input type="date" name="pi_date" class="form-control" required>
                             </div>
-                            <div class="col">
+                            <div class="col-12 col-sm-6">
                                 <label class="form-label">Delivery Date</label>
                                 <input type="date" name="delivery_date" class="form-control" required>
                             </div>
