@@ -106,6 +106,25 @@
         justify-content: flex-start !important;
       }
     }
+
+    /* Video Fallback Style */
+    #header17-3 {
+      background-image: url('assets/images/video.png') !important;
+      background-position: center center !important;
+      background-size: cover !important;
+      background-repeat: no-repeat !important;
+      background-attachment: fixed !important;
+    }
+
+    /* Smooth transition for when video starts playing */
+    #header17-3 video {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    #header17-3 video.playing {
+      opacity: 1;
+    }
   </style>
 
 
@@ -153,8 +172,7 @@
             <li class="nav-item" id="tracker-nav-item" style="margin-left: 15px !important;">
               <a class="nav-link link display-4 nav-track-btn" href="tracker.html"
                 style="color: #ffffff !important; text-decoration: none !important;">
-                <span class="mobi-mbri mobi-mbri-delivery mbr-iconfont"
-                  style="font-size: 1.2rem; color: #ffffff !important;"></span>Track Order
+                Track Order
               </a>
             </li>
           </ul>
@@ -584,6 +602,12 @@
       }
       function updateVisibility() {
         if (!video) { findVideo(); if (!video) return; }
+
+        // Add playing class when video starts to fade it in over the fallback
+        if (video.readyState >= 2 && !video.classList.contains('playing')) {
+          video.classList.add('playing');
+        }
+
         var rect = header.getBoundingClientRect();
         var vh = window.innerHeight || document.documentElement.clientHeight;
         var visible = rect.bottom > 0 && rect.top < vh;
@@ -594,6 +618,11 @@
           entries.forEach(function (entry) {
             if (!video) findVideo();
             if (!video) return;
+
+            if (entry.isIntersecting && video.readyState >= 2) {
+              video.classList.add('playing');
+            }
+
             video.style.visibility = entry.isIntersecting ? 'visible' : 'hidden';
           });
         }, { threshold: 0.01 });
