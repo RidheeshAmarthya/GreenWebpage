@@ -4,7 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//eyuynhchvxxthdseqvhx.supabase.co">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://eyuynhchvxxthdseqvhx.supabase.co" crossorigin>
+
     <title>Admin Dashboard - Green International</title>
+    <meta name="description"
+        content="Secure administrative dashboard for Green International order management and tracking updates.">
 
     <!-- Dependencies -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
@@ -335,11 +344,11 @@
             </div>
         </nav>
 
-        <div class="container" style="margin-top: 100px;">
+        <main class="container" style="margin-top: 100px;">
             <!-- Orders List View -->
             <div id="orders-list-view">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3><strong>Orders Management</strong></h3>
+                    <h1><strong>Orders Management</strong></h1>
                     <div class="d-flex gap-2">
                         <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
                             style="width: 250px;">
@@ -407,13 +416,13 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
-                    <h4><strong>Color Variants & Timeline</strong></h4>
+                    <h3><strong>Color Variants & Timeline</strong></h3>
                     <button class="btn btn-green btn-sm" id="add-color-btn">+ Add Color</button>
                 </div>
 
                 <div id="colors-list"></div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Modals -->
