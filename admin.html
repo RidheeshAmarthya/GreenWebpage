@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
         :root {
@@ -352,6 +353,7 @@
                     <div class="d-flex gap-2">
                         <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
                             style="width: 250px;">
+                        <button class="btn btn-outline-success" id="export-excel-btn">Export Excel</button>
                         <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#addOrderModal">+ New
                             Order</button>
                     </div>
@@ -1029,6 +1031,70 @@
             showLoading(false);
             fetchColors(selectedOrder.order_uuid);
         }
+
+
+        // Export Logic
+        document.getElementById('export-excel-btn').addEventListener('click', async () => {
+            showLoading(true);
+            const { data, error } = await supabaseClient
+                .from('Orders')
+                .select('*, Colors (*, "Color-Logs" (*))')
+                .order('order_id', { ascending: true });
+
+            showLoading(false);
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            const exportData = [];
+            data.forEach(order => {
+                if (order.Colors && order.Colors.length > 0) {
+                    order.Colors.forEach(color => {
+                        const logs = color['Color-Logs'] || [];
+                        if (logs.length > 0) {
+                            logs.forEach(log => {
+                                exportData.push({
+                                    'Order ID': order.order_id,
+                                    'PI Date': order.pi_date,
+                                    'Delivery Date': order.delivery_date,
+                                    'Commercial Status': order.commercial,
+                                    'Color': color.color_name,
+                                    'Log Date': log.date,
+                                    'Log Note': log.note
+                                });
+                            });
+                        } else {
+                            exportData.push({
+                                'Order ID': order.order_id,
+                                'PI Date': order.pi_date,
+                                'Delivery Date': order.delivery_date,
+                                'Commercial Status': order.commercial,
+                                'Color': color.color_name,
+                                'Log Date': '',
+                                'Log Note': ''
+                            });
+                        }
+                    });
+                } else {
+                    exportData.push({
+                        'Order ID': order.order_id,
+                        'PI Date': order.pi_date,
+                        'Delivery Date': order.delivery_date,
+                        'Commercial Status': order.commercial,
+                        'Color': '',
+                        'Log Date': '',
+                        'Log Note': ''
+                    });
+                }
+            });
+
+            // SheetJS export
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "All Data");
+            XLSX.writeFile(workbook, `Green_International_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+        });
 
         init();
     </script>
