@@ -912,37 +912,38 @@
       function initAll() {
         document.querySelectorAll('.scrollable-brands-container').forEach(initScrollable);
 
-        // Delay hero video loading
+        // Delay hero video loading - Only happens once on page load
         window.addEventListener('load', function () {
           setTimeout(function () {
             var hero = document.getElementById('header17-3');
-            var videoUrl = hero.getAttribute('data-video-delayed');
-            if (videoUrl) {
+            var videoUrl = hero ? hero.getAttribute('data-video-delayed') : null;
+
+            if (videoUrl && !document.querySelector('.delayed-hero-video')) {
               var video = document.createElement('video');
-              var source = document.createElement('source');
-              source.src = videoUrl;
-              source.type = 'video/mp4';
-              video.appendChild(source);
+              video.className = 'delayed-hero-video';
+              video.src = videoUrl;
               video.autoplay = true;
               video.loop = true;
               video.muted = true;
               video.playsInline = true;
               video.setAttribute('muted', '');
               video.setAttribute('playsinline', '');
-              video.style.position = 'absolute';
-              video.style.left = '50%';
-              video.style.top = '50%';
-              video.style.minWidth = '100%';
-              video.style.minHeight = '100%';
-              video.style.transform = 'translate(-50%, -50%)';
-              video.style.zIndex = '0';
-              video.style.objectFit = 'cover';
-              video.style.opacity = '0';
-              video.style.transition = 'opacity 1s ease-in-out';
+              video.setAttribute('loop', '');
+              video.preload = 'auto'; // Essential for seamless looping
 
-              video.oncanplay = function () {
-                video.style.opacity = '1';
-              };
+              // Styles for full cover - Instant visibility to avoid loop gaps
+              Object.assign(video.style, {
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                minWidth: '100%',
+                minHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                transform: 'translate(-50%, -50%)',
+                zIndex: '0',
+                objectFit: 'cover'
+              });
 
               hero.prepend(video);
             }
