@@ -1409,6 +1409,11 @@ a {
     padding: 1rem 3rem;
   }
 }
+.cid-uXjza79KMj {
+  background-image: url("../../../assets/images/video.png") !important;
+  background-size: cover;
+  background-position: center;
+}
 @media (max-width: 991px) and (min-width: 768px) {
   .cid-uXjza79KMj .content-wrap {
     min-width: 50%;

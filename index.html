@@ -228,8 +228,8 @@
   </section>
 
   <main>
-    <section data-bs-version="5.1" class="header16 cid-uXjza79KMj mbr-fullscreen"
-      data-bg-video="assets/landing-video.mp4" id="header17-3">
+    <section data-bs-version="5.1" class="header16 cid-uXjza79KMj mbr-fullscreen mbr-after-navbar"
+      data-video-delayed="assets/landing-video.mp4" id="header17-3">
 
 
       <div class="container-fluid">
@@ -911,6 +911,43 @@
 
       function initAll() {
         document.querySelectorAll('.scrollable-brands-container').forEach(initScrollable);
+
+        // Delay hero video loading
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            var hero = document.getElementById('header17-3');
+            var videoUrl = hero.getAttribute('data-video-delayed');
+            if (videoUrl) {
+              var video = document.createElement('video');
+              var source = document.createElement('source');
+              source.src = videoUrl;
+              source.type = 'video/mp4';
+              video.appendChild(source);
+              video.autoplay = true;
+              video.loop = true;
+              video.muted = true;
+              video.playsInline = true;
+              video.setAttribute('muted', '');
+              video.setAttribute('playsinline', '');
+              video.style.position = 'absolute';
+              video.style.left = '50%';
+              video.style.top = '50%';
+              video.style.minWidth = '100%';
+              video.style.minHeight = '100%';
+              video.style.transform = 'translate(-50%, -50%)';
+              video.style.zIndex = '0';
+              video.style.objectFit = 'cover';
+              video.style.opacity = '0';
+              video.style.transition = 'opacity 1s ease-in-out';
+
+              video.oncanplay = function () {
+                video.style.opacity = '1';
+              };
+
+              hero.prepend(video);
+            }
+          }, 2000);
+        });
       }
 
       if (document.readyState === 'loading') {
