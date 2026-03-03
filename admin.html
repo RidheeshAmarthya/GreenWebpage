@@ -987,8 +987,10 @@
                 <div class="modal-header border-0 pb-0" style="padding: 30px 40px 10px;">
                     <div class="d-flex align-items-center gap-3">
                         <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
-                        <button class="btn btn-outline-dark btn-sm" onclick="printTNAFromModal()" title="Print TNA">⎙
-                            Print TNA</button>
+                        <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()" title="Print TNA"
+                            style="padding: 6px 16px; border-radius: 50px; border-width: 2px; font-size: 0.85rem;">
+                            ⎙ Print TNA
+                        </button>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1614,7 +1616,7 @@
                     <div class="print-page">
                         <div class="print-header">
                             <div>
-                                <img src="assets/images/green-logo.png" style="height: 50px; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
+                                <img src="assets/images/green-logo.png" style="height: 50px; width: auto; object-fit: contain; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
                                 <h2 style="margin:0; font-size: 1.2rem;">Tracking Summary - ${order.order_id}</h2>
                             </div>
                         </div>
@@ -1649,7 +1651,7 @@
                 <div class="print-page first-page">
                     <div class="print-header" style="display: block; padding-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <img src="assets/images/green-logo.png" style="height: 60px; filter: brightness(0) saturate(100%);">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
                                 <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
@@ -1736,7 +1738,7 @@
                 <div class="print-page">
                     <div class="print-header">
                         <div>
-                            <img src="assets/images/green-logo.png" style="height: 50px; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
+                            <img src="assets/images/green-logo.png" style="height: 50px; width: auto; object-fit: contain; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
                             <h2 style="margin:0; font-size: 1.2rem;">Tracking Summary - ${selectedOrder.order_id}</h2>
                         </div>
                     </div>
@@ -1789,7 +1791,7 @@
                 <div class="print-page">
                     <div class="print-header" style="display: block; padding-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <img src="assets/images/green-logo.png" style="height: 60px; filter: brightness(0) saturate(100%);">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
                                 <h3 style="margin:0;">Order ID: ${selectedOrder.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>

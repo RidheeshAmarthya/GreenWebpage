@@ -498,10 +498,168 @@
                 width: fit-content;
             }
         }
+
+        /* Print Styles */
+        @media print {
+            body {
+                display: block !important;
+                min-height: auto !important;
+            }
+
+            body>* {
+                display: none !important;
+            }
+
+            #print-section {
+                display: block !important;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+        }
+
+        @media screen {
+            #print-section {
+                display: none;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-page {
+                padding: 10mm;
+                font-size: 0.85rem;
+                background: white;
+                display: block;
+                position: relative;
+                box-sizing: border-box;
+                page-break-after: always;
+            }
+
+            .print-contact {
+                font-size: 0.75rem;
+                color: #555;
+                margin-top: 40px;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                width: 100%;
+            }
+
+            .print-contact .contact-details {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                color: #333;
+            }
+
+            .print-contact .footer-text {
+                text-align: center;
+                font-style: italic;
+                color: #888;
+                font-size: 0.7rem;
+                margin-top: 5px;
+            }
+
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+
+            .print-page.colors-page {
+                page-break-after: auto;
+            }
+
+            .colors-page h4 {
+                page-break-before: always;
+            }
+
+            .colors-page h4:first-of-type {
+                page-break-before: avoid;
+            }
+
+            .print-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid var(--primary-green);
+                margin-bottom: 30px;
+                padding-bottom: 10px;
+            }
+
+            .print-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .print-item label {
+                display: block;
+                font-size: 0.7rem;
+                color: #666;
+                text-transform: uppercase;
+                margin-bottom: 2px;
+            }
+
+            .print-item span {
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 15px;
+                page-break-inside: auto;
+            }
+
+            .print-table th,
+            .print-table td {
+                border: 1px solid #ddd;
+                padding: 6px 10px;
+                text-align: left;
+                font-size: 0.8rem;
+            }
+
+            .print-table th {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-table thead {
+                display: table-header-group;
+            }
+
+            .print-table tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            h4 {
+                color: var(--primary-green);
+                border-left: 5px solid var(--primary-green);
+                padding-left: 10px;
+                margin: 20px 0 10px;
+                font-size: 1rem;
+                page-break-after: avoid;
+            }
+        }
+
+        #print-section {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+
+    <div id="print-section"></div>
 
     <section data-bs-version="5.1" class="menu menu6 cid-uXjz86JSEW scrolled" once="menu" id="menu06-2">
         <nav class="navbar navbar-dropdown opacityScrollOff navbar-expand-lg">
@@ -574,6 +732,16 @@
                         <h2 class="mb-0"><strong id="disp-order-id">Order ID: ---</strong></h2>
                         <p class="text-muted mb-0">Green International Tracking System</p>
                     </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-sm-0">
+                        <button id="tna-btn" class="btn btn-outline-success fw-bold"
+                            style="padding: 10px 20px; border-radius: 50px; border-width: 2px; font-size: 0.9rem;">
+                            TNA Tracker
+                        </button>
+                        <button id="print-order-btn" class="btn btn-outline-dark fw-bold"
+                            style="padding: 10px 20px; border-radius: 50px; border-width: 2px; font-size: 0.9rem;">
+                            ⎙ Print Full Report
+                        </button>
+                    </div>
                 </div>
 
                 <div class="info-grid">
@@ -589,17 +757,17 @@
                         <label>Commercial Status</label>
                         <span id="disp-commercial">---</span>
                     </div>
-                    <div class="info-item">
-                        <label>&nbsp;</label>
-                        <button id="tna-btn" class="btn btn-outline-success rounded-pill fw-bold"
-                            style="padding: 2px 12px; font-size: 0.95rem; border-width: 2px; display: block; width: fit-content;">TNA
-                            Tracker</button>
-                    </div>
                 </div>
 
                 <div class="color-selector" id="color-selector-container">
                     <label class="form-label d-block mb-2"><strong>Select Color Variant:</strong></label>
-                    <select id="color-select"></select>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <select id="color-select" style="max-width: 300px; height: 50px;"></select>
+                        <button class="btn btn-outline-dark fw-bold" id="print-color-btn"
+                            style="height: 50px; padding: 0 20px; border-radius: 10px; border-width: 2px;">
+                            ⎙ Print Color
+                        </button>
+                    </div>
                 </div>
 
                 <div class="timeline-container">
@@ -617,7 +785,13 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
                 <div class="modal-header border-0 pb-0" style="padding: 30px 40px 10px;">
-                    <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
+                    <div class="d-flex align-items-center gap-3">
+                        <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
+                        <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()" title="Print TNA"
+                            style="padding: 6px 16px; border-radius: 50px; border-width: 2px; font-size: 0.85rem;">
+                            ⎙ Print TNA
+                        </button>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="padding: 20px 40px 40px;">
@@ -843,6 +1017,273 @@
         colorSelect.addEventListener('change', (e) => {
             renderTimeline(e.target.value);
         });
+
+        // Printing Logic
+        function printOrderReport(order) {
+            if (!order) return;
+            showLoading(true);
+            const printSection = document.getElementById('print-section');
+            printSection.innerHTML = '';
+
+            const tnaHtml = TNA_FIELDS.map(f => `
+                <tr>
+                    <td style="width: 60%;">${f.label}</td>
+                    <td>${formatDate(order[f.key])}</td>
+                </tr>
+            `).join('');
+
+            const colors = order.colors || [];
+            let colorsHtml = colors.map(colorObj => {
+                const logsHtml = (colorObj.logs || [])
+                    .sort((a, b) => new Date(b.log_date) - new Date(a.log_date))
+                    .map(log => `
+                        <tr>
+                            <td>${formatDate(log.log_date)}</td>
+                            <td>${log.note}</td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
+
+                return `
+                    <div class="print-page">
+                        <div class="print-header" style="display: block; padding-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                                <div style="text-align: right;">
+                                    <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
+                                    <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                                </div>
+                            </div>
+                            <h2 style="margin:0; color:#28a745;">Order Report</h2>
+                        </div>
+                        <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
+                            Color Variant: ${colorObj.color}
+                        </h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Date</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${logsHtml}
+                            </tbody>
+                        </table>
+                        <div class="print-contact">
+                            <div class="contact-details">
+                                <span>www.greeninternationalindia.com</span>
+                                <span>sales@greeninternationalindia.com</span>
+                            </div>
+                            <div class="footer-text">
+                                Green International Tracking - Confidential Color Variant Status Report
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const reportHtml = `
+                <div class="print-page first-page">
+                    <div class="print-header" style="display: block; padding-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                            <div style="text-align: right;">
+                                <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
+                                <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                            </div>
+                        </div>
+                        <h2 style="margin:0; color:#28a745;">Order Report</h2>
+                    </div>
+
+                    <div class="print-grid" style="margin-top: 15px;">
+                        <div class="print-item">
+                            <label>PI Date</label>
+                            <span>${formatDate(order.pi_date)}</span>
+                        </div>
+                        <div class="print-item">
+                            <label>Delivery Date</label>
+                            <span>${formatDate(order.delivery_date)}</span>
+                        </div>
+                        <div class="print-item">
+                            <label>Commercial Status</label>
+                            <span>${order.commercial}</span>
+                        </div>
+                    </div>
+                    <div style="max-width: 600px; margin-bottom: 30px;">
+                        <h4>Production Milestones (TNA)</h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>Milestone</th>
+                                    <th>Status / Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tnaHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="print-contact">
+                        <div class="contact-details">
+                            <span>www.greeninternationalindia.com</span>
+                            <span>sales@greeninternationalindia.com</span>
+                        </div>
+                        <div class="footer-text">
+                            Green International Tracking - Confidential Production Milestone Report
+                        </div>
+                    </div>
+                </div>
+
+                ${colorsHtml}
+            `;
+
+            printSection.innerHTML = reportHtml;
+            showLoading(false);
+
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        async function printSingleColor() {
+            if (!currentOrderData) return;
+            const selectedIndex = colorSelect.value;
+            const colorObj = currentOrderData.colors[selectedIndex];
+            if (!colorObj) return;
+
+            showLoading(true);
+            const printSection = document.getElementById('print-section');
+            printSection.innerHTML = '';
+
+            const logsHtml = (colorObj.logs || [])
+                .sort((a, b) => new Date(b.log_date) - new Date(a.log_date))
+                .map(log => `
+                    <tr>
+                        <td>${formatDate(log.log_date)}</td>
+                        <td>${log.note}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
+
+            const reportHtml = `
+                <div class="print-page">
+                    <div class="print-header" style="display: block; padding-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                            <div style="text-align: right;">
+                                <h3 style="margin:0;">Order ID: ${currentOrderData.order_id}</h3>
+                                <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                            </div>
+                        </div>
+                        <h2 style="margin:0; color:#28a745;">Order Report</h2>
+                    </div>
+                    <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
+                        Color Variant: ${colorObj.color}
+                    </h4>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">Date</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${logsHtml}
+                        </tbody>
+                    </table>
+                    <div class="print-contact">
+                        <div class="contact-details">
+                            <span>www.greeninternationalindia.com</span>
+                            <span>sales@greeninternationalindia.com</span>
+                        </div>
+                        <div class="footer-text">
+                            Green International Tracking - Individual Color Tracking Report
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            printSection.innerHTML = reportHtml;
+            showLoading(false);
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        async function printTNAFromModal() {
+            if (!currentOrderData) return;
+
+            showLoading(true);
+            const printSection = document.getElementById('print-section');
+            printSection.innerHTML = '';
+
+            const tnaHtml = TNA_FIELDS.map(f => `
+                <tr>
+                    <td style="width: 60%;">${f.label}</td>
+                    <td>${formatDate(currentOrderData[f.key])}</td>
+                </tr>
+            `).join('');
+
+            const reportHtml = `
+                <div class="print-page">
+                    <div class="print-header" style="display: block; padding-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                            <div style="text-align: right;">
+                                <h3 style="margin:0;">Order ID: ${currentOrderData.order_id}</h3>
+                                <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                            </div>
+                        </div>
+                        <h2 style="margin:0; color:#28a745;">Order Report (TNA)</h2>
+                    </div>
+                    <div class="print-grid" style="margin-top: 15px;">
+                        <div class="print-item">
+                            <label>PI Date</label>
+                            <span>${formatDate(currentOrderData.pi_date)}</span>
+                        </div>
+                        <div class="print-item">
+                            <label>Delivery Date</label>
+                            <span>${formatDate(currentOrderData.delivery_date)}</span>
+                        </div>
+                        <div class="print-item">
+                            <label>Commercial Status</label>
+                            <span>${currentOrderData.commercial}</span>
+                        </div>
+                    </div>
+                    <div style="max-width: 600px; margin-bottom: 30px;">
+                        <h4>Production Milestones (TNA)</h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>Milestone</th>
+                                    <th>Status / Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tnaHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="print-contact">
+                        <div class="contact-details">
+                            <span>www.greeninternationalindia.com</span>
+                            <span>sales@greeninternationalindia.com</span>
+                        </div>
+                        <div class="footer-text">
+                            Green International Tracking - Confidential Production Milestone Report (TNA)
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            printSection.innerHTML = reportHtml;
+            showLoading(false);
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        document.getElementById('print-order-btn').addEventListener('click', () => {
+            printOrderReport(currentOrderData);
+        });
+
+        document.getElementById('print-color-btn').addEventListener('click', printSingleColor);
+
     </script>
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
