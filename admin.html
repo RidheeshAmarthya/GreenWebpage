@@ -478,6 +478,8 @@
                             <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
                             <p class="text-muted mb-0 small">Green International Tracking System</p>
                         </div>
+                        <button class="btn btn-outline-primary btn-sm ms-sm-auto mt-3 mt-sm-0" id="edit-order-btn">Edit
+                            Order</button>
                     </div>
 
                     <div class="info-grid">
@@ -493,9 +495,10 @@
                             <label>Commercial Status</label>
                             <span id="detail-commercial"></span>
                         </div>
-                        <div class="info-item d-flex align-items-center justify-content-sm-end mt-3 mt-sm-0">
-                            <button class="btn btn-outline-primary btn-sm w-100 w-sm-auto" id="edit-order-btn">Edit
-                                Order</button>
+                        <div class="info-item">
+                            <label>&nbsp;</label>
+                            <button id="detail-tna-btn" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold"
+                                style="display: block; width: fit-content;">TNA Tracker</button>
                         </div>
                     </div>
                 </div>
@@ -540,6 +543,60 @@
                             <input type="text" name="commercial" class="form-control" required
                                 placeholder="e.g. Pending">
                         </div>
+                        <hr>
+                        <h6>TNA Plan</h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Labdip / Strike off / HC Approval</label>
+                                <input type="date" name="LD_S_HC_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Order Confirmation</label>
+                                <input type="date" name="order_confirm_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Yarn Inhouse</label>
+                                <input type="date" name="yarn_inhouse_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Weaving Start</label>
+                                <input type="date" name="weave_start_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Weaving Complete</label>
+                                <input type="date" name="weave_complete_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Dyeing/Proc Start</label>
+                                <input type="date" name="dye_processing_start_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Dyeing/Proc End</label>
+                                <input type="date" name="dye_processing_end_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">FOB Ready</label>
+                                <input type="date" name="FOB_ready_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">FOB Approval</label>
+                                <input type="date" name="FOB_approval_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Insp/Finishing Complete</label>
+                                <input type="date" name="inspection_finishing_complete_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -578,6 +635,68 @@
                         <div class="mb-3">
                             <label class="form-label">Commercial Status</label>
                             <input type="text" name="commercial" id="edit-commercial" class="form-control" required>
+                        </div>
+                        <hr>
+                        <h6>TNA Plan</h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Labdip / Strike off / HC Approval</label>
+                                <input type="date" name="LD_S_HC_date" id="edit-LD_S_HC_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Order Confirmation</label>
+                                <input type="date" name="order_confirm_date" id="edit-order_confirm_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Yarn Inhouse</label>
+                                <input type="date" name="yarn_inhouse_date" id="edit-yarn_inhouse_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Weaving Start</label>
+                                <input type="date" name="weave_start_date" id="edit-weave_start_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Weaving Complete</label>
+                                <input type="date" name="weave_complete_date" id="edit-weave_complete_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Dyeing/Proc Start</label>
+                                <input type="date" name="dye_processing_start_date" id="edit-dye_processing_start_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">Dyeing/Proc End</label>
+                                <input type="date" name="dye_processing_end_date" id="edit-dye_processing_end_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">FOB Ready</label>
+                                <input type="date" name="FOB_ready_date" id="edit-FOB_ready_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">FOB Approval</label>
+                                <input type="date" name="FOB_approval_date" id="edit-FOB_approval_date"
+                                    class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Insp/Finishing Complete</label>
+                                <input type="date" name="inspection_finishing_complete_date"
+                                    id="edit-inspection_finishing_complete_date" class="form-control form-control-sm">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -697,6 +816,24 @@
             </div>
         </div>
     </div>
+
+    <!-- TNA Modal -->
+    <div class="modal fade" id="tnaModal" tabindex="-1" aria-labelledby="tnaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+                <div class="modal-header border-0 pb-0" style="padding: 30px 40px 10px;">
+                    <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px 40px 40px;">
+                    <p class="text-muted mb-4">Production Timeline & Milestones</p>
+                    <div id="tna-timeline" class="timeline-match">
+                        <!-- TNA items will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script>
         // Supabase Configuration
@@ -708,6 +845,19 @@
         let user = null;
         let orders = [];
         let selectedOrder = null;
+
+        const TNA_FIELDS = [
+            { key: 'LD_S_HC_date', label: 'Labdip / Strike off / HC Approval' },
+            { key: 'order_confirm_date', label: 'Order Confirmation' },
+            { key: 'yarn_inhouse_date', label: 'Yarn Inhouse' },
+            { key: 'weave_start_date', label: 'Weaving Start' },
+            { key: 'weave_complete_date', label: 'Weaving Complete' },
+            { key: 'dye_processing_start_date', label: 'Dyeing / Processing Start' },
+            { key: 'dye_processing_end_date', label: 'Dyeing / Processing Complete' },
+            { key: 'FOB_ready_date', label: 'FOB Ready' },
+            { key: 'FOB_approval_date', label: 'FOB Approval' },
+            { key: 'inspection_finishing_complete_date', label: 'Inspection / Finishing Complete' }
+        ];
 
         // DOM Elements
         const loginContainer = document.getElementById('login-container');
@@ -850,6 +1000,32 @@
             fetchColors(order.order_uuid);
         }
 
+        function renderTNATimeline() {
+            if (!selectedOrder) return;
+            const tnaTimeline = document.getElementById('tna-timeline');
+            tnaTimeline.innerHTML = '';
+
+            TNA_FIELDS.forEach(field => {
+                const dateVal = selectedOrder[field.key];
+                const item = document.createElement('div');
+                item.className = 'timeline-item-match';
+                item.innerHTML = `
+                    <div class="timeline-date">${formatDate(dateVal)}</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content-match">
+                        <div class="timeline-note"><strong>${field.label}</strong></div>
+                    </div>
+                `;
+                tnaTimeline.appendChild(item);
+            });
+        }
+
+        document.getElementById('detail-tna-btn').onclick = () => {
+            renderTNATimeline();
+            const modal = new bootstrap.Modal(document.getElementById('tnaModal'));
+            modal.show();
+        };
+
         function returnToOrdersList(e) {
             if (e) e.preventDefault();
             ordersListView.style.display = 'block';
@@ -869,6 +1045,11 @@
             document.getElementById('edit-delivery-date').value = selectedOrder.delivery_date;
             document.getElementById('edit-commercial').value = selectedOrder.commercial;
 
+            TNA_FIELDS.forEach(field => {
+                const el = document.getElementById(`edit-${field.key}`);
+                if (el) el.value = selectedOrder[field.key] || '';
+            });
+
             const modal = new bootstrap.Modal(document.getElementById('editOrderModal'));
             modal.show();
         };
@@ -877,6 +1058,11 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const updatedData = Object.fromEntries(formData.entries());
+
+            // Normalize empty dates to null
+            for (const key in updatedData) {
+                if (updatedData[key] === '') updatedData[key] = null;
+            }
 
             showLoading(true);
             const { error } = await supabaseClient
@@ -909,6 +1095,11 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const newOrder = Object.fromEntries(formData.entries());
+
+            // Normalize empty dates to null
+            for (const key in newOrder) {
+                if (newOrder[key] === '') newOrder[key] = null;
+            }
 
             showLoading(true);
             const { error } = await supabaseClient.from('Orders').insert([newOrder]);
@@ -1145,6 +1336,16 @@
                                     'PI Date': order.pi_date,
                                     'Delivery Date': order.delivery_date,
                                     'Commercial Status': order.commercial,
+                                    'LD Date': order.LD_S_HC_date,
+                                    'Confirm Date': order.order_confirm_date,
+                                    'Yarn Date': order.yarn_inhouse_date,
+                                    'Weave Start': order.weave_start_date,
+                                    'Weave End': order.weave_complete_date,
+                                    'Dye Start': order.dye_processing_start_date,
+                                    'Dye End': order.dye_processing_end_date,
+                                    'FOB Ready': order.FOB_ready_date,
+                                    'FOB Approval': order.FOB_approval_date,
+                                    'Inspection': order.inspection_finishing_complete_date,
                                     'Color': color.color_name,
                                     'Log Date': log.date,
                                     'Log Note': log.note
@@ -1156,6 +1357,16 @@
                                 'PI Date': order.pi_date,
                                 'Delivery Date': order.delivery_date,
                                 'Commercial Status': order.commercial,
+                                'LD Date': order.LD_S_HC_date,
+                                'Confirm Date': order.order_confirm_date,
+                                'Yarn Date': order.yarn_inhouse_date,
+                                'Weave Start': order.weave_start_date,
+                                'Weave End': order.weave_complete_date,
+                                'Dye Start': order.dye_processing_start_date,
+                                'Dye End': order.dye_processing_end_date,
+                                'FOB Ready': order.FOB_ready_date,
+                                'FOB Approval': order.FOB_approval_date,
+                                'Inspection': order.inspection_finishing_complete_date,
                                 'Color': color.color_name,
                                 'Log Date': '',
                                 'Log Note': ''
@@ -1168,6 +1379,16 @@
                         'PI Date': order.pi_date,
                         'Delivery Date': order.delivery_date,
                         'Commercial Status': order.commercial,
+                        'LD Date': order.LD_S_HC_date,
+                        'Confirm Date': order.order_confirm_date,
+                        'Yarn Date': order.yarn_inhouse_date,
+                        'Weave Start': order.weave_start_date,
+                        'Weave End': order.weave_complete_date,
+                        'Dye Start': order.dye_processing_start_date,
+                        'Dye End': order.dye_processing_end_date,
+                        'FOB Ready': order.FOB_ready_date,
+                        'FOB Approval': order.FOB_approval_date,
+                        'Inspection': order.inspection_finishing_complete_date,
                         'Color': '',
                         'Log Date': '',
                         'Log Note': ''

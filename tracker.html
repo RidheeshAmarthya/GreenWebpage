@@ -386,6 +386,28 @@
             }
         }
 
+        .timeline-compact .timeline-item {
+            padding-bottom: 25px;
+        }
+
+        .timeline-compact::before {
+            left: 140px;
+        }
+
+        .timeline-compact .timeline-dot {
+            left: 136px;
+        }
+
+        @media (max-width: 650px) {
+            .timeline-compact::before {
+                left: 15px;
+            }
+
+            .timeline-compact .timeline-dot {
+                left: 11px;
+            }
+        }
+
         #loading-spinner {
             display: none;
             margin: 20px auto;
@@ -567,6 +589,12 @@
                         <label>Commercial Status</label>
                         <span id="disp-commercial">---</span>
                     </div>
+                    <div class="info-item">
+                        <label>&nbsp;</label>
+                        <button id="tna-btn" class="btn btn-outline-success rounded-pill fw-bold"
+                            style="padding: 2px 12px; font-size: 0.95rem; border-width: 2px; display: block; width: fit-content;">TNA
+                            Tracker</button>
+                    </div>
                 </div>
 
                 <div class="color-selector" id="color-selector-container">
@@ -583,6 +611,24 @@
             </div>
         </div>
     </main>
+
+    <!-- TNA Modal -->
+    <div class="modal fade" id="tnaModal" tabindex="-1" aria-labelledby="tnaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+                <div class="modal-header border-0 pb-0" style="padding: 30px 40px 10px;">
+                    <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px 40px 40px;">
+                    <p class="text-muted mb-4">Production Timeline & Milestones</p>
+                    <div id="tna-timeline" class="timeline timeline-compact">
+                        <!-- TNA items will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <section data-bs-version="5.1" class="footer4 cid-uXkbu5ANLM" once="footers" id="footer04-tracker">
         <div class="container">
@@ -610,6 +656,21 @@
         const resultCard = document.getElementById('result-card');
         const colorSelect = document.getElementById('color-select');
         const timeline = document.getElementById('timeline');
+        const tnaBtn = document.getElementById('tna-btn');
+        const tnaTimeline = document.getElementById('tna-timeline');
+
+        const TNA_FIELDS = [
+            { key: 'LD_S_HC_date', label: 'Labdip / Strike off / HC Approval' },
+            { key: 'order_confirm_date', label: 'Order Confirmation' },
+            { key: 'yarn_inhouse_date', label: 'Yarn Inhouse' },
+            { key: 'weave_start_date', label: 'Weaving Start' },
+            { key: 'weave_complete_date', label: 'Weaving Complete' },
+            { key: 'dye_processing_start_date', label: 'Dyeing / Processing Start' },
+            { key: 'dye_processing_end_date', label: 'Dyeing / Processing Complete' },
+            { key: 'FOB_ready_date', label: 'FOB Ready' },
+            { key: 'FOB_approval_date', label: 'FOB Approval' },
+            { key: 'inspection_finishing_complete_date', label: 'Inspection / Finishing Complete' }
+        ];
 
         let currentOrderData = null;
 
@@ -723,6 +784,25 @@
             });
         }
 
+        function renderTNATimeline() {
+            if (!currentOrderData) return;
+            tnaTimeline.innerHTML = '';
+
+            TNA_FIELDS.forEach(field => {
+                const dateVal = currentOrderData[field.key];
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-date">${formatDate(dateVal)}</div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-note"><strong>${field.label}</strong></div>
+                    </div>
+                `;
+                tnaTimeline.appendChild(item);
+            });
+        }
+
         function formatDate(dateStr) {
             if (!dateStr) return 'TBA';
             const date = new Date(dateStr);
@@ -752,6 +832,12 @@
         trackBtn.addEventListener('click', trackOrder);
         orderInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') trackOrder();
+        });
+
+        tnaBtn.addEventListener('click', () => {
+            renderTNATimeline();
+            const modal = new bootstrap.Modal(document.getElementById('tnaModal'));
+            modal.show();
         });
 
         colorSelect.addEventListener('change', (e) => {
