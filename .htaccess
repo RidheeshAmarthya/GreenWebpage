@@ -25,3 +25,23 @@
   Header set X-XSS-Protection "1; mode=block"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+# Redirect Rules
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # HTTP to HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # non-www to www
+  RewriteCond %{HTTP_HOST} ^greeninternationalindia\.com [NC]
+  RewriteRule ^(.*)$ https://www.greeninternationalindia.com/$1 [L,R=301]
+
+  # Redirect index.html to Root (/)
+  RewriteCond %{THE_REQUEST} ^.*/index\.html
+  RewriteRule ^(.*)index.html$ /$1 [R=301,L]
+</IfModule>
+
+# Custom 404 Error Page
+ErrorDocument 404 /404.html
