@@ -589,7 +589,9 @@
                     <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
                         <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
                             style="flex: 1; min-width: 140px;">
-                        <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-excel-btn">Export to
+                        <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-latest-btn">Export Latest
+                            Excel</button>
+                        <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-excel-btn">Export Bulk
                             Excel</button>
                         <button class="btn btn-green btn-sm btn-md-normal" data-bs-toggle="modal"
                             data-bs-target="#addOrderModal">+ New
@@ -1553,7 +1555,55 @@
         }
 
 
-        // Export Logic
+        // Export Latest Logic
+        document.getElementById('export-latest-btn').addEventListener('click', async () => {
+            showLoading(true);
+            const { data, error } = await supabaseClient
+                .from('Orders')
+                .select('*, Colors (*, "Color-Logs" (*))')
+                .order('order_id', { ascending: true });
+
+            showLoading(false);
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            const exportData = [];
+            data.forEach(order => {
+                if (order.Colors && order.Colors.length > 0) {
+                    order.Colors.forEach(color => {
+                        const logs = color['Color-Logs'] || [];
+                        const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        
+                        exportData.push({
+                            'Order Number': order.order_id,
+                            'PI Date': formatDate(order.pi_date),
+                            'Delivery Date': formatDate(order.delivery_date),
+                            'Color': color.color_name,
+                            'Latest Step Date': sortedLogs.length > 0 ? formatDate(sortedLogs[sortedLogs.length - 1].date) : 'N/A',
+                            'Latest Step Note': sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].note : 'No updates'
+                        });
+                    });
+                } else {
+                    exportData.push({
+                        'Order Number': order.order_id,
+                        'PI Date': formatDate(order.pi_date),
+                        'Delivery Date': formatDate(order.delivery_date),
+                        'Color': 'N/A',
+                        'Latest Step Date': 'N/A',
+                        'Latest Step Note': 'No colors added'
+                    });
+                }
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Latest Status");
+            XLSX.writeFile(workbook, `Green_International_Latest_Status_${new Date().toISOString().split('T')[0]}.xlsx`);
+        });
+
+        // Export Bulk Logic
         document.getElementById('export-excel-btn').addEventListener('click', async () => {
             showLoading(true);
             const { data, error } = await supabaseClient
@@ -1572,69 +1622,56 @@
                 if (order.Colors && order.Colors.length > 0) {
                     order.Colors.forEach(color => {
                         const logs = color['Color-Logs'] || [];
-                        if (logs.length > 0) {
-                            logs.forEach(log => {
-                                exportData.push({
-                                    'Order ID': order.order_id,
-                                    'PI Date': order.pi_date,
-                                    'Delivery Date': order.delivery_date,
-                                    'Commercial Status': order.commercial,
-                                    'LD Date': order.LD_S_HC_date,
-                                    'Confirm Date': order.order_confirm_date,
-                                    'Yarn Date': order.yarn_inhouse_date,
-                                    'Weave Start': order.weave_start_date,
-                                    'Weave End': order.weave_complete_date,
-                                    'Dye Start': order.dye_processing_start_date,
-                                    'Dye End': order.dye_processing_end_date,
-                                    'FOB Ready': order.FOB_ready_date,
-                                    'FOB Approval': order.FOB_approval_date,
-                                    'Inspection': order.inspection_finishing_complete_date,
-                                    'Color': color.color_name,
-                                    'Log Date': log.date,
-                                    'Log Note': log.note
-                                });
-                            });
-                        } else {
-                            exportData.push({
-                                'Order ID': order.order_id,
-                                'PI Date': order.pi_date,
-                                'Delivery Date': order.delivery_date,
-                                'Commercial Status': order.commercial,
-                                'LD Date': order.LD_S_HC_date,
-                                'Confirm Date': order.order_confirm_date,
-                                'Yarn Date': order.yarn_inhouse_date,
-                                'Weave Start': order.weave_start_date,
-                                'Weave End': order.weave_complete_date,
-                                'Dye Start': order.dye_processing_start_date,
-                                'Dye End': order.dye_processing_end_date,
-                                'FOB Ready': order.FOB_ready_date,
-                                'FOB Approval': order.FOB_approval_date,
-                                'Inspection': order.inspection_finishing_complete_date,
-                                'Color': color.color_name,
-                                'Log Date': '',
-                                'Log Note': ''
-                            });
-                        }
+                        // Sort chronologically: oldest first for Step 1, Step 2...
+                        const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        
+                        const row = {
+                            'Order ID': order.order_id,
+                            'PI Date': formatDate(order.pi_date),
+                            'Delivery Date': formatDate(order.delivery_date),
+                            'Commercial Status': order.commercial || '---',
+                            'Color Variant': color.color_name,
+                            'Latest Update': sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].note : 'No updates'
+                        };
+
+                        // Add TNA Milestones
+                        row['Labdip Approval'] = formatDate(order.LD_S_HC_date);
+                        row['Order Confirmation'] = formatDate(order.order_confirm_date);
+                        row['Yarn Inhouse'] = formatDate(order.yarn_inhouse_date);
+                        row['Weaving Start'] = formatDate(order.weave_start_date);
+                        row['Weaving Complete'] = formatDate(order.weave_complete_date);
+                        row['Dyeing Start'] = formatDate(order.dye_processing_start_date);
+                        row['Dyeing Complete'] = formatDate(order.dye_processing_end_date);
+                        row['FOB Ready'] = formatDate(order.FOB_ready_date);
+                        row['FOB Approval'] = formatDate(order.FOB_approval_date);
+                        row['Finishing Complete'] = formatDate(order.inspection_finishing_complete_date);
+
+                        // Add Discrete Timeline Steps
+                        sortedLogs.forEach((log, index) => {
+                            row[`Step ${index + 1} Date`] = formatDate(log.date);
+                            row[`Step ${index + 1} Note`] = log.note;
+                        });
+
+                        exportData.push(row);
                     });
                 } else {
                     exportData.push({
                         'Order ID': order.order_id,
-                        'PI Date': order.pi_date,
-                        'Delivery Date': order.delivery_date,
-                        'Commercial Status': order.commercial,
-                        'LD Date': order.LD_S_HC_date,
-                        'Confirm Date': order.order_confirm_date,
-                        'Yarn Date': order.yarn_inhouse_date,
-                        'Weave Start': order.weave_start_date,
-                        'Weave End': order.weave_complete_date,
-                        'Dye Start': order.dye_processing_start_date,
-                        'Dye End': order.dye_processing_end_date,
-                        'FOB Ready': order.FOB_ready_date,
-                        'FOB Approval': order.FOB_approval_date,
-                        'Inspection': order.inspection_finishing_complete_date,
-                        'Color': '',
-                        'Log Date': '',
-                        'Log Note': ''
+                        'PI Date': formatDate(order.pi_date),
+                        'Delivery Date': formatDate(order.delivery_date),
+                        'Commercial Status': order.commercial || '---',
+                        'Color Variant': 'N/A',
+                        'Latest Update': 'No colors added',
+                        'Labdip Approval': formatDate(order.LD_S_HC_date),
+                        'Order Confirmation': formatDate(order.order_confirm_date),
+                        'Yarn Inhouse': formatDate(order.yarn_inhouse_date),
+                        'Weaving Start': formatDate(order.weave_start_date),
+                        'Weaving Complete': formatDate(order.weave_complete_date),
+                        'Dyeing Start': formatDate(order.dye_processing_start_date),
+                        'Dyeing Complete': formatDate(order.dye_processing_end_date),
+                        'FOB Ready': formatDate(order.FOB_ready_date),
+                        'FOB Approval': formatDate(order.FOB_approval_date),
+                        'Finishing Complete': formatDate(order.inspection_finishing_complete_date)
                     });
                 }
             });
@@ -1642,9 +1679,8 @@
             // SheetJS export
             const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "All Data");
-            XLSX.writeFile(workbook, `Green_International_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showLoading(false);
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Bulk Data");
+            XLSX.writeFile(workbook, `Green_International_Bulk_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
         });
 
         async function printOrderReport(order) {
