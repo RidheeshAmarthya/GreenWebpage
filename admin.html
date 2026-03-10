@@ -632,7 +632,10 @@
                     <div class="order-header-match flex-column flex-sm-row align-items-start align-items-sm-center">
                         <div>
                             <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
-                            <p class="text-muted mb-0 small">Green International Tracking System</p>
+                            <p class="text-muted mb-2 small">Green International Tracking System</p>
+                            <div class="text-muted" style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
+                                <strong>Disclaimer:</strong> Dates & statuses are for reference only. For exact details, contact us.
+                            </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button id="print-order-btn" class="btn btn-sm btn-outline-dark fw-bold"
@@ -664,6 +667,9 @@
                             <button id="detail-tna-btn" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold"
                                 style="display: block; width: fit-content;">TNA Tracker</button>
                         </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top text-center text-muted" style="font-size: 0.7rem;">
+                        Green International Tracking - Confidential Order Tracking Report
                     </div>
                 </div>
 
@@ -986,19 +992,29 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
                 <div class="modal-header border-0 pb-0" style="padding: 30px 40px 10px;">
-                    <div class="d-flex align-items-center gap-3">
-                        <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
-                        <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()" title="Print TNA"
-                            style="padding: 6px 16px; border-radius: 50px; border-width: 2px; font-size: 0.85rem;">
-                            ⎙ Print TNA
-                        </button>
+                    <div class="d-flex flex-column w-100">
+                        <div class="d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
+                                <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()" title="Print TNA"
+                                    style="padding: 6px 16px; border-radius: 50px; border-width: 2px; font-size: 0.85rem;">
+                                    ⎙ Print TNA
+                                </button>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="mt-2 text-muted px-1" style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
+                            <strong>Disclaimer:</strong> Dates and milestones are for production reference only. For exact details, please contact us.
+                        </div>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="padding: 20px 40px 40px;">
                     <p class="text-muted mb-4">Production Timeline & Milestones</p>
                     <div id="tna-timeline" class="timeline-match">
                         <!-- TNA items will be injected here -->
+                    </div>
+                    <div class="mt-5 pt-3 border-top text-center text-muted" style="font-size: 0.7rem;">
+                        Green International Tracking - Confidential Production Milestone Report
                     </div>
                 </div>
             </div>
