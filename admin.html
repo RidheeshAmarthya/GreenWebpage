@@ -666,8 +666,10 @@
                         <div>
                             <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
                             <p class="text-muted mb-2 small">Green International Tracking System</p>
-                            <div class="text-muted" style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
-                                <strong>Disclaimer:</strong> Dates & statuses are for reference only. For exact details, contact us.
+                            <div class="text-muted"
+                                style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
+                                <strong>Disclaimer:</strong> Dates & statuses are for reference only. For exact details,
+                                contact us.
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -953,8 +955,35 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Note</label>
-                            <textarea name="note" class="form-control" required
-                                placeholder="e.g. Fabric processing started" rows="3"></textarea>
+                            <div class="input-group">
+                                <input type="text" name="note" class="form-control" list="logNoteOptions" required
+                                    placeholder="e.g. Fabric processing started" autocomplete="off">
+                                <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Show Templates">Templates</button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
+                                    style="max-height: 250px; overflow-y: auto; font-size: 0.85rem;"></ul>
+                            </div>
+                            <datalist id="logNoteOptions">
+                                <option value="COLOUR STD / CAD / ART WORK RECEIVED">
+                                <option value="LAB DIPS / STRIKE OFF / H/L DISPATCHED. AWB NO : ">
+                                <option value="LAB DIPS/STRIKE OFF / H/L SUBMITTED - 1ST SUBMIT">
+                                <option value="LAB DIPS / STRIKE OFF /H/L COMMENTS - 1ST SUBMIT">
+                                <option value="LAB DIPS/STRIKE OFF / H/L SUBMITTED - 2ND SUBMIT">
+                                <option value="LAB DIPS / STRIKE OFF / H/L COMMENTS -2ND SUBMIT">
+                                <option value="LAB DIPS/STRIKE OFF / H/L SUBMITTED - 3RD SUBMIT">
+                                <option value="LAB DIPS / STRIKE OFF / H/L COMMENTS -3RD SUBMIT">
+                                <option value="LAB DIPS / STRIKE OFF /H/L APPROVED - SUBMIT - 1ST / 2ND / 3RD">
+                                <option value="PO RECEIVED">
+                                <option value="PI ISSUED">
+                                <option value="FOB DISPATCHED AWB NO : ">
+                                <option value="FOB SUBMITED">
+                                <option value="FOB COMMENTS">
+                                <option value="FOB APPROVED">
+                                <option value="COMMERCIALS PENDING / RECEIVED">
+                                <option value="SHIPMENT ETD">
+                                <option value="SHIPMENT ETA">
+                            </datalist>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1008,7 +1037,15 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Note</label>
-                            <textarea name="note" id="edit-log-note" class="form-control" required rows="3"></textarea>
+                            <div class="input-group">
+                                <input type="text" name="note" id="edit-log-note" class="form-control"
+                                    list="logNoteOptions" required autocomplete="off">
+                                <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false" title="Show Templates">📝
+                                    Templates</button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
+                                    style="max-height: 250px; overflow-y: auto; font-size: 0.85rem;"></ul>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1029,15 +1066,18 @@
                         <div class="d-flex align-items-center justify-content-between w-100">
                             <div class="d-flex align-items-center gap-3">
                                 <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Tracker</h3>
-                                <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()" title="Print TNA"
+                                <button class="btn btn-outline-dark fw-bold" onclick="printTNAFromModal()"
+                                    title="Print TNA"
                                     style="padding: 6px 16px; border-radius: 50px; border-width: 2px; font-size: 0.85rem;">
                                     ⎙ Print TNA
                                 </button>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="mt-2 text-muted px-1" style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
-                            <strong>Disclaimer:</strong> Dates and milestones are for production reference only. For exact details, please contact us.
+                        <div class="mt-2 text-muted px-1"
+                            style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
+                            <strong>Disclaimer:</strong> Dates and milestones are for production reference only. For
+                            exact details, please contact us.
                         </div>
                     </div>
                 </div>
@@ -1203,7 +1243,7 @@
             await logout();
         });
 
-         // Orders Logic
+        // Orders Logic
         async function fetchOrders() {
             showLoading(true);
             const { data, error } = await supabaseClient
@@ -1233,7 +1273,7 @@
 
         function applySort() {
             const { column, direction } = currentSort;
-            
+
             // Sort the array
             orders.sort((a, b) => {
                 let valA = a[column] || '';
@@ -1662,11 +1702,11 @@
             let rowsHtml = '';
             data.forEach(order => {
                 const colorEntries = order.Colors && order.Colors.length > 0 ? order.Colors : [null];
-                
+
                 colorEntries.forEach(color => {
                     let latestDate = 'N/A';
                     let latestNote = color ? 'No updates' : 'No colors added';
-                    
+
                     if (color && color['Color-Logs'] && color['Color-Logs'].length > 0) {
                         const logs = color['Color-Logs'];
                         const sortedLogs = logs.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1756,7 +1796,7 @@
                         const logs = color['Color-Logs'] || [];
                         // Sort chronologically: oldest first for Step 1, Step 2...
                         const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
-                        
+
                         const row = {
                             'Order ID': order.order_id,
                             'PI Date': formatDate(order.pi_date),
@@ -2100,6 +2140,22 @@
             printOrderReport(selectedOrder);
         });
 
+        // Populate Template Dropdowns dynamically
+        function initTemplates() {
+            const datalist = document.getElementById('logNoteOptions');
+            if (datalist) {
+                const options = Array.from(datalist.options).map(o => o.value);
+                document.querySelectorAll('.template-dropdown-menu').forEach(menu => {
+                    options.forEach(opt => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<a class="dropdown-item py-2" href="#" style="border-bottom: 1px solid #f0f0f0; white-space: normal;" onclick="const i=this.closest('.input-group').querySelector('input'); i.value=this.dataset.val; i.focus(); return false;" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</a>`;
+                        menu.appendChild(li);
+                    });
+                });
+            }
+        }
+
+        initTemplates();
         init();
     </script>
 </body>
