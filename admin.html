@@ -100,6 +100,29 @@
             margin-bottom: 30px;
         }
 
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .sortable-header:hover {
+            background-color: #f1f1f1 !important;
+        }
+
+        .sort-icon {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 0.75rem;
+            color: #ccc;
+            width: 15px;
+        }
+
+        .sort-icon.active {
+            color: var(--primary-green);
+        }
+
         .btn-green {
             background: var(--primary-green);
             color: white;
@@ -589,10 +612,10 @@
                     <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
                         <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
                             style="flex: 1; min-width: 140px;">
-                        <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-latest-btn">Export Latest
-                            Excel</button>
                         <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-excel-btn">Export Bulk
                             Excel</button>
+                        <button class="btn btn-outline-dark btn-sm btn-md-normal" id="export-latest-btn">Print Latest
+                            Status</button>
                         <button class="btn btn-green btn-sm btn-md-normal" data-bs-toggle="modal"
                             data-bs-target="#addOrderModal">+ New
                             Order</button>
@@ -608,10 +631,18 @@
                         <table class="table table-hover mb-0" id="orders-table">
                             <thead class="bg-light">
                                 <tr>
-                                    <th class="ps-4">Order ID</th>
-                                    <th>PI Date</th>
-                                    <th>Delivery Date</th>
-                                    <th>Commercial Status</th>
+                                    <th class="ps-4 sortable-header" onclick="handleSort('order_id')">
+                                        Order ID <span id="sort-order_id" class="sort-icon">⇅</span>
+                                    </th>
+                                    <th class="sortable-header" onclick="handleSort('pi_date')">
+                                        PI Date <span id="sort-pi_date" class="sort-icon">⇅</span>
+                                    </th>
+                                    <th class="sortable-header" onclick="handleSort('delivery_date')">
+                                        Delivery Date <span id="sort-delivery_date" class="sort-icon">⇅</span>
+                                    </th>
+                                    <th class="sortable-header" onclick="handleSort('commercial')">
+                                        Commercial Status <span id="sort-commercial" class="sort-icon">⇅</span>
+                                    </th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -1034,6 +1065,7 @@
         let user = null;
         let orders = [];
         let selectedOrder = null;
+        let currentSort = { column: 'order_id', direction: 'desc' };
 
         // Session Configuration
         const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours absolute limit
@@ -1171,13 +1203,12 @@
             await logout();
         });
 
-        // Orders Logic
+         // Orders Logic
         async function fetchOrders() {
             showLoading(true);
             const { data, error } = await supabaseClient
                 .from('Orders')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .select('*');
 
             showLoading(false);
             if (error) {
@@ -1186,7 +1217,64 @@
             }
 
             orders = data;
-            renderOrdersTable(orders);
+            // Apply default sort
+            applySort();
+        }
+
+        function handleSort(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            applySort();
+        }
+
+        function applySort() {
+            const { column, direction } = currentSort;
+            
+            // Sort the array
+            orders.sort((a, b) => {
+                let valA = a[column] || '';
+                let valB = b[column] || '';
+
+                // Handle dates
+                if (column.includes('date')) {
+                    valA = valA ? new Date(valA) : new Date(0);
+                    valB = valB ? new Date(valB) : new Date(0);
+                } else {
+                    valA = valA.toString().toLowerCase();
+                    valB = valB.toString().toLowerCase();
+                }
+
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Update Icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.textContent = '⇅';
+                icon.classList.remove('active');
+            });
+
+            const activeIcon = document.getElementById(`sort-${column}`);
+            if (activeIcon) {
+                activeIcon.textContent = direction === 'asc' ? '↑' : '↓';
+                activeIcon.classList.add('active');
+            }
+
+            // Sync search if active
+            const searchTerm = document.getElementById('order-search').value.toLowerCase();
+            if (searchTerm) {
+                const filtered = orders.filter(order =>
+                    order.order_id.toLowerCase().includes(searchTerm)
+                );
+                renderOrdersTable(filtered);
+            } else {
+                renderOrdersTable(orders);
+            }
         }
 
         function renderOrdersTable(dataToRender) {
@@ -1554,8 +1642,7 @@
             fetchColors(selectedOrder.order_uuid);
         }
 
-
-        // Export Latest Logic
+        // Print Latest Status Logic
         document.getElementById('export-latest-btn').addEventListener('click', async () => {
             showLoading(true);
             const { data, error } = await supabaseClient
@@ -1569,38 +1656,83 @@
                 return;
             }
 
-            const exportData = [];
+            const printSection = document.getElementById('print-section');
+            printSection.innerHTML = '';
+
+            let rowsHtml = '';
             data.forEach(order => {
-                if (order.Colors && order.Colors.length > 0) {
-                    order.Colors.forEach(color => {
-                        const logs = color['Color-Logs'] || [];
-                        const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
-                        
-                        exportData.push({
-                            'Order Number': order.order_id,
-                            'PI Date': formatDate(order.pi_date),
-                            'Delivery Date': formatDate(order.delivery_date),
-                            'Color': color.color_name,
-                            'Latest Step Date': sortedLogs.length > 0 ? formatDate(sortedLogs[sortedLogs.length - 1].date) : 'N/A',
-                            'Latest Step Note': sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].note : 'No updates'
-                        });
-                    });
-                } else {
-                    exportData.push({
-                        'Order Number': order.order_id,
-                        'PI Date': formatDate(order.pi_date),
-                        'Delivery Date': formatDate(order.delivery_date),
-                        'Color': 'N/A',
-                        'Latest Step Date': 'N/A',
-                        'Latest Step Note': 'No colors added'
-                    });
-                }
+                const colorEntries = order.Colors && order.Colors.length > 0 ? order.Colors : [null];
+                
+                colorEntries.forEach(color => {
+                    let latestDate = 'N/A';
+                    let latestNote = color ? 'No updates' : 'No colors added';
+                    
+                    if (color && color['Color-Logs'] && color['Color-Logs'].length > 0) {
+                        const logs = color['Color-Logs'];
+                        const sortedLogs = logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        latestDate = formatDate(sortedLogs[0].date);
+                        latestNote = sortedLogs[0].note;
+                    }
+
+                    rowsHtml += `
+                        <tr>
+                            <td><strong>${order.order_id}</strong></td>
+                            <td class="text-nowrap">${formatDate(order.pi_date)}</td>
+                            <td class="text-nowrap">${formatDate(order.delivery_date)}</td>
+                            <td>${color ? color.color_name : 'N/A'}</td>
+                            <td class="text-nowrap">${latestDate}</td>
+                            <td>${latestNote}</td>
+                        </tr>
+                    `;
+                });
             });
 
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Latest Status");
-            XLSX.writeFile(workbook, `Green_International_Latest_Status_${new Date().toISOString().split('T')[0]}.xlsx`);
+            const reportHtml = `
+                <div class="print-page">
+                    <div class="print-header" style="display: block; padding-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                            <div style="text-align: right;">
+                                <h3 style="margin:0;">Latest Status Summary</h3>
+                                <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                            </div>
+                        </div>
+                        <h2 style="margin:0; color:#28a745;">Multi-Order Status Report</h2>
+                    </div>
+                    
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>PI Date</th>
+                                <th>Deliv. Date</th>
+                                <th>Color</th>
+                                <th>Latest Date</th>
+                                <th>Latest Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+
+                    <div class="print-contact">
+                        <div class="contact-details">
+                            <span>www.greeninternationalindia.com</span>
+                            <span>sales@greeninternationalindia.com</span>
+                        </div>
+                        <div style="font-size: 0.70rem; color: #555; text-align: center; font-style: italic; margin-top: 5px;">
+                            <strong>Disclaimer:</strong> Dates and statuses are for reference only. For exact details, contact us.
+                        </div>
+                        <div class="footer-text">
+                            Green International Tracking - Confidential Multi-Order Status Report
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            printSection.innerHTML = reportHtml;
+            setTimeout(() => { window.print(); }, 500);
         });
 
         // Export Bulk Logic
