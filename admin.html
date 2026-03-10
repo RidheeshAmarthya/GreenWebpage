@@ -954,16 +954,17 @@
                             <input type="date" name="date" id="log-date" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Note</label>
-                            <div class="input-group">
-                                <input type="text" name="note" class="form-control" list="logNoteOptions" required
-                                    placeholder="e.g. Fabric processing started" autocomplete="off">
-                                <button class="btn btn-outline-success dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false"
-                                    title="Show Templates">Templates</button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
-                                    style="max-height: 250px; overflow-y: auto; font-size: 0.85rem;"></ul>
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <label class="form-label mb-0">Note</label>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false" title="Show Templates" style="border: none; background: #e8f5e9; color: var(--primary-green);"></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
+                                        style="max-height: 250px; overflow-y: auto; font-size: 0.85rem; width: 420px; max-width: 85vw;"></ul>
+                                </div>
                             </div>
+                            <textarea name="note" class="form-control" required
+                                placeholder="e.g. Fabric processing started" rows="4"></textarea>
                             <datalist id="logNoteOptions">
                                 <option value="COLOUR STD / CAD / ART WORK RECEIVED">
                                 <option value="LAB DIPS / STRIKE OFF / H/L DISPATCHED. AWB NO : ">
@@ -1036,16 +1037,16 @@
                             <input type="date" name="date" id="edit-log-date" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Note</label>
-                            <div class="input-group">
-                                <input type="text" name="note" id="edit-log-note" class="form-control"
-                                    list="logNoteOptions" required autocomplete="off">
-                                <button class="btn btn-outline-success dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false" title="Show Templates">📝
-                                    Templates</button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
-                                    style="max-height: 250px; overflow-y: auto; font-size: 0.85rem;"></ul>
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <label class="form-label mb-0">Note</label>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-success dropdown-toggle py-0 px-2" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false" title="Show Templates" style="border: none; background: #e8f5e9; color: var(--primary-green);"></button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow template-dropdown-menu"
+                                        style="max-height: 250px; overflow-y: auto; font-size: 0.85rem; width: 420px; max-width: 85vw;"></ul>
+                                </div>
                             </div>
+                            <textarea name="note" id="edit-log-note" class="form-control" required rows="4"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -2148,7 +2149,7 @@
                 document.querySelectorAll('.template-dropdown-menu').forEach(menu => {
                     options.forEach(opt => {
                         const li = document.createElement('li');
-                        li.innerHTML = `<a class="dropdown-item py-2" href="#" style="border-bottom: 1px solid #f0f0f0; white-space: normal;" onclick="const i=this.closest('.input-group').querySelector('input'); i.value=this.dataset.val; i.focus(); return false;" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</a>`;
+                        li.innerHTML = `<a class="dropdown-item py-2" href="#" style="border-bottom: 1px solid #f0f0f0; white-space: normal;" onclick="const container=this.closest('.mb-3'); const i=container?container.querySelector('textarea, input'):null; if(i){i.value=this.dataset.val; i.focus();} return false;" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</a>`;
                         menu.appendChild(li);
                     });
                 });
