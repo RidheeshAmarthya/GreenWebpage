@@ -634,6 +634,9 @@
                                     <th class="ps-4 sortable-header" onclick="handleSort('order_id')">
                                         Green Order ID <span id="sort-order_id" class="sort-icon">⇅</span>
                                     </th>
+                                    <th class="sortable-header" onclick="handleSort('company')">
+                                        Company <span id="sort-company" class="sort-icon">⇅</span>
+                                    </th>
                                     <th class="sortable-header" onclick="handleSort('pi_date')">
                                         PI Date <span id="sort-pi_date" class="sort-icon">⇅</span>
                                     </th>
@@ -686,6 +689,10 @@
 
                     <div class="info-grid">
                         <div class="info-item">
+                            <label>Company</label>
+                            <span id="detail-company"></span>
+                        </div>
+                        <div class="info-item">
                             <label>PI Date</label>
                             <span id="detail-pi-date"></span>
                         </div>
@@ -732,6 +739,10 @@
                         <div class="mb-3">
                             <label class="form-label">Green Order ID (Tracking Number)</label>
                             <input type="text" name="order_id" class="form-control" required placeholder="e.g. GIN-001">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Company / Client Name</label>
+                            <input type="text" name="company" class="form-control" maxlength="4" placeholder="e.g. TGT, IKEA">
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-sm-6 mb-3 mb-sm-0">
@@ -825,6 +836,10 @@
                         <div class="mb-3">
                             <label class="form-label">Green Order ID (Tracking Number)</label>
                             <input type="text" name="order_id" id="edit-order-id" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Company / Client Name</label>
+                            <input type="text" name="company" id="edit-company" class="form-control" maxlength="4">
                         </div>
                         <div class="row mb-3">
                             <div class="col">
@@ -1351,6 +1366,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="ps-4"><strong>${order.order_id}</strong></td>
+                    <td>${order.company || '<span class="text-muted small">N/A</span>'}</td>
                     <td>${formatDate(order.pi_date)}</td>
                     <td>${formatDate(order.delivery_date)}</td>
                     <td>${order.commercial}</td>
@@ -1380,6 +1396,7 @@
             document.getElementById('breadcrumb-order-id').textContent = order.order_id;
 
             document.getElementById('detail-order-id').textContent = `Green Order ID: ${order.order_id}`;
+            document.getElementById('detail-company').textContent = order.company || 'N/A';
             document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
             document.getElementById('detail-delivery-date').textContent = formatDate(order.delivery_date);
             document.getElementById('detail-commercial').textContent = order.commercial;
@@ -1428,6 +1445,7 @@
             if (!selectedOrder) return;
 
             document.getElementById('edit-order-id').value = selectedOrder.order_id;
+            document.getElementById('edit-company').value = selectedOrder.Company || '';
             document.getElementById('edit-pi-date').value = selectedOrder.pi_date;
             document.getElementById('edit-delivery-date').value = selectedOrder.delivery_date;
             document.getElementById('edit-commercial').value = selectedOrder.commercial;
@@ -1738,6 +1756,7 @@
                     rowsHtml += `
                         <tr>
                             <td><strong>${order.order_id}</strong></td>
+                            <td>${order.company || 'N/A'}</td>
                             <td class="text-nowrap">${formatDate(order.pi_date)}</td>
                             <td class="text-nowrap">${formatDate(order.delivery_date)}</td>
                             <td>${color ? color.color_name : 'N/A'}</td>
@@ -1749,46 +1768,47 @@
             });
 
             const reportHtml = `
-                <div class="print-page">
-                    <div class="print-header" style="display: block; padding-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                <div class="print-page compact-print">
+                    <style>
+                        .compact-print { font-size: 0.7rem !important; padding: 5mm !important; }
+                        .compact-print h2, .compact-print h3 { font-size: 1rem !important; margin-bottom: 5px !important; }
+                        .compact-print .print-table th, .compact-print .print-table td { padding: 3px 6px !important; font-size: 0.65rem !important; }
+                        .compact-print .print-header { margin-bottom: 10px !important; padding-bottom: 5px !important; }
+                        /* Column widths */
+                        .col-id { width: 10%; }
+                        .col-co { width: 5%; }
+                        .col-pi { width: 10%; }
+                        .col-del { width: 10%; }
+                        .col-clr { width: 12%; border-right: 2px solid #aaa !important; }
+                        .col-date { width: 10%; }
+                        .col-update { width: 43%; }
+                    </style>
+                    <div class="print-header" style="display: block;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <img src="assets/images/green-logo.png" style="height: 40px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
                                 <h3 style="margin:0;">Latest Status Summary</h3>
-                                <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                                <p style="margin:0; color:#666; font-size: 0.6rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
-                        <h2 style="margin:0; color:#28a745;">Multi-Order Status Report</h2>
                     </div>
                     
                     <table class="print-table">
                         <thead>
                             <tr>
-                                <th>Green Order ID</th>
-                                <th>PI Date</th>
-                                <th>Deliv. Date</th>
-                                <th>Color</th>
-                                <th>Latest Date</th>
-                                <th>Latest Update</th>
+                                <th class="col-id">Order ID</th>
+                                <th class="col-co">Company</th>
+                                <th class="col-pi">PI Date</th>
+                                <th class="col-del">Deliv. Date</th>
+                                <th class="col-clr">Color Variant</th>
+                                <th class="col-date">Latest Date</th>
+                                <th class="col-update">Latest Update</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${rowsHtml}
                         </tbody>
                     </table>
-
-                    <div class="print-contact">
-                        <div class="contact-details">
-                            <span>www.greeninternationalindia.com</span>
-                            <span>sales@greeninternationalindia.com</span>
-                        </div>
-                        <div style="font-size: 0.70rem; color: #555; text-align: center; font-style: italic; margin-top: 5px;">
-                            <strong>Disclaimer:</strong> Dates and statuses are for reference only. For exact details, contact us.
-                        </div>
-                        <div class="footer-text">
-                            Green International Tracking - Confidential Multi-Order Status Report
-                        </div>
-                    </div>
                 </div>
             `;
 
