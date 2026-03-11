@@ -610,7 +610,7 @@
                     class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                     <h1 class="mb-0"><strong>Orders Management</strong></h1>
                     <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
-                        <input type="text" id="order-search" class="form-control" placeholder="Search Order ID..."
+                        <input type="text" id="order-search" class="form-control" placeholder="Search Green Order ID..."
                             style="flex: 1; min-width: 140px;">
                         <button class="btn btn-outline-success btn-sm btn-md-normal" id="export-excel-btn">Export Bulk
                             Excel</button>
@@ -632,7 +632,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th class="ps-4 sortable-header" onclick="handleSort('order_id')">
-                                        Order ID <span id="sort-order_id" class="sort-icon">⇅</span>
+                                        Green Order ID <span id="sort-order_id" class="sort-icon">⇅</span>
                                     </th>
                                     <th class="sortable-header" onclick="handleSort('pi_date')">
                                         PI Date <span id="sort-pi_date" class="sort-icon">⇅</span>
@@ -664,7 +664,7 @@
                 <div class="result-card" style="padding: 25px;">
                     <div class="order-header-match flex-column flex-sm-row align-items-start align-items-sm-center">
                         <div>
-                            <h2 class="mb-0 fw-bold" id="detail-order-id"></h2>
+                            <h2 class="mb-2 fw-bold" id="detail-order-id"></h2>
                             <p class="text-muted mb-2 small">Green International Tracking System</p>
                             <div class="text-muted"
                                 style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
@@ -709,7 +709,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
-                    <h3><strong>Color Variants & Timeline</strong></h3>
+                    <h3><strong>Color Variants & Bulk order updates</strong></h3>
                     <button class="btn btn-green btn-sm" id="add-color-btn">+ Add Color</button>
                 </div>
 
@@ -730,7 +730,7 @@
                 <form id="add-order-form">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Order ID (Tracking Number)</label>
+                            <label class="form-label">Green Order ID (Tracking Number)</label>
                             <input type="text" name="order_id" class="form-control" required placeholder="e.g. GIN-001">
                         </div>
                         <div class="row mb-3">
@@ -823,7 +823,7 @@
                 <form id="edit-order-form">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Order ID (Tracking Number)</label>
+                            <label class="form-label">Green Order ID (Tracking Number)</label>
                             <input type="text" name="order_id" id="edit-order-id" class="form-control" required>
                         </div>
                         <div class="row mb-3">
@@ -1365,7 +1365,7 @@
             orderDetailView.style.display = 'block';
             document.getElementById('breadcrumb-order-id').textContent = order.order_id;
 
-            document.getElementById('detail-order-id').textContent = order.order_id;
+            document.getElementById('detail-order-id').textContent = `Green Order ID: ${order.order_id}`;
             document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
             document.getElementById('detail-delivery-date').textContent = formatDate(order.delivery_date);
             document.getElementById('detail-commercial').textContent = order.commercial;
@@ -1744,7 +1744,7 @@
                     <table class="print-table">
                         <thead>
                             <tr>
-                                <th>Order ID</th>
+                                <th>Green Order ID</th>
                                 <th>PI Date</th>
                                 <th>Deliv. Date</th>
                                 <th>Color</th>
@@ -1799,7 +1799,7 @@
                         const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
 
                         const row = {
-                            'Order ID': order.order_id,
+                            'Green Order ID': order.order_id,
                             'PI Date': formatDate(order.pi_date),
                             'Delivery Date': formatDate(order.delivery_date),
                             'Commercial Status': order.commercial || '---',
@@ -1829,7 +1829,7 @@
                     });
                 } else {
                     exportData.push({
-                        'Order ID': order.order_id,
+                        'Green Order ID': order.order_id,
                         'PI Date': formatDate(order.pi_date),
                         'Delivery Date': formatDate(order.delivery_date),
                         'Commercial Status': order.commercial || '---',
@@ -1936,7 +1936,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
-                                <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
+                                <h3 style="margin:0;">Green Order ID: ${order.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
@@ -2082,7 +2082,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
-                                <h3 style="margin:0;">Order ID: ${selectedOrder.order_id}</h3>
+                                <h3 style="margin:0;">Green Order ID: ${selectedOrder.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>

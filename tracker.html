@@ -715,7 +715,7 @@
         <div class="container">
             <div class="search-container">
                 <h1 class="display-5 mb-4"><strong>Track Your Order</strong></h1>
-                <p class="text-muted mb-5">Enter your order ID below to see the latest updates on your delivery status.
+                <p class="text-muted mb-5">Enter your green order ID below to see the latest updates on your delivery status.
                 </p>
                 <div class="search-box">
                     <input type="text" id="order-id-input" placeholder="Tracking Number" autocomplete="off">
@@ -730,7 +730,7 @@
             <div id="result-card" class="result-card">
                 <div class="order-header">
                     <div>
-                        <h2 class="mb-0"><strong id="disp-order-id">Order ID: ---</strong></h2>
+                        <h2 class="mb-2"><strong id="disp-order-id">Green Order ID: ---</strong></h2>
                         <p class="text-muted mb-2">Green International Tracking System</p>
                         <div class="text-muted" style="font-size: 0.75rem; font-style: italic; border-left: 3px solid #28a745; padding-left: 10px;">
                             <strong>Disclaimer:</strong> Dates & statuses are for reference only. For exact details, contact us.
@@ -775,7 +775,7 @@
                 </div>
 
                 <div class="timeline-container">
-                    <h3 class="mb-4"><strong>Tracking Timeline</strong></h3>
+                    <h3 class="mb-4"><strong>Bulk order updates</strong></h3>
                     <div id="timeline" class="timeline">
                         <!-- Timeline items will be injected here -->
                     </div>
@@ -878,7 +878,7 @@
         async function trackOrder() {
             const orderId = orderInput.value.trim().toUpperCase();
             if (!orderId) {
-                showError('Please enter a valid Order ID.');
+                showError('Please enter a valid Green Order ID.');
                 return;
             }
 
@@ -917,7 +917,7 @@
                 }
 
                 if (!normalizedData || !normalizedData.order_id) {
-                    showError('Order ID not found. Please check and try again.');
+                    showError('Green Order ID not found. Please check and try again.');
                     return;
                 }
 
@@ -935,7 +935,7 @@
         function displayOrder(data) {
             currentOrderData = data;
 
-            document.getElementById('disp-order-id').textContent = `Order ID: ${data.order_id}`;
+            document.getElementById('disp-order-id').textContent = `Green Order ID: ${data.order_id}`;
             document.getElementById('disp-pi-date').textContent = formatDate(data.pi_date);
             document.getElementById('disp-delivery-date').textContent = formatDate(data.delivery_date);
             document.getElementById('disp-commercial').textContent = data.commercial;
@@ -1076,7 +1076,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                 <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                                 <div style="text-align: right;">
-                                    <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
+                                    <h3 style="margin:0;">Green Order ID: ${order.order_id}</h3>
                                     <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                                 </div>
                             </div>
@@ -1118,7 +1118,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
-                                <h3 style="margin:0;">Order ID: ${order.order_id}</h3>
+                                <h3 style="margin:0;">Green Order ID: ${order.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
@@ -1203,7 +1203,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
-                                <h3 style="margin:0;">Order ID: ${currentOrderData.order_id}</h3>
+                                <h3 style="margin:0;">Green Order ID: ${currentOrderData.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
@@ -1263,7 +1263,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
                             <div style="text-align: right;">
-                                <h3 style="margin:0;">Order ID: ${currentOrderData.order_id}</h3>
+                                <h3 style="margin:0;">Green Order ID: ${currentOrderData.order_id}</h3>
                                 <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
                             </div>
                         </div>
