@@ -928,6 +928,10 @@
                             <input type="text" name="color_name" class="form-control" required
                                 placeholder="e.g. Olive Green">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tentative Bulk Ready Date</label>
+                            <input type="date" name="tentativeBulkReadyDate" class="form-control">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1013,6 +1017,10 @@
                         <div class="mb-3">
                             <label class="form-label">Color Name</label>
                             <input type="text" id="edit-color-name" name="color_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tentative Bulk Ready Date</label>
+                            <input type="date" id="edit-color-date" name="tentativeBulkReadyDate" class="form-control">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1548,10 +1556,13 @@
 
                 colorDiv.innerHTML = `
                     <div class="color-card-header">
-                        <h5 class="mb-0 fw-bold">${color.color_name}</h5>
+                        <div>
+                            <h5 class="mb-0 fw-bold">${color.color_name}</h5>
+                            ${color.tentativeBulkReadyDate ? `<div class="small text-muted">Tentative Bulk Ready: <strong>${formatDate(color.tentativeBulkReadyDate)}</strong></div>` : ''}
+                        </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-sm btn-outline-dark" onclick='printSingleColor(${JSON.stringify(color)})'>Print Color</button>
-                            <button class="btn btn-sm btn-outline-primary" onclick='editColorPrompt(${JSON.stringify({ uuid: color.colors_uuid, name: color.color_name })})'>Rename</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick='editColorPrompt(${JSON.stringify({ uuid: color.colors_uuid, name: color.color_name, date: color.tentativeBulkReadyDate })})'>Edit</button>
                             <button class="btn btn-sm btn-outline-success" onclick="addLogPrompt('${color.colors_uuid}')">+ Add Status</button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteColor('${color.colors_uuid}')">Delete</button>
                         </div>
@@ -1579,7 +1590,8 @@
             showLoading(true);
             const { error } = await supabaseClient.from('Colors').insert([{
                 order_uuid: selectedOrder.order_uuid,
-                color_name: colorName
+                color_name: colorName,
+                tentativeBulkReadyDate: formData.get('tentativeBulkReadyDate') || null
             }]);
             showLoading(false);
 
@@ -1604,6 +1616,7 @@
         function editColorPrompt(color) {
             document.getElementById('edit-color-uuid').value = color.uuid;
             document.getElementById('edit-color-name').value = color.name;
+            document.getElementById('edit-color-date').value = color.date || '';
             const modal = new bootstrap.Modal(document.getElementById('editColorModal'));
             modal.show();
         }
@@ -1612,10 +1625,10 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const uuid = formData.get('colors_uuid');
-            const color_name = formData.get('color_name');
+            const tentativeBulkReadyDate = formData.get('tentativeBulkReadyDate');
 
             showLoading(true);
-            const { error } = await supabaseClient.from('Colors').update({ color_name }).eq('colors_uuid', uuid);
+            const { error } = await supabaseClient.from('Colors').update({ color_name, tentativeBulkReadyDate: tentativeBulkReadyDate || null }).eq('colors_uuid', uuid);
             showLoading(false);
 
             if (error) {
@@ -1810,6 +1823,7 @@
                             'Delivery Date': formatDate(order.delivery_date),
                             'Commercial Status': order.commercial || '---',
                             'Color Variant': color.color_name,
+                            'Tentative Bulk Ready': formatDate(color.tentativeBulkReadyDate),
                             'Latest Update': sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].note : 'No updates'
                         };
 
@@ -2036,6 +2050,7 @@
                     </div>
                     <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                         Color Variant: ${color.color_name}
+                        ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Bulk Ready: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
                     </h4>
                     <table class="print-table">
                         <thead>
