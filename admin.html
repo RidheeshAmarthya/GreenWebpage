@@ -1625,6 +1625,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const uuid = formData.get('colors_uuid');
+            const color_name = formData.get('color_name');
             const tentativeBulkReadyDate = formData.get('tentativeBulkReadyDate');
 
             showLoading(true);
