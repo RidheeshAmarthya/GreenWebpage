@@ -1886,11 +1886,17 @@
         // Print Latest Status Logic
         document.getElementById('export-latest-btn').addEventListener('click', async () => {
             showLoading(true);
-            const { data, error } = await supabaseClient
+            const searchTerm = document.getElementById('order-search').value.toLowerCase();
+            let query = supabaseClient
                 .from('Orders')
                 .select('*, Colors (*, "Color-Logs" (*))')
-                .order('order_id', { ascending: true });
+                .order(currentSort.column, { ascending: currentSort.direction === 'asc' });
 
+            if (searchTerm) {
+                query = query.ilike('order_id', `%${searchTerm}%`);
+            }
+
+            const { data, error } = await query;
             showLoading(false);
             if (error) {
                 alert(error.message);
@@ -1981,11 +1987,17 @@
         // Export Bulk Logic
         document.getElementById('export-excel-btn').addEventListener('click', async () => {
             showLoading(true);
-            const { data, error } = await supabaseClient
+            const searchTerm = document.getElementById('order-search').value.toLowerCase();
+            let query = supabaseClient
                 .from('Orders')
                 .select('*, Colors (*, "Color-Logs" (*))')
-                .order('order_id', { ascending: true });
+                .order(currentSort.column, { ascending: currentSort.direction === 'asc' });
 
+            if (searchTerm) {
+                query = query.ilike('order_id', `%${searchTerm}%`);
+            }
+
+            const { data, error } = await query;
             showLoading(false);
             if (error) {
                 alert(error.message);
