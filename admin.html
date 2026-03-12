@@ -1907,10 +1907,10 @@
             printSection.innerHTML = '';
 
             let rowsHtml = '';
-            data.forEach(order => {
+            data.forEach((order, orderIndex) => {
                 const colorEntries = order.Colors && order.Colors.length > 0 ? order.Colors : [null];
 
-                colorEntries.forEach(color => {
+                colorEntries.forEach((color, colorIndex) => {
                     let latestDate = 'N/A';
                     let latestNote = color ? 'No updates' : 'No colors added';
 
@@ -1921,8 +1921,10 @@
                         latestNote = sortedLogs[0].note;
                     }
 
+                    const rowClass = (colorIndex === 0 && orderIndex > 0) ? 'order-group-start' : '';
+
                     rowsHtml += `
-                        <tr>
+                        <tr class="${rowClass}">
                             <td><strong>${order.order_id}</strong></td>
                             <td>${order.company || 'N/A'}</td>
                             <td class="text-nowrap">${formatDate(order.pi_date)}</td>
@@ -1950,6 +1952,7 @@
                         .col-clr { width: 12%; border-right: 2px solid #aaa !important; }
                         .col-date { width: 10%; }
                         .col-update { width: 43%; }
+                        .order-group-start td { border-top: 12px solid #f9f9f9 !important; }
                     </style>
                     <div class="print-header" style="display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
