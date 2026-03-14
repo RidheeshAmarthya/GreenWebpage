@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /tracker-*
+Disallow: /tracker.html?*
 
 Sitemap: https://www.greeninternationalindia.com/sitemap.xml

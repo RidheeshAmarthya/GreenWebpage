@@ -45,7 +45,9 @@
   # Clean Tracker URLs (e.g. /tracker-001)
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^tracker-([a-zA-Z0-9-]+)$ tracker.html?id=$1 [L,QSA]
+  RewriteRule ^tracker-([a-zA-Z0-9-]+)$ tracker.html?id=$1 [L,QSA,E=NOINDEX:1]
+
+  Header set X-Robots-Tag "noindex, nofollow" env=NOINDEX
 </IfModule>
 
 # Custom 404 Error Page
