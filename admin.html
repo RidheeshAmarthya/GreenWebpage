@@ -281,16 +281,6 @@
             margin-top: 20px;
         }
 
-        .timeline-match::before {
-            content: '';
-            position: absolute;
-            left: 140px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #eee;
-        }
-
         .timeline-item-match {
             position: relative;
             display: flex;
@@ -299,9 +289,27 @@
             align-items: start;
         }
 
+        /* The vertical line connecting dots */
+        .timeline-item-match::before {
+            content: '';
+            position: absolute;
+            left: 140px;
+            top: 23px;
+            height: 100%;
+            width: 2px;
+            background: #eee;
+            z-index: 1;
+        }
+
+        .timeline-item-match:last-child::before {
+            display: none;
+        }
+
         .timeline-item-match:last-child {
             padding-bottom: 0;
         }
+
+
 
         .timeline-date {
             width: 120px;
@@ -386,8 +394,9 @@
         }
 
         @media (max-width: 650px) {
-            .timeline-match::before {
+            .timeline-item-match::before {
                 left: 15px;
+                top: 10px;
             }
 
             .timeline-item-match {

@@ -273,16 +273,6 @@
             margin-top: 40px;
         }
 
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 140px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #eee;
-        }
-
         .timeline-item {
             position: relative;
             display: flex;
@@ -291,9 +281,27 @@
             align-items: start;
         }
 
+        /* The vertical line connecting dots */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 140px;
+            top: 23px;
+            height: 100%;
+            width: 2px;
+            background: #eee;
+            z-index: 1;
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
         .timeline-item:last-child {
             padding-bottom: 0;
         }
+
+
 
         .timeline-date {
             width: 120px;
@@ -362,8 +370,9 @@
         }
 
         @media (max-width: 650px) {
-            .timeline::before {
+            .timeline-item::before {
                 left: 15px;
+                top: 10px;
             }
 
             .timeline-item {
@@ -392,18 +401,14 @@
             padding-bottom: 25px;
         }
 
-        .timeline-compact::before {
-            left: 140px;
-        }
+
 
         .timeline-compact .timeline-dot {
             left: 136px;
         }
 
         @media (max-width: 650px) {
-            .timeline-compact::before {
-                left: 15px;
-            }
+
 
             .timeline-compact .timeline-dot {
                 left: 11px;
