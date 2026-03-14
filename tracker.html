@@ -975,14 +975,9 @@
                 displayOrder(normalizedData);
 
                 // Update URL to match current order
-                const isLocal = window.location.protocol === 'file:';
-                const newUrl = (isLocal || !window.location.pathname.includes('tracker'))
-                    ? `tracker.html?id=${orderId}`
-                    : `tracker-?id=${orderId}`.replace('?id=', orderId); // Becomes tracker-ID on server
-                
-                // On server we want tracker-ID, on local we keep tracker.html?id=ID
-                const finalUrl = isLocal ? `tracker.html?id=${orderId}` : `tracker-${orderId}`;
-                window.history.replaceState({ orderId }, '', finalUrl);
+                // Using ?id= format for 100% compatibility with GitHub Pages static hosting
+                const newUrl = `tracker.html?id=${orderId}`;
+                window.history.replaceState({ orderId }, '', newUrl);
 
             } catch (error) {
                 console.error('API Error:', error);
@@ -1120,9 +1115,11 @@
         document.getElementById('share-btn').addEventListener('click', async () => {
             if (!currentOrderData) return;
             const orderId = currentOrderData.order_id;
-            // Use production domain even for local testing
-            const domain = window.location.origin === 'null' ? 'https://www.greeninternationalindia.com' : window.location.origin;
-            const shareUrl = `${domain}/tracker-${orderId}`;
+            // Use production domain for the share link
+            const domain = (window.location.origin === 'null' || window.location.origin.includes('file:')) 
+                ? 'https://www.greeninternationalindia.com' 
+                : window.location.origin;
+            const shareUrl = `${domain}/tracker.html?id=${orderId}`;
             
             try {
                 if (navigator.share) {

@@ -2379,9 +2379,11 @@
         document.getElementById('admin-share-btn').addEventListener('click', async () => {
             if (!selectedOrder) return;
             const orderId = selectedOrder.order_id;
-            // Use production domain even for local testing
-            const domain = window.location.origin === 'null' ? 'https://www.greeninternationalindia.com' : window.location.origin;
-            const shareUrl = `${domain}/tracker-${orderId}`;
+            // Use production domain for the tracking link
+            const domain = (window.location.origin === 'null' || window.location.origin.includes('file:')) 
+                ? 'https://www.greeninternationalindia.com' 
+                : window.location.origin;
+            const shareUrl = `${domain}/tracker.html?id=${orderId}`;
             
             try {
                 if (navigator.share) {
