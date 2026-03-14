@@ -966,6 +966,16 @@
                 orderCache.set(orderId, normalizedData);
                 displayOrder(normalizedData);
 
+                // Update URL to match current order
+                const isLocal = window.location.protocol === 'file:';
+                const newUrl = (isLocal || !window.location.pathname.includes('tracker'))
+                    ? `tracker.html?id=${orderId}`
+                    : `tracker-?id=${orderId}`.replace('?id=', orderId); // Becomes tracker-ID on server
+                
+                // On server we want tracker-ID, on local we keep tracker.html?id=ID
+                const finalUrl = isLocal ? `tracker.html?id=${orderId}` : `tracker-${orderId}`;
+                window.history.replaceState({ orderId }, '', finalUrl);
+
             } catch (error) {
                 console.error('API Error:', error);
                 showError(error.message);
@@ -1390,6 +1400,29 @@
         // Keep navbar in scrolled state on tracker page
         const navbar = document.querySelector('.cid-uXjz86JSEW');
         navbar.classList.add('scrolled');
+
+        // Check for ID in URL on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            
+            // Check for hyphenated ID: tracker-001
+            const pathName = window.location.pathname;
+            let idFromPath = null;
+            if (pathName.includes('tracker-')) {
+                idFromPath = pathName.split('tracker-').pop();
+            }
+            
+            // Check for hash: #001
+            const hashId = window.location.hash.substring(1);
+            
+            const targetId = idFromUrl || idFromPath || hashId;
+            
+            if (targetId && targetId !== 'tracker.html') {
+                orderInput.value = targetId;
+                trackOrder();
+            }
+        });
     </script>
 
 </body>

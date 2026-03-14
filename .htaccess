@@ -41,6 +41,11 @@
   # Redirect index.html to Root (/)
   RewriteCond %{THE_REQUEST} ^.*/index\.html
   RewriteRule ^(.*)index.html$ /$1 [R=301,L]
+
+  # Clean Tracker URLs (e.g. /tracker-001)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^tracker-([a-zA-Z0-9-]+)$ tracker.html?id=$1 [L,QSA]
 </IfModule>
 
 # Custom 404 Error Page
