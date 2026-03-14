@@ -18,6 +18,7 @@
     <link rel="preconnect" href="https://eyuynhchvxxthdseqvhx.supabase.co" crossorigin>
 
     <title>Track Your Order | Green International Delivery Status</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="https://www.greeninternationalindia.com/tracker.html">
 
     <!-- Social Meta Tags -->
@@ -273,16 +274,6 @@
             margin-top: 40px;
         }
 
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 140px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #eee;
-        }
-
         .timeline-item {
             position: relative;
             display: flex;
@@ -291,9 +282,27 @@
             align-items: start;
         }
 
+        /* The vertical line connecting dots */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 140px;
+            top: 23px;
+            height: 100%;
+            width: 2px;
+            background: #eee;
+            z-index: 1;
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
         .timeline-item:last-child {
             padding-bottom: 0;
         }
+
+
 
         .timeline-date {
             width: 120px;
@@ -362,8 +371,9 @@
         }
 
         @media (max-width: 650px) {
-            .timeline::before {
+            .timeline-item::before {
                 left: 15px;
+                top: 10px;
             }
 
             .timeline-item {
@@ -392,18 +402,14 @@
             padding-bottom: 25px;
         }
 
-        .timeline-compact::before {
-            left: 140px;
-        }
+
 
         .timeline-compact .timeline-dot {
             left: 136px;
         }
 
         @media (max-width: 650px) {
-            .timeline-compact::before {
-                left: 15px;
-            }
+
 
             .timeline-compact .timeline-dot {
                 left: 11px;
@@ -767,9 +773,10 @@
                         </div>
                     </div>
                     <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-sm-0">
-                        <button id="tna-btn" class="btn btn-green-outline"
-                            style="height: 50px; padding: 0 20px; font-size: 0.85rem; font-weight: 600;">
-                            TNA Plan
+                        <button id="share-btn" class="btn btn-share-box"
+                            style="height: 50px; padding: 0 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; background: #e8f5e9; color: #155724; border: none; transition: all 0.3s ease;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                            Share Link
                         </button>
                         <button id="print-order-btn" class="btn btn-light-print"
                             style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;">
@@ -790,6 +797,12 @@
                     <div class="info-item">
                         <label>Estimated Bulk Delivery</label>
                         <span id="disp-delivery-date" style="color: var(--primary-green); font-weight: 800;">---</span>
+                    </div>
+                    <div class="info-item">
+                        <button id="tna-btn" class="btn btn-green-outline w-100"
+                            style="height: 50px; padding: 0 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px !important; margin-top: 0;">
+                            TNA Plan
+                        </button>
                     </div>
                 </div>
 
@@ -961,6 +974,11 @@
                 orderCache.set(orderId, normalizedData);
                 displayOrder(normalizedData);
 
+                // Update URL to match current order
+                // Using ?id= format for 100% compatibility with GitHub Pages static hosting
+                const newUrl = `tracker.html?id=${orderId}`;
+                window.history.replaceState({ orderId }, '', newUrl);
+
             } catch (error) {
                 console.error('API Error:', error);
                 showError(error.message);
@@ -1092,6 +1110,36 @@
 
         colorSelect.addEventListener('change', (e) => {
             renderTimeline(e.target.value);
+        });
+
+        document.getElementById('share-btn').addEventListener('click', async () => {
+            if (!currentOrderData) return;
+            const orderId = currentOrderData.order_id;
+            // Use production domain for the share link
+            const domain = (window.location.origin === 'null' || window.location.origin.includes('file:')) 
+                ? 'https://www.greeninternationalindia.com' 
+                : window.location.origin;
+            const shareUrl = `${domain}/tracker.html?id=${orderId}`;
+            
+            try {
+                if (navigator.share) {
+                    await navigator.share({
+                        title: `Track Order: ${orderId}`,
+                        text: `Check the latest status of Green Order ID ${orderId}`,
+                        url: shareUrl
+                    });
+                } else {
+                    await navigator.clipboard.writeText(shareUrl);
+                    const btn = document.getElementById('share-btn');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Error sharing:', err);
+            }
         });
 
         // Printing Logic
@@ -1385,6 +1433,29 @@
         // Keep navbar in scrolled state on tracker page
         const navbar = document.querySelector('.cid-uXjz86JSEW');
         navbar.classList.add('scrolled');
+
+        // Check for ID in URL on load
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            
+            // Check for hyphenated ID: tracker-001
+            const pathName = window.location.pathname;
+            let idFromPath = null;
+            if (pathName.includes('tracker-')) {
+                idFromPath = pathName.split('tracker-').pop();
+            }
+            
+            // Check for hash: #001
+            const hashId = window.location.hash.substring(1);
+            
+            const targetId = idFromUrl || idFromPath || hashId;
+            
+            if (targetId && targetId !== 'tracker.html') {
+                orderInput.value = targetId;
+                trackOrder();
+            }
+        });
     </script>
 
 </body>
