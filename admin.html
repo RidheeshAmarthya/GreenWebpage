@@ -1272,6 +1272,47 @@
             { key: 'inspection_finishing_complete_date', label: 'Inspection / Finishing Complete' }
         ];
 
+        function linkifyTracking(text) {
+            if (!text) return '';
+            
+            const linkStyle = 'color: #007bff; text-decoration: underline; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;';
+            const icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+
+            // DHL Detection: DHL + 10-11 digit number (Case Insensitive)
+            const dhlRegex = /\b(DHL)\b[^\d]*?(\d{10,11})\b/gi;
+            let linkedText = text.replace(dhlRegex, (match, p1, p2) => {
+                return `<a href="https://www.dhl.com/en/express/tracking.html?AWB=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
+            });
+            
+            // FedEx Detection: FedEx + 12-22 digit number (Case Insensitive)
+            const fedexRegex = /\b(FedEx)\b[^\d]*?(\d{12,22})\b/gi;
+            linkedText = linkedText.replace(fedexRegex, (match, p1, p2) => {
+                return `<a href="https://www.fedex.com/fedextrack/?trknbr=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
+            });
+
+            // Fardar Detection: Fardar + 10-12 digit number (Case Insensitive)
+            // Stricter: ignore if "booking" is mentioned, and don't skip over digits
+            const fardarRegex = /\b(Fardar)\b(?![^0-9]*?booking)[^\d]*?(\d{10,12})\b/gi;
+            linkedText = linkedText.replace(fardarRegex, (match, p1, p2) => {
+                return `<a href="http://43.247.68.241:8028/queryEn.aspx?TrackNum=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
+            });
+
+            // Pionexxco Detection: Pionexxco + 10 digit number (Case Insensitive)
+            const pionexxcoRegex = /\b(Pionexxco)\b[^\d]*?(\d{10})\b/gi;
+            linkedText = linkedText.replace(pionexxcoRegex, (match, p1, p2) => {
+                return `<a href="https://www.pionexxco.net/Track?awb=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
+            });
+
+            // DTDC Detection: DTDC + Tracking Number (Case Insensitive)
+            // Pattern: 1-2 letters followed by 7-11 digits
+            const dtdcRegex = /\b(DTDC)\b[^\d]*?([A-Z]{1,2}\d{7,11})\b/gi;
+            linkedText = linkedText.replace(dtdcRegex, (match, p1, p2) => {
+                return `<a href="https://www.dtdc.com/track-your-shipment/?awb=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
+            });
+            
+            return linkedText;
+        }
+
         // DOM Elements
         const loginContainer = document.getElementById('login-container');
         const dashboardContainer = document.getElementById('dashboard-container');
@@ -1352,6 +1393,11 @@
                 document.getElementById('user-display').textContent = user.email;
                 resetInactivityTimer(); // Mark activity on state update
                 fetchOrders();
+                
+                // Initialize history state if not set
+                if (!history.state) {
+                    history.replaceState({ view: 'list' }, '', '#orders');
+                }
             } else {
                 loginContainer.style.display = 'block';
                 dashboardContainer.style.display = 'none';
@@ -1407,6 +1453,24 @@
             orders = data;
             // Apply default sort
             applySort();
+
+            // Handle initial deep link or back/forward navigation
+            handleHashNavigation();
+        }
+
+        function handleHashNavigation() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#order-')) {
+                const orderId = decodeURIComponent(hash.replace('#order-', ''));
+                const order = orders.find(o => o.order_id === orderId);
+                if (order) {
+                    showOrderDetail(order, false);
+                } else {
+                    returnToOrdersList();
+                }
+            } else if (hash === '#orders' || hash === '') {
+                returnToOrdersList(null, false);
+            }
         }
 
         function handleSort(column) {
@@ -1554,7 +1618,7 @@
             renderOrdersTable(filtered);
         });
 
-        async function showOrderDetail(order) {
+        async function showOrderDetail(order, push = true) {
             selectedOrder = order;
             ordersListView.style.display = 'none';
             orderDetailView.style.display = 'block';
@@ -1567,6 +1631,10 @@
             document.getElementById('detail-commercial').textContent = order.commercial;
 
             fetchColors(order.order_uuid);
+
+            if (push) {
+                history.pushState({ view: 'detail', order_uuid: order.order_uuid }, '', '#order-' + encodeURIComponent(order.order_id));
+            }
         }
 
         document.getElementById('detail-delete-order-btn').addEventListener('click', (e) => {
@@ -1601,11 +1669,15 @@
             modal.show();
         };
 
-        function returnToOrdersList(e) {
+        function returnToOrdersList(e, push = true) {
             if (e) e.preventDefault();
             ordersListView.style.display = 'block';
             orderDetailView.style.display = 'none';
             selectedOrder = null;
+
+            if (push && window.location.hash !== '#orders') {
+                history.pushState({ view: 'list' }, '', '#orders');
+            }
         }
 
         document.getElementById('back-to-orders').onclick = returnToOrdersList;
@@ -1658,8 +1730,8 @@
                 // Update local state and UI
                 selectedOrder = { ...selectedOrder, ...updatedData };
 
-                // Refresh order info in detail view
-                showOrderDetail(selectedOrder);
+                // Refresh order info in detail view without pushing new history
+                showOrderDetail(selectedOrder, false);
 
                 // Refresh main list in background
                 fetchOrders();
@@ -1720,10 +1792,9 @@
             if (error) {
                 alert(error.message);
             } else {
-                // If we're in detail view, go back to list
+                // If we're in detail view, go back to list and sync history
                 if (orderDetailView.style.display === 'block') {
-                    orderDetailView.style.display = 'none';
-                    ordersListView.style.display = 'block';
+                    returnToOrdersList();
                 }
                 fetchOrders();
             }
@@ -1760,7 +1831,7 @@
                         <div class="timeline-date">${formatDate(log.date)}</div>
                         <div class="timeline-dot"></div>
                         <div class="timeline-content-match">
-                            <div class="timeline-note">${log.note}</div>
+                            <div class="timeline-note">${linkifyTracking(log.note)}</div>
                             <div class="log-actions">
                                 <button class="btn btn-sm btn-light px-2" style="font-size: 1.1rem;" onclick='editLogPrompt(${JSON.stringify(log)})' title="Edit Status">✎</button>
                                 <button class="btn btn-sm btn-light px-2 text-danger" style="font-size: 1.1rem;" onclick="deleteLog('${log.color_logs_uuid}')" title="Delete Status">×</button>
@@ -1970,7 +2041,7 @@
                             <td class="text-nowrap">${formatDate(order.delivery_date)}</td>
                             <td>${color ? color.color_name : 'N/A'}</td>
                             <td class="text-nowrap">${latestDate}</td>
-                            <td>${latestNote}</td>
+                            <td>${linkifyTracking(latestNote)}</td>
                         </tr>
                     `;
                 });
@@ -2145,7 +2216,7 @@
                     .map(log => `
                         <tr>
                             <td>${formatDate(log.date)}</td>
-                            <td>${log.note}</td>
+                            <td>${linkifyTracking(log.note)}</td>
                         </tr>
                     `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
 
@@ -2273,7 +2344,7 @@
                 .map(log => `
                     <tr>
                         <td>${formatDate(log.date)}</td>
-                        <td>${log.note}</td>
+                        <td>${linkifyTracking(log.note)}</td>
                     </tr>
                 `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
 
@@ -2443,6 +2514,22 @@
                 });
             }
         }
+
+        window.addEventListener('popstate', (event) => {
+            if (!user) return; // Ignore if not logged in
+            
+            if (event.state && event.state.view === 'detail') {
+                const order = orders.find(o => o.order_uuid === event.state.order_uuid);
+                if (order) {
+                    showOrderDetail(order, false);
+                }
+            } else if (event.state && event.state.view === 'list') {
+                returnToOrdersList(null, false);
+            } else {
+                // Handle direct URL hash changes without state
+                handleHashNavigation();
+            }
+        });
 
         initTemplates();
         init();
