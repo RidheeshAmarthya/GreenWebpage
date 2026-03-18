@@ -1254,6 +1254,7 @@
         let currentSort = { column: 'order_id', direction: 'desc' };
         let currentPage = 1;
         const itemsPerPage = 10;
+        let currentColors = []; // Add this to store fetched colors for the current view
 
         // Session Configuration
         const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours absolute limit
@@ -1811,6 +1812,7 @@
                 console.error(error);
                 return;
             }
+            currentColors = data; // Store colors globally for lookup
             renderColors(data);
         }
 
@@ -2332,7 +2334,8 @@
         }
 
         // Print Single Color logic
-        async function printSingleColor(color) {
+        async function printSingleColor(colorUuid) {
+            const color = currentColors.find(c => c.colors_uuid === colorUuid);
             if (!selectedOrder || !color) return;
 
             showLoading(true);
