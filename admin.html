@@ -1267,6 +1267,44 @@
             { key: 'inspection_finishing_complete_date', label: 'Inspection / Finishing Complete' }
         ];
 
+        function linkifyTracking(text) {
+            if (!text) return '';
+            
+            // DHL Detection: DHL + 10-11 digit number (Case Insensitive)
+            const dhlRegex = /\b(DHL)\b[^\d]*?(\d{10,11})\b/gi;
+            let linkedText = text.replace(dhlRegex, (match, p1, p2) => {
+                return `<a href="https://www.dhl.com/en/express/tracking.html?AWB=${p2}" target="_blank" class="text-success fw-bold" style="text-decoration: underline;">${match}</a>`;
+            });
+            
+            // FedEx Detection: FedEx + 12-22 digit number (Case Insensitive)
+            const fedexRegex = /\b(FedEx)\b[^\d]*?(\d{12,22})\b/gi;
+            linkedText = linkedText.replace(fedexRegex, (match, p1, p2) => {
+                return `<a href="https://www.fedex.com/fedextrack/?trknbr=${p2}" target="_blank" class="text-success fw-bold" style="text-decoration: underline;">${match}</a>`;
+            });
+
+            // Fardar Detection: Fardar + 10-12 digit number (Case Insensitive)
+            // Stricter: ignore if "booking" is mentioned, and don't skip over digits
+            const fardarRegex = /\b(Fardar)\b(?![^0-9]*?booking)[^\d]*?(\d{10,12})\b/gi;
+            linkedText = linkedText.replace(fardarRegex, (match, p1, p2) => {
+                return `<a href="http://43.247.68.241:8028/queryEn.aspx?TrackNum=${p2}" target="_blank" class="text-success fw-bold" style="text-decoration: underline;">${match}</a>`;
+            });
+
+            // Pionexxco Detection: Pionexxco + 10 digit number (Case Insensitive)
+            const pionexxcoRegex = /\b(Pionexxco)\b[^\d]*?(\d{10})\b/gi;
+            linkedText = linkedText.replace(pionexxcoRegex, (match, p1, p2) => {
+                return `<a href="https://www.pionexxco.net/Track?awb=${p2}" target="_blank" class="text-success fw-bold" style="text-decoration: underline;">${match}</a>`;
+            });
+
+            // DTDC Detection: DTDC + Tracking Number (Case Insensitive)
+            // Pattern: 1-2 letters followed by 7-11 digits
+            const dtdcRegex = /\b(DTDC)\b[^\d]*?([A-Z]{1,2}\d{7,11})\b/gi;
+            linkedText = linkedText.replace(dtdcRegex, (match, p1, p2) => {
+                return `<a href="https://www.dtdc.com/track-your-shipment/?awb=${p2}" target="_blank" class="text-success fw-bold" style="text-decoration: underline;">${match}</a>`;
+            });
+            
+            return linkedText;
+        }
+
         // DOM Elements
         const loginContainer = document.getElementById('login-container');
         const dashboardContainer = document.getElementById('dashboard-container');
@@ -1767,7 +1805,7 @@
                         <div class="timeline-date">${formatDate(log.date)}</div>
                         <div class="timeline-dot"></div>
                         <div class="timeline-content-match">
-                            <div class="timeline-note">${log.note}</div>
+                            <div class="timeline-note">${linkifyTracking(log.note)}</div>
                             <div class="log-actions">
                                 <button class="btn btn-sm btn-light px-2" style="font-size: 1.1rem;" onclick='editLogPrompt(${JSON.stringify(log)})' title="Edit Status">✎</button>
                                 <button class="btn btn-sm btn-light px-2 text-danger" style="font-size: 1.1rem;" onclick="deleteLog('${log.color_logs_uuid}')" title="Delete Status">×</button>
@@ -1977,7 +2015,7 @@
                             <td class="text-nowrap">${formatDate(order.delivery_date)}</td>
                             <td>${color ? color.color_name : 'N/A'}</td>
                             <td class="text-nowrap">${latestDate}</td>
-                            <td>${latestNote}</td>
+                            <td>${linkifyTracking(latestNote)}</td>
                         </tr>
                     `;
                 });
@@ -2152,7 +2190,7 @@
                     .map(log => `
                         <tr>
                             <td>${formatDate(log.date)}</td>
-                            <td>${log.note}</td>
+                            <td>${linkifyTracking(log.note)}</td>
                         </tr>
                     `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
 
@@ -2280,7 +2318,7 @@
                 .map(log => `
                     <tr>
                         <td>${formatDate(log.date)}</td>
-                        <td>${log.note}</td>
+                        <td>${linkifyTracking(log.note)}</td>
                     </tr>
                 `).join('') || '<tr><td colspan="2" class="text-center">No logs recorded</td></tr>';
 
