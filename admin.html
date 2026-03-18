@@ -849,7 +849,12 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Green Order ID (Tracking Number)</label>
-                            <input type="text" name="order_id" class="form-control" required placeholder="e.g. GIN-001">
+                            <div class="input-group">
+                                <input type="text" name="order_id" id="add-order-id" class="form-control" required
+                                    placeholder="e.g. GIN-001">
+                                <button class="btn btn-outline-success" type="button" id="regenerate-order-id"
+                                    style="border-top-right-radius: 10px; border-bottom-right-radius: 10px;">Regenerate</button>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Company / Client Name</label>
@@ -1659,6 +1664,24 @@
                 // Refresh main list in background
                 fetchOrders();
             }
+        });
+
+        // Order ID Generation Logic
+        function generateOrderID() {
+            const year = new Date().getFullYear().toString().slice(-2);
+            const random = Math.floor(1000 + Math.random() * 9000).toString();
+            return year + random;
+        }
+
+        // Auto-fill Order ID when modal opens
+        const addOrderModalEl = document.getElementById('addOrderModal');
+        addOrderModalEl.addEventListener('show.bs.modal', () => {
+            document.getElementById('add-order-id').value = generateOrderID();
+        });
+
+        // Regenerate Button
+        document.getElementById('regenerate-order-id').addEventListener('click', () => {
+            document.getElementById('add-order-id').value = generateOrderID();
         });
 
         // Add Order
