@@ -1347,6 +1347,11 @@
                 document.getElementById('user-display').textContent = user.email;
                 resetInactivityTimer(); // Mark activity on state update
                 fetchOrders();
+                
+                // Initialize history state if not set
+                if (!history.state) {
+                    history.replaceState({ view: 'list' }, '', '#orders');
+                }
             } else {
                 loginContainer.style.display = 'block';
                 dashboardContainer.style.display = 'none';
@@ -1402,6 +1407,24 @@
             orders = data;
             // Apply default sort
             applySort();
+
+            // Handle initial deep link or back/forward navigation
+            handleHashNavigation();
+        }
+
+        function handleHashNavigation() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#order-')) {
+                const orderId = decodeURIComponent(hash.replace('#order-', ''));
+                const order = orders.find(o => o.order_id === orderId);
+                if (order) {
+                    showOrderDetail(order, false);
+                } else {
+                    returnToOrdersList();
+                }
+            } else if (hash === '#orders' || hash === '') {
+                returnToOrdersList(null, false);
+            }
         }
 
         function handleSort(column) {
@@ -1549,7 +1572,7 @@
             renderOrdersTable(filtered);
         });
 
-        async function showOrderDetail(order) {
+        async function showOrderDetail(order, push = true) {
             selectedOrder = order;
             ordersListView.style.display = 'none';
             orderDetailView.style.display = 'block';
@@ -1562,6 +1585,10 @@
             document.getElementById('detail-commercial').textContent = order.commercial;
 
             fetchColors(order.order_uuid);
+
+            if (push) {
+                history.pushState({ view: 'detail', order_uuid: order.order_uuid }, '', '#order-' + encodeURIComponent(order.order_id));
+            }
         }
 
         document.getElementById('detail-delete-order-btn').addEventListener('click', (e) => {
@@ -1596,11 +1623,15 @@
             modal.show();
         };
 
-        function returnToOrdersList(e) {
+        function returnToOrdersList(e, push = true) {
             if (e) e.preventDefault();
             ordersListView.style.display = 'block';
             orderDetailView.style.display = 'none';
             selectedOrder = null;
+
+            if (push && window.location.hash !== '#orders') {
+                history.pushState({ view: 'list' }, '', '#orders');
+            }
         }
 
         document.getElementById('back-to-orders').onclick = returnToOrdersList;
@@ -1653,8 +1684,8 @@
                 // Update local state and UI
                 selectedOrder = { ...selectedOrder, ...updatedData };
 
-                // Refresh order info in detail view
-                showOrderDetail(selectedOrder);
+                // Refresh order info in detail view without pushing new history
+                showOrderDetail(selectedOrder, false);
 
                 // Refresh main list in background
                 fetchOrders();
@@ -1697,10 +1728,9 @@
             if (error) {
                 alert(error.message);
             } else {
-                // If we're in detail view, go back to list
+                // If we're in detail view, go back to list and sync history
                 if (orderDetailView.style.display === 'block') {
-                    orderDetailView.style.display = 'none';
-                    ordersListView.style.display = 'block';
+                    returnToOrdersList();
                 }
                 fetchOrders();
             }
@@ -2420,6 +2450,22 @@
                 });
             }
         }
+
+        window.addEventListener('popstate', (event) => {
+            if (!user) return; // Ignore if not logged in
+            
+            if (event.state && event.state.view === 'detail') {
+                const order = orders.find(o => o.order_uuid === event.state.order_uuid);
+                if (order) {
+                    showOrderDetail(order, false);
+                }
+            } else if (event.state && event.state.view === 'list') {
+                returnToOrdersList(null, false);
+            } else {
+                // Handle direct URL hash changes without state
+                handleHashNavigation();
+            }
+        });
 
         initTemplates();
         init();
