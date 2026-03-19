@@ -1741,9 +1741,11 @@
 
         // Order ID Generation Logic
         function generateOrderID() {
-            const year = new Date().getFullYear().toString().slice(-2);
-            const random = Math.floor(1000 + Math.random() * 9000).toString();
-            return year + random;
+            const now = new Date();
+            const yearDigit = now.getFullYear().toString().slice(-1); // "6" for 2026
+            const month = (now.getMonth() + 1).toString().padStart(2, '0'); // "03" for March
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // "000"-"999" (3 digits)
+            return yearDigit + month + random;
         }
 
         // Auto-fill Order ID when modal opens
