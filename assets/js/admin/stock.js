@@ -4,10 +4,15 @@ let stockItems = [];
 let stockCurrentPage = 1;
 const stockItemsPerPage = 12; // Grid friendly (3x4 or 4x3)
 let stockSort = { column: 'created_at', direction: 'desc' };
-let stockViewMode = 'grid';
+let stockViewMode = 'grid'; // 'grid' | 'list'
+let stockCurrentQuery = '';
+let stockCurrentType = 'all';
+
+// Batch Operations State
+let selectedStockIds = [];
 
 // Image Caching to save bandwidth (Persistent 24h)
-const CACHE_VALID_MS = 23.5 * 60 * 60 * 1000; 
+const CACHE_VALID_MS = 23.5 * 60 * 60 * 1000;
 let stockImageCache = JSON.parse(localStorage.getItem('stock_image_cache') || '{}');
 const pendingRequests = new Map(); // Track ongoing requests to deduplicate
 
@@ -223,6 +228,16 @@ async function showStockDetail(id) {
                     <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-muted fw-bold" style="font-size: 0.5rem; opacity: 0.5; pointer-events: none;">MAGNIFY TO INSPECT</div>
                 </div>
                 
+                <!-- Print Action (Left Side) -->
+                <button class="btn btn-light w-100 py-3 mb-3 fw-bold d-flex align-items-center justify-content-center gap-2 border shadow-sm" 
+                        style="border-radius: 14px; font-size: 0.85rem; transition: all 0.3s ease;"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0.125rem 0.25rem rgba(0,0,0,0.075)';"
+                        onclick="generateStockPDF('${item.id}')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    PRINT ARTICLE REPORT
+                </button>
+                
                 <!-- Barcode Visualization (Aligned with Buttons) -->
                 <div class="w-100 text-center py-2 bg-white rounded-3 border mt-auto">
                     <svg id="detail-barcode-svg" style="max-height: 40px; width: 100%;"></svg>
@@ -272,21 +287,22 @@ async function showStockDetail(id) {
                         <div class="col-5 text-muted small fw-bold text-uppercase">Remarks</div>
                         <div class="col-7 text-dark small fw-bold text-muted" style="font-style: italic;">${item.remark || 'N/A'}</div>
                     </div>
-                    <div class="row g-0 py-2 text-muted" style="opacity: 0.8;">
-                        <div class="col-5 small fw-bold text-uppercase" style="font-size: 0.65rem;">System Entry</div>
-                        <div class="col-7 small fw-bold" style="font-size: 0.65rem;">${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
+                    <div class="row g-0 py-2 border-bottom">
+                        <div class="col-5 text-muted small fw-bold text-uppercase">System Entry</div>
+                        <div class="col-7 text-dark small fw-bold">${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
                     </div>
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="d-flex gap-2 mt-auto">
-                    <button class="btn btn-green flex-grow-1 py-3 fw-bold" style="border-radius: 14px;"
+                <div class="mt-auto pt-3 border-top">
+                    <button class="btn btn-green w-100 py-3 mb-2 fw-bold shadow-sm" style="border-radius: 14px;"
                             onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); openStockModal('${item.id}')">
                         EDIT RECORD
                     </button>
-                    <button class="btn btn-outline-danger px-4" style="border-radius: 14px;"
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm fw-bold border-0" 
+                            style="border-radius: 12px; opacity: 0.6; font-size: 0.7rem;"
                             onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); deleteStockItem('${item.id}', '${item.article_no}')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        DELETE ARTICLE
                     </button>
                 </div>
             </div>
@@ -404,10 +420,21 @@ function createStockCard(item) {
 
     const badgeClass = item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark';
     const badgeText = item.status === 'IN_STOCK' ? 'In Stock' : 'Out of stock';
+    
+    const isSelected = selectedStockIds.includes(item.id);
 
     card.innerHTML = `
         <div class="position-relative overflow-hidden" style="height: 200px; background: #f8f9fa;">
             <img src="${placeholderImg}" id="img-grid-${item.id}" class="w-100 h-100" style="object-fit: cover;">
+            
+            <!-- Selection Checkbox -->
+            <div class="position-absolute top-0 start-0 m-2" style="z-index: 5;">
+                <input type="checkbox" class="form-check-input stock-checkbox" 
+                       style="width: 20px; height: 20px; cursor: pointer; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                       onclick="event.stopPropagation(); toggleStockSelection('${item.id}')"
+                       ${isSelected ? 'checked' : ''}>
+            </div>
+
             <!-- Top Right: Availability -->
             <div class="position-absolute top-0 end-0 m-2">
                 <span class="badge ${badgeClass} shadow-sm px-2 py-1 border-0 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.5rem; letter-spacing: 0.5px; opacity: 0.95;">${badgeText}</span>
@@ -463,9 +490,17 @@ function createStockRow(item) {
 
     const badgeClass = item.status === 'IN_STOCK' ? 'bg-success-subtle text-success border-success' : 'bg-warning-subtle text-warning border-warning';
     const badgeText = item.status === 'IN_STOCK' ? 'In Stock' : 'Out of stock';
+    
+    const isSelected = selectedStockIds.includes(item.id);
 
     tr.innerHTML = `
         <td class="ps-4">
+            <input type="checkbox" class="form-check-input stock-checkbox" 
+                   style="width: 18px; height: 18px; cursor: pointer; border-radius: 6px;"
+                   onclick="event.stopPropagation(); toggleStockSelection('${item.id}')"
+                   ${isSelected ? 'checked' : ''}>
+        </td>
+        <td>
             <div style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #f0f0f0;">
                 <img src="${placeholderImg}" id="img-list-${item.id}" class="w-100 h-100" style="object-fit: cover;">
             </div>
@@ -607,11 +642,16 @@ async function capturePhoto() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Set internal resolution (reasonable for 50KB)
-    canvas.width = 640;
-    canvas.height = 480;
+    // Extract absolute resolution from the live stream
+    const vWidth = video.videoWidth;
+    const vHeight = video.videoHeight;
     
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Exact mapping to prevent shifting or distortion
+    canvas.width = vWidth;
+    canvas.height = vHeight;
+    
+    // Explicitly draw the full frame to the full canvas
+    ctx.drawImage(video, 0, 0, vWidth, vHeight, 0, 0, vWidth, vHeight);
     
     // Compression Loop to ensure < 50KB (Now using WebP)
     let quality = 0.8;
@@ -627,7 +667,10 @@ async function capturePhoto() {
     capturePreview.src = dataUrl;
     capturePreview.style.display = 'block';
     document.getElementById('stock-sources-content').style.display = 'none';
-    document.getElementById('photo-action-overlay').style.display = 'block';
+    
+    // Toggle action controls
+    captureBtn.style.display = 'none';
+    retakeBtn.style.display = 'inline-block';
     
     document.getElementById('stock-image-data').value = dataUrl;
     stopWebcam();
@@ -638,7 +681,6 @@ if (captureBtn) captureBtn.onclick = capturePhoto;
 if (retakeBtn) retakeBtn.onclick = () => {
     capturePreview.style.display = 'none';
     document.getElementById('stock-sources-content').style.display = 'block';
-    document.getElementById('photo-action-overlay').style.display = 'none';
     document.getElementById('stock-image-data').value = '';
     document.getElementById('stock-file-input').value = '';
     
@@ -707,15 +749,33 @@ document.getElementById('stock-file-input')?.addEventListener('change', async (e
 });
 
 // Modal Handlers
-const stockItemModal = new bootstrap.Modal(document.getElementById('stockItemModal'));
+const stockItemModalElement = document.getElementById('stockItemModal');
+const stockItemModal = new bootstrap.Modal(stockItemModalElement);
+
+// Ensure webcam stops when modal is closed
+stockItemModalElement?.addEventListener('hidden.bs.modal', () => {
+    stopWebcam();
+});
 
 function openStockModal(id = null) {
     const form = document.getElementById('stock-item-form');
     form.reset();
     document.getElementById('stock-image-data').value = '';
+    
+    // Kill any hanging stream
+    stopWebcam();
+
+    // Reset Visual Elements
     capturePreview.style.display = 'none';
+    capturePreview.src = '';
+    placeholder.style.display = 'block';
+    video.style.display = 'none';
     document.getElementById('stock-sources-content').style.display = 'block';
-    document.getElementById('photo-action-overlay').style.display = 'none';
+    
+    // Reset camera controls
+    startBtn.style.display = 'inline-block';
+    captureBtn.style.display = 'none';
+    retakeBtn.style.display = 'none';
 
     if (id) {
         const item = stockItems.find(i => i.id === id);
@@ -1109,4 +1169,344 @@ function clearStockFilters() {
     
     stockCurrentPage = 1;
     applyStockFilter();
+}
+
+async function generateStockPDF(id) {
+    const item = stockItems.find(i => i.id === id);
+    if (!item) return;
+
+    const imgUrl = item.resolved_url || placeholderImg;
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=800');
+    
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Spec Sheet - ${item.article_no}</title>
+            <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+                
+                body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background: #fff; color: #111; }
+                
+                .spec-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+                
+                .card-header { background: #28a745; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; flex-shrink: 0; }
+                .logo { height: 28px; }
+                .brand-title { font-weight: 800; letter-spacing: 0.5px; font-size: 13px; text-transform: uppercase; }
+                
+                .info-section { padding: 12px 20px; flex-shrink: 0; }
+                .article-no { font-size: 16px; font-weight: 900; color: #28a745; margin-bottom: 8px; letter-spacing: -0.2px; line-height: 1.1; }
+                
+                .specs-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 6px 0; margin-bottom: 6px; }
+                .spec-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 0.5px solid #f0f0f0; align-items: center; }
+                .spec-row:last-child { border-bottom: none; }
+                .spec-label { color: #888; font-weight: 800; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.6px; }
+                .spec-value { font-weight: 700; font-size: 11px; color: #111; text-align: right; }
+                
+                .image-section { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+                .image-section img { width: 100%; max-height: 650px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background: #fff; padding: 2px; }
+                
+                .footer-section { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+                .contact-block { font-size: 9px; font-weight: 700; color: #777; line-height: 1.5; }
+                .contact-block b { color: #111; font-size: 11px; display: block; margin-bottom: 2px; }
+                
+                .barcode-box { text-align: right; }
+                #barcode-svg { max-height: 55px; max-width: 180px; }
+                
+                @page { size: A4; margin: 5mm; }
+                @media print {
+                    body { padding: 0; background: none; }
+                    .spec-card { border: none; max-width: 100%; width: 100%; height: 285mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+                    .image-section { flex-grow: 1; min-height: 180mm; }
+                    .image-section img { max-height: 240mm; width: 100%; max-width: 100%; }
+                    .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15px 30px; }
+                    .info-section { padding: 25px 30px; }
+                    .footer-section { padding: 25px 30px; }
+                    .article-no { font-size: 24px; }
+                    .spec-value { font-size: 15px; }
+                    .spec-label { font-size: 10px; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="spec-card">
+                <div class="card-header">
+                    <img class="logo" src="assets/images/green-logo.png">
+                    <div class="brand-title">Green International</div>
+                </div>
+                
+                <div class="info-section">
+                    <div class="article-no">${item.article_no}</div>
+                    <div class="specs-strip">
+                        <div class="left-col">
+                            ${['content', 'count', 'density'].map(field => `
+                                <div class="spec-row">
+                                    <span class="spec-label">${field}</span>
+                                    <span class="spec-value">${item[field] || '-'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="right-col">
+                            ${['width', 'weight', 'finish'].map(field => `
+                                <div class="spec-row">
+                                    <span class="spec-label">${field}</span>
+                                    <span class="spec-value">${item[field] || '-'} ${field === 'weight' && item[field] ? 'GSM' : ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="image-section">
+                    <img src="${imgUrl}" crossorigin="anonymous">
+                </div>
+                
+                <div class="footer-section">
+                    <div class="contact-block">
+                        <b>Green International Collections</b>
+                        <div>www.greeninternationalindia.com</div>
+                        <div>info@greeninternationalindia.com</div>
+                    </div>
+                    <div class="barcode-box">
+                        <svg id="barcode-svg"></svg>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                window.onload = function() {
+                    if (window.JsBarcode) {
+                        JsBarcode("#barcode-svg", "${item.barcode}", {
+                            format: "CODE128",
+                            height: 50,
+                            width: 1.6,
+                            displayValue: true,
+                            fontSize: 11,
+                            fontOptions: "bold",
+                            lineColor: "#111"
+                        });
+                    }
+                }
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// Batch Operations Logic
+function toggleStockSelection(id) {
+    const index = selectedStockIds.indexOf(id);
+    if (index === -1) {
+        selectedStockIds.push(id);
+    } else {
+        selectedStockIds.splice(index, 1);
+    }
+    updateBatchActionBar();
+}
+
+function updateBatchActionBar() {
+    const bar = document.getElementById('stock-batch-bar');
+    const countEl = document.getElementById('selected-count');
+    if (!bar || !countEl) return;
+
+    if (selectedStockIds.length > 0) {
+        bar.style.display = 'block';
+        countEl.textContent = selectedStockIds.length;
+    } else {
+        bar.style.display = 'none';
+        const selectAll = document.getElementById('stock-select-all');
+        if (selectAll) selectAll.checked = false;
+    }
+}
+
+function clearStockSelection() {
+    selectedStockIds = [];
+    updateBatchActionBar();
+    const boxes = document.querySelectorAll('.stock-checkbox');
+    boxes.forEach(b => b.checked = false);
+}
+
+async function batchDeleteStock() {
+    if (selectedStockIds.length === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedStockIds.length} selected articles?`)) return;
+
+    showLoading(true);
+    try {
+        // Find items to delete images if necessary (optional improvement)
+        const { error } = await supabaseClient
+            .from('Stock')
+            .delete()
+            .in('id', selectedStockIds);
+
+        if (error) throw error;
+        
+        selectedStockIds = [];
+        updateBatchActionBar();
+        fetchStock();
+        alert("Batch deletion successful");
+    } catch (err) {
+        alert("Batch delete failed: " + err.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function generateBatchStockPDF() {
+    if (selectedStockIds.length === 0) return;
+    
+    showLoading(true);
+    try {
+        const selectedItems = stockItems.filter(i => selectedStockIds.includes(i.id));
+        if (selectedItems.length === 0) return;
+
+        const baseUrl = window.location.href.split('#')[0].split('?')[0].substring(0, window.location.href.lastIndexOf('/') + 1);
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <base href="${baseUrl}">
+                <title>Green Batch Spec Report</title>
+                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+                    body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #fff; }
+                    
+                    .page-container { page-break-after: always; min-height: 285mm; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+                    .page-container:last-child { page-break-after: auto; }
+
+                    .spec-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; max-width: 550px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+                    .card-header { background: #28a745; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; flex-shrink: 0; }
+                    .logo { height: 28px; }
+                    .brand-title { font-weight: 800; letter-spacing: 0.5px; font-size: 13px; text-transform: uppercase; }
+                    .info-section { padding: 12px 20px; flex-shrink: 0; }
+                    .article-no { font-size: 16px; font-weight: 900; color: #28a745; margin-bottom: 8px; letter-spacing: -0.2px; line-height: 1.1; }
+                    .specs-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 6px 0; margin-bottom: 6px; }
+                    .spec-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 0.5px solid #f0f0f0; align-items: center; }
+                    .spec-row:last-child { border-bottom: none; }
+                    .spec-label { color: #888; font-weight: 800; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.6px; }
+                    .spec-value { font-weight: 700; font-size: 11px; color: #111; text-align: right; }
+                    .image-section { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: center; flex-grow: 1; min-height: 250px; }
+                    .image-section img { width: 100%; max-height: 650px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background: #fff; padding: 2px; }
+                    .footer-section { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+                    .contact-block { font-size: 9px; font-weight: 700; color: #777; line-height: 1.5; }
+                    .contact-block b { color: #111; font-size: 11px; display: block; margin-bottom: 2px; }
+                    .barcode-box { text-align: right; }
+                    .barcode-svg { max-height: 55px; max-width: 180px; }
+                    
+                    @page { size: A4; margin: 0; }
+                    @media print {
+                        body { padding: 0; }
+                        .page-container { padding: 10mm; height: 297mm; display: block; overflow: hidden; }
+                        .spec-card { border: none; max-width: 100%; width: 100%; height: 275mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+                        .image-section { flex-grow: 1; min-height: 120mm; }
+                        .image-section img { max-height: 220mm; width: 100%; }
+                        .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15px 30px; }
+                        .info-section { padding: 25px 30px; }
+                        .footer-section { padding: 25px 30px; }
+                        .article-no { font-size: 24px; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${selectedItems.map(item => `
+                    <div class="page-container">
+                        <div class="spec-card">
+                            <div class="card-header">
+                                <img class="logo" src="assets/images/green-logo.png">
+                                <div class="brand-title">Green International</div>
+                            </div>
+                            <div class="info-section">
+                                <div class="article-no">${item.article_no}</div>
+                                <div class="specs-strip">
+                                    <div class="left-col">
+                                        ${['content', 'count', 'density'].map(f => `<div class="spec-row"><span class="spec-label">${f}</span><span class="spec-value">${item[f] || '-'}</span></div>`).join('')}
+                                    </div>
+                                    <div class="right-col">
+                                        ${['width', 'weight', 'finish'].map(f => `<div class="spec-row"><span class="spec-label">${f}</span><span class="spec-value">${item[f] || '-'} ${f==='weight' && item[f] ? 'GSM' : ''}</span></div>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="image-section">
+                                <img src="${item.resolved_url || placeholderImg}" crossorigin="anonymous">
+                            </div>
+                            <div class="footer-section">
+                                <div class="contact-block">
+                                    <b>Green International Collections</b>
+                                    <div>www.greeninternationalindia.com</div>
+                                    <div>info@greeninternationalindia.com</div>
+                                </div>
+                                <div class="barcode-box">
+                                    <svg class="barcode-svg" data-barcode="${item.barcode}"></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+                <script>
+                    window.onload = function() {
+                        document.querySelectorAll('.barcode-svg').forEach(el => {
+                            JsBarcode(el, el.dataset.barcode, {
+                                format: "CODE128", height: 50, width: 1.6, displayValue: true, fontSize: 11, fontOptions: "bold", lineColor: "#111"
+                            });
+                        });
+                        setTimeout(() => {
+                            // If user wants auto-print, uncomment: window.print();
+                        }, 1000);
+                    }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        clearStockSelection();
+    } catch (err) {
+        alert("Batch report failed: " + err.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Global Select All Listener
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'stock-select-all') {
+        const checkboxes = document.querySelectorAll('.stock-checkbox');
+        const isChecked = e.target.checked;
+        
+        checkboxes.forEach(box => {
+            box.checked = isChecked;
+            const articleId = box.onclick.toString().match(/'([^']+)'/)[1];
+            
+            const index = selectedStockIds.indexOf(articleId);
+            if (isChecked && index === -1) selectedStockIds.push(articleId);
+            else if (!isChecked && index !== -1) selectedStockIds.splice(index, 1);
+        });
+        updateBatchActionBar();
+    }
+});
+
+async function shareStockItem(id) {
+    const item = stockItems.find(i => i.id === id);
+    if (!item) return;
+
+    const summary = `*Green International Collections*\nTechnical Spec Card\n\nArticle: ${item.article_no}\nContent: ${item.content || '-'}\nCount: ${item.count || '-'}\nWeight: ${item.weight ? item.weight + ' GSM' : '-'}\nWidth: ${item.width || '-'}\nFinish: ${item.finish || '-'}\n\nGenerated via Green Admin Portal`;
+
+    try {
+        await navigator.clipboard.writeText(summary);
+        const btn = document.querySelector(`button[onclick*="shareStockItem('${id}')"]`);
+        if (btn) {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> COPIED!`;
+            const originalClass = btn.className;
+            btn.className = "btn btn-success flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 border shadow-sm text-white";
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.className = originalClass;
+            }, 2000);
+        }
+    } catch (err) {
+        console.error('Share failed:', err);
+    }
 }
