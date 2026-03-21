@@ -80,6 +80,10 @@ body {
   border: none;
 }
 
+.bg-green {
+  background-color: var(--primary-green) !important;
+}
+
 .btn-green:hover {
   background: var(--dark-green);
   color: white;

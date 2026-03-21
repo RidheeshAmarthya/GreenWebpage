@@ -22,6 +22,7 @@ const dashboardContainer = document.getElementById('dashboard-container');
 const orderDetailView = document.getElementById('order-detail-view');
 const ordersListView = document.getElementById('orders-list-view');
 const selectionView = document.getElementById('selection-view');
+const stockManagerView = document.getElementById('stock-manager-view');
 const loadingOverlay = document.getElementById('loading-overlay');
 
 // Session Management
@@ -78,7 +79,10 @@ function updateUI() {
         // Handle initial view based on hash
         const hash = window.location.hash;
         if (hash.startsWith('#order-') || hash === '#orders') {
-            fetchOrders(); // This will trigger handleHashNavigation inside it
+            fetchOrders();
+        } else if (hash === '#stock') {
+            if (typeof goToStock === 'function') goToStock();
+            else window.addEventListener('load', () => { if(window.location.hash === '#stock') goToStock(); }, { once: true });
         } else {
             showHub();
         }
@@ -92,6 +96,7 @@ function showHub(push = true) {
     selectionView.style.display = 'block';
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
+    stockManagerView.style.display = 'none';
     selectedOrder = null;
     if (push && window.location.hash !== '#hub') {
         history.pushState({ view: 'hub' }, '', '#hub');
@@ -110,6 +115,7 @@ function returnToOrdersList(e, push = true) {
     selectionView.style.display = 'none';
     ordersListView.style.display = 'block';
     orderDetailView.style.display = 'none';
+    stockManagerView.style.display = 'none';
     selectedOrder = null;
 
     if (push && window.location.hash !== '#orders') {
@@ -147,10 +153,17 @@ window.addEventListener('popstate', (event) => {
         if (order) showOrderDetail(order, false);
     } else if (state && state.view === 'list') {
         returnToOrdersList(null, false);
+    } else if (state && state.view === 'stock') {
+        goToStock(false);
     } else if (state && state.view === 'hub') {
         showHub(false);
     } else {
-        handleHashNavigation();
+        const hash = window.location.hash;
+        if (hash === '#stock') {
+            goToStock(false);
+        } else {
+            handleHashNavigation();
+        }
     }
 });
 

@@ -3,6 +3,7 @@ async function showOrderDetail(order, push = true) {
     selectedOrder = order;
     selectionView.style.display = 'none';
     ordersListView.style.display = 'none';
+    stockManagerView.style.display = 'none';
     orderDetailView.style.display = 'block';
     document.getElementById('breadcrumb-order-id').textContent = order.order_id;
 

@@ -21,9 +21,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
 
     <link rel="stylesheet" href="assets/css/common.css">
     <link rel="stylesheet" href="assets/css/admin.css">
+    <style>
+        #stockItemModal .nav-pills .nav-link.active {
+            background-color: var(--primary-green) !important;
+            color: white !important;
+        }
+        #stockItemModal .nav-pills .nav-link {
+            color: #555;
+        }
+    </style>
 </head>
 
 <body>
@@ -89,14 +99,14 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-5 col-lg-4">
-                        <div class="card h-100 card-hub text-center border-0 shadow-sm" style="border-radius: 20px; opacity: 0.7; filter: grayscale(1);">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToStock()" style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
                             <div class="card-body p-5">
-                                <div class="icon-circle mx-auto mb-4" style="background: #f1f1f1; color: #999; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <div class="icon-circle mx-auto mb-4" style="background: rgba(255, 133, 27, 0.1); color: #ff851b; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
                                 </div>
-                                <h2 class="h4 fw-bold mb-3 text-muted">Stock Manager</h2>
-                                <p class="text-muted mb-4 small">Coming Soon: Real-time inventory tracking and warehouse fulfillment system.</p>
-                                <button class="btn btn-outline-secondary w-100 py-3 disabled" style="border-radius: 12px;">Planned</button>
+                                <h2 class="h4 fw-bold mb-3">Stock Manager</h2>
+                                <p class="text-muted mb-4 small">Manage swatchcards, hangers, and dead stock with barcode-based checkout.</p>
+                                <button class="btn w-100 py-3 text-white fw-bold shadow-sm" style="background: #ff851b; border-radius: 12px; border: none;">Open Stock Manager</button>
                             </div>
                         </div>
                     </div>
@@ -105,6 +115,12 @@
 
             <!-- Orders List View -->
             <div id="orders-list-view" style="display: none;">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" onclick="showHub(); return false;">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Orders</li>
+                    </ol>
+                </nav>
                 <div class="mb-5">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
                         <h1 class="mb-0 h1"><strong>Orders Management</strong></h1>
@@ -170,6 +186,7 @@
             <div id="order-detail-view">
                 <nav aria-label="breadcrumb" class="mb-4">
                     <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" onclick="showHub(); return false;">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="#" id="back-to-orders">Orders</a></li>
                         <li class="breadcrumb-item active" id="breadcrumb-order-id">Order Detail</li>
                     </ol>
@@ -194,7 +211,7 @@
                             </button>
                             <button id="print-order-btn" class="btn btn-light-print fw-bold"
                                 style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem;">
-                                ⎙ Print Full Report
+                                Print Full Report
                             </button>
                             <button id="edit-order-btn" class="btn btn-green fw-bold"
                                 style="height: 50px; padding: 0 20px; border-radius: 8px; font-size: 0.85rem;">
@@ -243,6 +260,106 @@
                 </div>
 
                 <div id="colors-list"></div>
+            </div>
+
+            <!-- Stock Manager View -->
+            <!-- Stock Manager View -->
+            <div id="stock-manager-view" style="display: none;">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" onclick="showHub(); return false;">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Stock Manager</li>
+                    </ol>
+                </nav>
+
+                <!-- Modern Header Section -->
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4 mb-3">
+                    <div>
+                        <h1 class="mb-1 h2 fw-bold text-dark">Stock Management</h1>
+                        <p class="text-muted small mb-0">Monitor inventory levels and process sample distributions.</p>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#checkInModal" style="height: 52px; border-radius: 12px; font-weight: 600;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Check In
+                        </button>
+                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#checkoutModal" style="height: 52px; border-radius: 12px; font-weight: 600;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Checkout
+                        </button>
+                        <button class="btn btn-green px-4 d-flex align-items-center gap-2 shadow-sm" onclick="openStockModal()" style="height: 52px; border-radius: 12px; font-weight: 600;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Article
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Unified Control Bar (Transparent Style) -->
+                <div class="mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md-5">
+                            <div class="input-group shadow-sm" style="border-radius: 12px;">
+                                <span class="input-group-text bg-white border-end-0 ps-3" style="border-radius: 12px 0 0 12px;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </span>
+                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder="Search Article No, Content, Barcode..."
+                                    style="height: 52px; border-radius: 0 12px 12px 0; font-size: 0.95rem;">
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <select id="stock-type-filter" class="form-select shadow-sm" style="height: 52px; border-radius: 12px; background-color: #fff; border: 1px solid #dee2e6;">
+                                <option value="all">Categories: ALL</option>
+                                <option value="Swatchcard">Swatchcards</option>
+                                <option value="Hanger">Hangers</option>
+                                <option value="Sampling Yardage">Sampling Yardage</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="d-flex justify-content-end align-items-center gap-3">
+                                <div class="text-muted small fw-bold text-uppercase d-none d-lg-block" style="letter-spacing: 1px; font-size: 0.6rem;">Layout</div>
+                                <div class="btn-group p-1 bg-white rounded-3 shadow-sm border" style="height: 44px;">
+                                    <button class="btn btn-sm stock-view-btn px-3 active" id="view-grid-btn" onclick="toggleStockView('grid')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                    </button>
+                                    <button class="btn btn-sm stock-view-btn px-3" id="view-list-btn" onclick="toggleStockView('list')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stock-empty" style="display:none;" class="text-center py-5">
+                    <p class="text-muted">No stock items found. Click "+ New Article" to add one.</p>
+                </div>
+
+                <!-- View Containers -->
+                <div id="stock-grid-view" class="row g-4 mb-4"></div>
+                
+                <div id="stock-list-view" class="bg-white rounded-4 shadow-sm border overflow-hidden mb-4" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light border-0">
+                                <tr class="text-secondary small fw-bold">
+                                    <th class="ps-4" style="width: 80px;">Image</th>
+                                    <th>Article No</th>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Count</th>
+                                    <th>Weight</th>
+                                    <th>Status</th>
+                                    <th>Barcode</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stock-table-body" class="small"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="stock-pagination-container" class="px-4 py-3 d-flex justify-content-between align-items-center mt-3"></div>
             </div>
         </main>
     </div>
@@ -614,6 +731,261 @@
         </div>
     </div>
 
+    <!-- Stock Modals -->
+    <!-- Stock Item Modal (Add/Edit) -->
+    <div class="modal fade" id="stockItemModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 740px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                <form id="stock-item-form">
+                    <div class="modal-body p-0">
+                        <!-- Top Section: Content and Details -->
+                        <div class="row g-0">
+                            <!-- Left: Content Wrapper -->
+                            <div class="col-lg-5 p-3 d-flex flex-column" style="background: #f8f8f8;">
+                                <div class="flex-grow-1">
+                                    <ul class="nav nav-pills nav-justified mb-2 bg-white p-1 rounded-3 shadow-sm" id="stock-source-tabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active py-2 small fw-bold" id="cam-tab" data-bs-toggle="pill" data-bs-target="#pills-cam" type="button" role="tab">Live Camera</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link py-2 small fw-bold" id="upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button" role="tab">Upload File</button>
+                                        </li>
+                                    </ul>
+
+                                    <div class="position-relative bg-white border rounded-4 overflow-hidden shadow-sm" style="height: 280px;">
+                                        <!-- Shared Preview Image -->
+                                        <img id="webcam-capture-preview" style="width: 100%; height: 100%; object-fit: contain; display: none; background: #fff;">
+                                        
+                                        <!-- Tab Content (Sources) -->
+                                        <div id="stock-sources-content" class="h-100">
+                                            <div class="tab-content h-100">
+                                                <div class="tab-pane fade show active h-100" id="pills-cam" role="tabpanel">
+                                                    <div id="webcam-container" class="position-relative h-100 d-flex align-items-center justify-content-center">
+                                                        <video id="webcam-preview" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
+                                                        <div id="webcam-placeholder" class="text-muted p-4 text-center">
+                                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                                            <p class="mb-0 small fw-bold">Ready to capture</p>
+                                                        </div>
+                                                        <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark bg-opacity-50 text-center webcam-controls">
+                                                            <button type="button" class="btn btn-sm btn-light fw-bold" id="start-webcam-btn">Start Camera</button>
+                                                            <button type="button" class="btn btn-sm btn-success fw-bold" id="capture-photo-btn" style="display: none;">Take Photo</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade h-100" id="pills-upload" role="tabpanel">
+                                                    <div class="h-100 p-4 border border-2 border-dashed text-center d-flex flex-column align-items-center justify-content-center" style="border-style: dashed !important; border-color: #ddd !important;">
+                                                        <div>
+                                                            <div class="mb-3 text-success">
+                                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                            </div>
+                                                            <label for="stock-file-input" class="btn btn-outline-success btn-sm mb-2 fw-bold" style="cursor: pointer;">Choose Image File</label>
+                                                            <input type="file" id="stock-file-input" class="d-none" accept="image/*">
+                                                            <p class="text-muted small mb-0">Drag and drop or click to browse</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Change Photo Overlay (Visible when preview is active) -->
+                                        <div id="photo-action-overlay" class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark bg-opacity-50 text-center" style="display: none;">
+                                            <button type="button" class="btn btn-sm btn-warning fw-bold px-3" id="retake-photo-btn">CHANGE PHOTO</button>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="stock-image-data" name="image_data">
+
+                                    <div class="mt-3">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Type *</label>
+                                        <select name="type" class="form-select form-select-sm" required style="border-radius: 8px; background: #fff;">
+                                            <option value="Swatchcard">Swatchcard</option>
+                                            <option value="Hanger" selected>Hanger</option>
+                                            <option value="Sampling Yardage">Sampling Yardage</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto pt-2">
+                                    <div class="text-center py-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 80px;">
+                                        <svg id="add-stock-barcode-svg" style="max-height: 40px; width: 100%;"></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Tech Details Wrapper -->
+                            <div class="col-lg-7 p-3 p-md-4 bg-white position-relative">
+                                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                                <input type="hidden" name="id" id="stock-item-id">
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
+                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="e.g. GR-9921" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Content</label>
+                                        <input type="text" name="content" class="form-control" placeholder="Material composition..." style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Count</label>
+                                        <input type="text" name="count" class="form-control" placeholder="Qty" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Density</label>
+                                        <input type="text" name="density" class="form-control" placeholder="GSM" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Width</label>
+                                        <input type="text" name="width" class="form-control" placeholder="Size" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight</label>
+                                        <input type="text" name="weight" class="form-control" placeholder="Weight" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Item *</label>
+                                        <input type="text" name="item" class="form-control" required placeholder="e.g. Fabric" style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Finish</label>
+                                        <input type="text" name="finish" class="form-control" placeholder="Treatment / Finish..." style="border-radius: 8px;">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Remark</label>
+                                        <textarea name="remark" class="form-control" rows="2" placeholder="Internal notes..." style="border-radius: 8px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Section: Actions and Identifier (Shared straight line) -->
+                        <div class="row g-0 border-top align-items-center">
+                            <div class="col-lg-5 p-3" style="background: #f8f8f8;">
+                                <div class="input-group">
+                                    <input type="number" name="barcode" id="add-stock-barcode" class="form-control fw-bold py-2" required placeholder="Barcode ID" 
+                                        style="border-radius: 12px 0 0 12px; background: #fff; border-right: 0;">
+                                    <button class="btn btn-outline-success px-3 fw-bold small" type="button" id="regenerate-stock-barcode"
+                                        style="border-radius: 0 12px 12px 0; border-width: 1px;">Refresh</button>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 p-3 bg-white">
+                                <div class="d-flex gap-2 w-100">
+                                    <button type="submit" class="btn btn-green flex-grow-1 py-2 fw-bold" id="stock-modal-submit-btn" style="border-radius: 12px;">
+                                        Save Article
+                                    </button>
+                                    <button type="button" class="btn btn-light px-3 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; border: 1px solid #eee;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>    </div>
+
+    <!-- Stock Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <div>
+                        <h4 class="modal-title fw-bold text-dark">Sample Checkout</h4>
+                        <p class="text-muted small mb-0">Issue article samples to partners or clients.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="checkout-form">
+                    <div class="modal-body p-4">
+                        <!-- Recipient Section -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
+                                <input type="text" name="name" id="checkout-name" class="form-control form-control-lg border-0 bg-light" required placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
+                                <input type="text" name="company" id="checkout-company" class="form-control form-control-lg border-0 bg-light" required placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+
+                        <!-- Scan Zone -->
+                        <div class="p-4 rounded-4 mb-4 text-center border-2" style="border: 2px dashed #eee; background: #fafafa;">
+                            <div class="mb-3 text-muted opacity-50">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            </div>
+                            <h6 class="fw-bold mb-2">Scan Sample Barcode</h6>
+                            <div class="input-group shadow-sm bg-white rounded-3 overflow-hidden">
+                                <input type="number" id="checkout-barcode-input" class="form-control border-0 py-3 text-center fw-bold" placeholder="Place cursor here & scan" style="font-size: 1.1rem; height: 60px;">
+                                <button type="button" class="btn btn-dark px-4 fw-bold" id="add-to-checkout-btn">ADD</button>
+                            </div>
+                            <div id="checkout-scan-feedback" class="small mt-2" style="height: 20px; font-weight: 500;"></div>
+                        </div>
+
+                        <!-- Scanned Items List -->
+                        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                            <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Scanned Articles (<span id="checkout-count">0</span>)</label>
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold" id="clear-checkout-list" style="font-size: 0.7rem;">CLEAR LIST</button>
+                        </div>
+                        <div id="checkout-items-list" class="border rounded-4 bg-white" style="max-height: 180px; overflow-y: auto;">
+                            <div class="text-muted text-center p-4 small" id="checkout-list-empty">
+                                <p class="mb-0 opacity-50">No items scanned for this batch yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-green w-100 py-3 shadow-sm fw-bold" id="submit-checkout-btn" disabled style="border-radius: 14px; font-size: 1rem;">
+                            COMPLETE BATCH CHECKOUT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check In Modal -->
+    <div class="modal fade" id="checkInModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <div>
+                        <h4 class="modal-title fw-bold text-dark">Return to Stock</h4>
+                        <p class="text-muted small mb-0">Scan an item to mark it as returned / in-stock.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="check-in-form">
+                    <div class="modal-body p-5 text-center">
+                        <div class="scanner-visual mb-4">
+                            <div class="rounded-pill bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="1.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            </div>
+                            <h5 class="fw-bold">Ready to Scan</h5>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <input type="text" id="check-in-barcode-input" class="form-control form-control-lg text-center fw-bold border-2" 
+                                   autofocus placeholder="00000000" style="height: 90px; font-size: 2.2rem; border-radius: 20px; border-color: #eee; background: #fafafa;">
+                            <p class="text-muted small mt-3 px-4">Place the scanner over the article's barcode to automatically process the return.</p>
+                        </div>
+
+                        <div id="check-in-feedback" class="p-3 rounded-4 mt-2 fw-bold" style="display: none; font-size: 0.9rem;"></div>
+                    </div>
+                    <div class="modal-footer border-0 pb-5 justify-content-center">
+                        <button type="button" class="btn btn-light px-5 py-2 text-muted fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- TNA Modal -->
     <div class="modal fade" id="tnaModal" tabindex="-1" aria-labelledby="tnaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -658,6 +1030,22 @@
     <script src="assets/js/admin/orders.js"></script>
     <script src="assets/js/admin/details.js"></script>
     <script src="assets/js/admin/export.js"></script>
+    <script src="assets/js/admin/stock.js"></script>
+    <!-- Stock Item Modal (Add/Edit) -->
+    <div class="modal fade" id="stockItemModal" tabindex="-1">
+        ... (already there)
+    </div>
+
+    <!-- Stock Read-Only Detail Modal -->
+    <div class="modal fade" id="stockDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-body p-0" id="stock-detail-content">
+                    <!-- Detail content will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
