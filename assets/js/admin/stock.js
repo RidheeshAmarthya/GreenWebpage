@@ -68,15 +68,50 @@ function returnToSelection() {
     history.pushState({ view: 'hub' }, '', '#hub');
 }
 
-// Fetch Stock
+// Fetch Stock (Server-Side Filtered & Paginated)
 async function fetchStock() {
     showLoading(true);
-    const { data, error } = await supabaseClient
+    
+    const rawSearch = (document.querySelector('#stock-search')?.value || '')
+        .replace(/gsm/gi, ''); // Strip 'gsm' as it's a frontend-only suffix
+    const fuzzySearch = rawSearch.trim().replace(/[^a-zA-Z0-9]+/g, '%');
+    const searchTerm = `%${fuzzySearch}%`;
+
+    const typeFilter = document.querySelector('#stock-type-filter')?.value || 'all';
+    const statusFilter = document.querySelector('#stock-status-filter')?.value || 'all';
+    const gsmMin = document.querySelector('#gsm-min-filter')?.value;
+    const gsmMax = document.querySelector('#gsm-max-filter')?.value;
+    const sortVal = document.querySelector('#stock-sort-select')?.value || 'created_at-desc';
+    const [column, order] = sortVal.split('-');
+
+    // Build Supabase Query
+    let query = supabaseClient
         .from('Stock')
         .select(`
             *,
             checkouts: Stock_Checkouts(name, company, created_at, returned_at)
-        `);
+        `, { count: 'exact' });
+
+    // 1. Fuzzy Search (Article No, Content, Item Name, Finish, Remark, Count, Width)
+    if (rawSearch.trim()) {
+        query = query.or(`article_no.ilike.${searchTerm},content.ilike.${searchTerm},item.ilike.${searchTerm},finish.ilike.${searchTerm},remark.ilike.${searchTerm},count.ilike.${searchTerm},width.ilike.${searchTerm}%`);
+    }
+
+    // 2. Structured Filters
+    if (typeFilter !== 'all') query = query.eq('type', typeFilter);
+    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+    if (gsmMin) query = query.gte('weight', gsmMin);
+    if (gsmMax) query = query.lte('weight', gsmMax);
+
+    // 3. Sorting
+    query = query.order(column, { ascending: order === 'asc' });
+
+    // 4. Pagination
+    const from = (stockCurrentPage - 1) * stockItemsPerPage;
+    const to = from + stockItemsPerPage - 1;
+    query = query.range(from, to);
+
+    const { data, count, error } = await query;
 
     showLoading(false);
     if (error) {
@@ -85,44 +120,46 @@ async function fetchStock() {
     }
 
     stockItems = data;
-    applyStockFilter();
+    renderStockItems(stockItems, count);
 }
 
+// Redirect all filter changes to fetchStock
 function applyStockFilter() {
-    const searchTerm = document.getElementById('stock-search').value.toLowerCase();
-    const typeFilter = document.getElementById('stock-type-filter').value;
+    stockCurrentPage = 1; // Reset to page 1 on new filter
+    fetchStock();
+}
 
-    let filtered = stockItems.filter(item => {
-        const matchesSearch = !searchTerm || 
-            item.article_no?.toLowerCase().includes(searchTerm) || 
-            item.content?.toLowerCase().includes(searchTerm) || 
-            item.item?.toLowerCase().includes(searchTerm) ||
-            item.barcode?.toString().includes(searchTerm);
-        
-        const matchesType = typeFilter === 'all' || item.type === typeFilter;
+function updateStockSort(value) {
+    stockCurrentPage = 1;
+    fetchStock();
+}
 
-        return matchesSearch && matchesType;
-    });
+function renderStockItems(items, totalCount = 0) {
+    const gridContainer = document.getElementById('stock-grid-view');
+    const listBody = document.getElementById('stock-table-body');
+    const emptyState = document.getElementById('stock-empty');
 
-    // Sorting
-    filtered.sort((a, b) => {
-        let valA = a[stockSort.column] || '';
-        let valB = b[stockSort.column] || '';
-        
-        if (stockSort.column.includes('date') || stockSort.column === 'created_at') {
-            valA = valA ? new Date(valA) : new Date(0);
-            valB = valB ? new Date(valB) : new Date(0);
+    gridContainer.innerHTML = '';
+    listBody.innerHTML = '';
+
+    if (items.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+    }
+    emptyState.style.display = 'none';
+
+    items.forEach(async (item) => {
+        if (stockViewMode === 'grid') {
+            const card = createStockCard(item);
+            gridContainer.appendChild(card);
         } else {
-            valA = valA.toString().toLowerCase();
-            valB = valB.toString().toLowerCase();
+            const row = createStockRow(item);
+            listBody.appendChild(row);
         }
-        
-        if (valA < valB) return stockSort.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return stockSort.direction === 'asc' ? 1 : -1;
-        return 0;
     });
 
-    renderStockItems(filtered);
+    const totalPages = Math.ceil(totalCount / stockItemsPerPage);
+    renderStockPagination(totalCount, totalPages);
 }
 
 // Read-Only Detail View
@@ -302,14 +339,35 @@ async function showStockDetail(id) {
     modal.show();
 }
 
-document.getElementById('stock-search')?.addEventListener('input', () => {
-    stockCurrentPage = 1;
-    applyStockFilter();
+document.getElementById('stock-search')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        stockCurrentPage = 1;
+        fetchStock();
+    }
 });
 
 document.getElementById('stock-type-filter')?.addEventListener('change', () => {
     stockCurrentPage = 1;
     applyStockFilter();
+});
+
+document.getElementById('stock-status-filter')?.addEventListener('change', () => {
+    stockCurrentPage = 1;
+    applyStockFilter();
+});
+
+document.getElementById('gsm-min-filter')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        stockCurrentPage = 1;
+        fetchStock();
+    }
+});
+
+document.getElementById('gsm-max-filter')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        stockCurrentPage = 1;
+        fetchStock();
+    }
 });
 
 // View Toggle
@@ -327,40 +385,7 @@ function toggleStockView(mode) {
     applyStockFilter(); // Re-render current data
 }
 
-function renderStockItems(data) {
-    const gridContainer = document.getElementById('stock-grid-view');
-    const listBody = document.getElementById('stock-table-body');
-    const emptyState = document.getElementById('stock-empty');
-    
-    gridContainer.innerHTML = '';
-    listBody.innerHTML = '';
-    
-    if (data.length === 0) {
-        emptyState.style.display = 'block';
-        return;
-    } 
-    
-    emptyState.style.display = 'none';
 
-    const totalItemsCount = data.length;
-    const totalPagesCount = Math.ceil(totalItemsCount / stockItemsPerPage);
-    
-    const startIndex = (stockCurrentPage - 1) * stockItemsPerPage;
-    const endIndex = Math.min(startIndex + stockItemsPerPage, totalItemsCount);
-    const paginatedData = data.slice(startIndex, endIndex);
-
-    paginatedData.forEach(async (item) => {
-        if (stockViewMode === 'grid') {
-            const card = createStockCard(item);
-            gridContainer.appendChild(card);
-        } else {
-            const row = createStockRow(item);
-            listBody.appendChild(row);
-        }
-    });
-
-    renderStockPagination(totalItemsCount, totalPagesCount);
-}
 
 function createStockCard(item) {
     const col = document.createElement('div');
@@ -383,16 +408,16 @@ function createStockCard(item) {
     card.innerHTML = `
         <div class="position-relative overflow-hidden" style="height: 200px; background: #f8f9fa;">
             <img src="${placeholderImg}" id="img-grid-${item.id}" class="w-100 h-100" style="object-fit: cover;">
-            <!-- Top Left: Status Only -->
-            <div class="position-absolute top-0 start-0 m-3">
-                <span class="badge ${badgeClass} shadow-sm px-2 py-1 border-0 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${badgeText}</span>
+            <!-- Top Right: Availability -->
+            <div class="position-absolute top-0 end-0 m-2">
+                <span class="badge ${badgeClass} shadow-sm px-2 py-1 border-0 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.5rem; letter-spacing: 0.5px; opacity: 0.95;">${badgeText}</span>
             </div>
         </div>
         <div class="card-body p-3 d-flex flex-column" style="gap: 10px;">
             <div class="mb-1">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="fw-bold text-dark fs-6" style="letter-spacing: -0.2px; word-break: break-all; line-height: 1.1;">${item.article_no}</div>
-                    <span class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase flex-shrink-0" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type}</span>
+                    <span class="badge bg-light text-muted border px-2 py-1 fw-bold text-uppercase flex-shrink-0" style="border-radius: 6px; font-size: 0.5rem; letter-spacing: 0.5px; opacity: 0.7;">${item.type}</span>
                 </div>
             </div>
             
@@ -406,10 +431,10 @@ function createStockCard(item) {
                         ${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
                     </div>
                 </div>
-                <!-- Line 2: Count & GSM -->
-                <div class="d-flex justify-content-between align-items-center text-muted fw-bold small" style="opacity: 0.85; letter-spacing: -0.1px;">
-                    <div>${item.count || '-'}</div>
-                    <div class="flex-shrink-0">${item.weight ? item.weight + ' GSM' : '-'}</div>
+                <!-- Line 2: GSM & Count -->
+                <div class="d-flex justify-content-between align-items-center text-muted fw-bold small" style="letter-spacing: -0.1px;">
+                    <div style="opacity: 0.85;">${item.weight ? item.weight + ' GSM' : '-'}</div>
+                    <div class="flex-shrink-0" style="opacity: 0.45; font-weight: 500; font-size: 0.75rem;">${item.count || '-'}</div>
                 </div>
             </div>
         </div>
@@ -502,7 +527,7 @@ function renderStockPagination(totalItems, totalPages) {
 
 function changeStockPage(page) {
     stockCurrentPage = page;
-    applyStockFilter();
+    fetchStock();
 }
 
 // Generators
@@ -1068,3 +1093,20 @@ document.getElementById('checkInModal')?.addEventListener('hidden.bs.modal', () 
     const feedback = document.getElementById('check-in-feedback');
     if (feedback) feedback.innerHTML = '';
 });
+
+function updateStockSort(value) {
+    stockCurrentPage = 1;
+    applyStockFilter();
+}
+
+function clearStockFilters() {
+    document.getElementById('stock-search').value = '';
+    document.getElementById('stock-type-filter').value = 'all';
+    document.getElementById('stock-status-filter').value = 'all';
+    document.getElementById('gsm-min-filter').value = '';
+    document.getElementById('gsm-max-filter').value = '';
+    document.getElementById('stock-sort-select').value = 'created_at-desc';
+    
+    stockCurrentPage = 1;
+    applyStockFilter();
+}
