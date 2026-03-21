@@ -828,12 +828,12 @@
 
                                     <div class="col-md-6 col-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Count</label>
-                                        <input type="text" name="count" class="form-control" placeholder="Qty" style="border-radius: 8px;">
+                                        <input type="text" name="count" class="form-control" placeholder="Count" style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Density</label>
-                                        <input type="text" name="density" class="form-control" placeholder="GSM" style="border-radius: 8px;">
+                                        <input type="text" name="density" class="form-control" placeholder="e.g. 72x60" style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
@@ -842,9 +842,11 @@
                                     </div>
 
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight</label>
-                                        <input type="text" name="weight" class="form-control" placeholder="Weight" style="border-radius: 8px;">
-                                    </div>
+                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight (GSM)</label>
+                                         <input type="number" step="0.01" name="weight" class="form-control" placeholder="0.00" 
+                                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                                                style="border-radius: 8px;">
+                                     </div>
 
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Item *</label>

@@ -208,7 +208,7 @@ async function showStockDetail(id) {
                         <div class="col-7 text-dark small fw-bold">${item.content || '-'}</div>
                     </div>
                     <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Count / Qty</div>
+                        <div class="col-5 text-muted small fw-bold text-uppercase">Count</div>
                         <div class="col-7 text-dark small fw-bold">${item.count || '-'}</div>
                     </div>
                     <div class="row g-0 py-2 border-bottom">
@@ -221,7 +221,7 @@ async function showStockDetail(id) {
                     </div>
                     <div class="row g-0 py-2 border-bottom">
                         <div class="col-5 text-muted small fw-bold text-uppercase">Weight</div>
-                        <div class="col-7 text-dark small fw-bold">${item.weight || '-'}</div>
+                        <div class="col-7 text-dark small fw-bold">${item.weight ? item.weight + ' GSM' : '-'}</div>
                     </div>
                     <div class="row g-0 py-2 border-bottom">
                         <div class="col-5 text-muted small fw-bold text-uppercase">Item Name</div>
@@ -409,7 +409,7 @@ function createStockCard(item) {
                 <!-- Line 2: Count & GSM -->
                 <div class="d-flex justify-content-between align-items-center text-muted fw-bold small" style="opacity: 0.85; letter-spacing: -0.1px;">
                     <div>${item.count || '-'}</div>
-                    <div class="flex-shrink-0">${item.weight || '-'}</div>
+                    <div class="flex-shrink-0">${item.weight ? item.weight + ' GSM' : '-'}</div>
                 </div>
             </div>
         </div>
@@ -448,7 +448,7 @@ function createStockRow(item) {
         <td class="fw-bold text-dark">${item.article_no}</td>
         <td><span class="badge bg-light text-dark border px-2">${item.type}</span></td>
         <td class="small fw-bold">${item.count || '-'}</td>
-        <td class="small fw-bold">${item.weight || '-'}</td>
+        <td class="small fw-bold">${item.weight ? item.weight + ' GSM' : '-'}</td>
         <td class="text-muted small">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
         <td><span class="badge ${badgeClass} border px-2">${badgeText}</span></td>
         <td><code>${item.barcode}</code></td>
