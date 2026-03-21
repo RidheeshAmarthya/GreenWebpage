@@ -235,6 +235,10 @@ async function showStockDetail(id) {
                         <div class="col-5 text-muted small fw-bold text-uppercase">Remarks</div>
                         <div class="col-7 text-dark small fw-bold text-muted" style="font-style: italic;">${item.remark || 'N/A'}</div>
                     </div>
+                    <div class="row g-0 py-2 text-muted" style="opacity: 0.8;">
+                        <div class="col-5 small fw-bold text-uppercase" style="font-size: 0.65rem;">System Entry</div>
+                        <div class="col-7 small fw-bold" style="font-size: 0.65rem;">${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
+                    </div>
                 </div>
 
                 <!-- Footer Actions -->
@@ -393,9 +397,16 @@ function createStockCard(item) {
             </div>
             
             <div class="flex-grow-1 d-flex flex-column" style="gap: 4px;">
-                <div class="text-success small fw-bold overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; line-height: 1.2;">
-                    ${item.content || '-'}
+                <!-- Line 1: Content & Date -->
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="text-success small fw-bold overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; line-height: 1.2;">
+                        ${item.content || '-'}
+                    </div>
+                    <div class="text-muted fw-bold text-uppercase ps-2" style="font-size: 0.6rem; opacity: 0.6; letter-spacing: 0.5px; margin-top: 1px;">
+                        ${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
+                    </div>
                 </div>
+                <!-- Line 2: Count & GSM -->
                 <div class="d-flex justify-content-between align-items-center text-muted fw-bold small" style="opacity: 0.85; letter-spacing: -0.1px;">
                     <div>${item.count || '-'}</div>
                     <div class="flex-shrink-0">${item.weight || '-'}</div>
@@ -435,10 +446,10 @@ function createStockRow(item) {
             </div>
         </td>
         <td class="fw-bold text-dark">${item.article_no}</td>
-        <td>${item.item || '-'}</td>
         <td><span class="badge bg-light text-dark border px-2">${item.type}</span></td>
         <td class="small fw-bold">${item.count || '-'}</td>
         <td class="small fw-bold">${item.weight || '-'}</td>
+        <td class="text-muted small">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
         <td><span class="badge ${badgeClass} border px-2">${badgeText}</span></td>
         <td><code>${item.barcode}</code></td>
         <td class="text-end pe-4">
