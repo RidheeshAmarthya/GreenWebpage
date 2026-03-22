@@ -1585,8 +1585,18 @@ function updateBatchActionBar() {
 function clearStockSelection() {
     selectedStockIds = [];
     updateBatchActionBar();
+    
+    // Uncheck all checkboxes
     const boxes = document.querySelectorAll('.stock-checkbox');
     boxes.forEach(b => b.checked = false);
+    
+    const selectAll = document.getElementById('stock-select-all');
+    if (selectAll) selectAll.checked = false;
+
+    // Remove selection visuals from all cards and rows
+    document.querySelectorAll('.stock-card, .stock-row').forEach(el => {
+        el.classList.remove('selected');
+    });
 }
 
 async function batchDeleteStock() {
