@@ -1,5 +1,198 @@
 // Stock Manager Logic
 const placeholderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23eeeeee%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22Arial%22%20font-size%3D%2212%22%20fill%3D%22%23aaaaaa%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+// Zebra Label Template (ZDesigner ZD230-8dpmm)
+const ZPL_TEMPLATE = `^XA
+~TA000
+~JSN
+^LT0
+^MNW
+^MTT
+^PON
+^PMN
+^LH0,0
+^JMA
+^PR6,6
+~SD15
+^JUS
+^LRN
+^CI27
+^PA0,1,1,0
+^MMT
+^PW831
+^LL406
+^LS0
+^FT40,62^A0N,51,51^FH\\^CI28^FDGREEN INTERNATIONAL EXIMP^FS^CI27
+^FT40,103^A0N,28,28^FH\\^CI28^FDArticle No ^FS^CI27
+^FT40,138^A0N,28,28^FH\\^CI28^FDContent^FS^CI27
+^FT40,173^A0N,28,28^FH\\^CI28^FDCount:^FS^CI27
+^FT40,208^A0N,28,28^FH\\^CI28^FDDensity^FS^CI27
+^FT40,243^A0N,28,28^FH\\^CI28^FDWidth^FS^CI27
+^FT40,278^A0N,28,28^FH\\^CI28^FDWeight^FS^CI27
+^FT40,313^A0N,28,28^FH\\^CI28^FDItem^FS^CI27
+^FT40,348^A0N,28,28^FH\\^CI28^FDFinish^FS^CI27
+^FT40,383^A0N,28,28^FH\\^CI28^FDRemark^FS^CI27
+^FT156,103^A0N,28,28^FH\\^CI28^FD: {article_no}^FS^CI27
+^FT156,138^A0N,28,28^FH\\^CI28^FD: {content}^FS^CI27
+^FT156,173^A0N,28,28^FH\\^CI28^FD: {count}^FS^CI27
+^FT156,208^A0N,28,28^FH\\^CI28^FD: {density}^FS^CI27
+^FT156,243^A0N,28,28^FH\\^CI28^FD: {width}^FS^CI27
+^FT156,278^A0N,28,28^FH\\^CI28^FD: {weight} GSM^FS^CI27
+^FT156,313^A0N,28,28^FH\\^CI28^FD: {item}^FS^CI27
+^FT156,348^A0N,28,28^FH\\^CI28^FD: {finish}^FS^CI27
+^FT156,383^A0N,28,28^FH\\^CI28^FD: {remark}^FS^CI27
+^BY2
+^FO725,30^BCB,44,Y,N,N^FD{barcode}^FS
+^FO440,310^GFA,1041,2001,29,:Z64:eJztlL9v00AUx7+2mziKqjoDEtkSKRKKWEglhgih2v0POpAZ9z/I0hVfG4QihDozVkyRB2bEAI76LyBYqGToErHUGx7cHO/d2c4F2Fg52e9+vPfxu/fenYH71GwWAI+HaPNCHMc0tyJqjoxkRBOSBZ5G8pkrpQwAj7r1jIRM4ZDMbV7g1Rzo8dhiZQa2z1kUSgA+KxkhSx7nXkWu2Q3ZKLJQX8l6FSkBWX92rQxzxgsmpdCMocz8mkwc+ca2Adu2HQk19n+Q8L7btkwd2lPZIkuqjoWbURymUp6uBXcsvJRfNzdIZSgr0stKJcUEf1ZUQ01mbEIJ5mXfUoZFRbqZZ5L5Npn/QVommXGOSlLVRgkmXSYpL8o8UnlaKqVJirUQQipSbJM0sW4nk4nckMmWT1lXdZtke6M2lkmunMq82JCJEWdUksWfcXKVtM/tDLkmKf+eW+1I/laVmqRlS55u19PNlJ9ImdNJgHkS3Nwp6jPgL/UZEhtSzudzyi0rE7miScRCx2nJ26srXZVeEtH4a49EoUkVoa6nl/rViV9rn+qUa9JL+Jrk+q5o8qNKqCZ7m1umyZ5B8g3JGgbpGT7rm12UpBVtSN5Axt+qSLzkH8eClG2B9jxeoBXHi/YF3bwF/rd/bUKgBX54xNJUTgJ0wI814WnjiaGz6KSOwY+jz+zaVEJh1Bwld82vOkJh1GwlW+Vbko1gn/odNNGgvkvvnQ3pZQ/Sm5Ev6D+b3ogu0lFkj1F56kzDo1FAZCc8If9BeOgelcq3GK/StJ+KvcVwtMJBnn47PS+DdQt0gmlynNAoHCXo5cHSel76tPv2u7QvBgJ7/XAk8KgfzgbnpbKJu1Pa7iHvN9gXGOHY+blTKvcwHicDcS0o/GQsMMTgRfyqVO6APB0yuYvgWGCKQbNO0x7CvrjGNdcmJc993GvWKSJPoVBkFwHJEA9dlSad6DS9nInLM87NpcDq4rFz9rpWniy/OEg+U25OqERR1rU+VWSLIvtgQ7ynfR5QYeKLIfIha34Baf92ow==:97FE
+^FO500,165^GFA,497,1968,16,:Z64:eJyl1DGOxCAMBVCPKChzg8xFULgWBRLTpdwrIVHkGqzmEhQIr202k612QoYmegUK+BsjYtExYDRgERvgBQdyqou4ADgHoFJcFoD5vbE4p2ugvYttL3tjPzId6Lo1bhjtJ0asu+m+4EM15rj/f+Z6uu5XfZ33/qp5UT6pwrFGLHnp6FV6thvmYSOuJWyc75OOJn5ocVbtfsbUb9j3s6fC9a2qgpLLjZoCWovUxz7zJUPgeI3KNlNeo57ouaCsZtu9sbnip807H/4wHU9cjbTbuCdc1436FxbV5nnY+PVwYaO8I3D7jpvatfeH1ASwFKD81XnTZ0P866LpfKrRg5qH3e9XA71naZhhU74rNVtKdBrJZ9zU7kzc36+DkKJZwGZ4630e93kEx7xW18zvmeZZonkG9ruNm+dh1dFwYtfdy/Fr8DrRD/Itz2fNA1nq2Q00YJXMo2FLuSsYRfNtn+8DlvlMeaWUYa/3iH8A/30lLg==:2C57
+^XZ`;
+
+function fillZPLTemplate(item) {
+    let zpl = ZPL_TEMPLATE;
+    // Replace placeholders with item data. Use empty string for null/undefined to prevent ZPL errors.
+    // Note: If item properties can contain ZPL control characters (like '^', '~'),
+    // they might need to be escaped or handled specifically to avoid breaking the ZPL command structure.
+    zpl = zpl.replace('{article_no}', item.article_no || '');
+    zpl = zpl.replace('{content}', item.content || '');
+    zpl = zpl.replace('{count}', item.count || '');
+    zpl = zpl.replace('{density}', item.density || '');
+    zpl = zpl.replace('{width}', item.width || '');
+    zpl = zpl.replace('{weight}', item.weight || '');
+    zpl = zpl.replace('{item}', item.item || '');
+    zpl = zpl.replace('{finish}', item.finish || '');
+    zpl = zpl.replace('{remark}', item.remark || '');
+    zpl = zpl.replace('{barcode}', item.barcode || '');
+    return zpl;
+}
+
+// Print Stock Label (ID-based)
+async function printStockLabel(id) {
+    const item = stockItems.find(i => i.id === id);
+    if (!item) return;
+    return await printStockLabelFromData(item);
+}
+
+// Print Stock Label (Data-based) - Returns a promise for sequencing
+function printStockLabelFromData(item) {
+    return new Promise((resolve, reject) => {
+        if (!item) {
+            alert("No data available for printing.");
+            return reject("No item data");
+        }
+
+        const zpl = fillZPLTemplate(item);
+
+        if (typeof BrowserPrint === 'undefined') {
+            const errorMsg = "Zebra BrowserPrint library not loaded. Please ensure the JS files are correctly included.";
+            alert(errorMsg);
+            return reject(errorMsg);
+        }
+
+        BrowserPrint.getDefaultDevice("printer", function (device) {
+            if (device && device.name) {
+                device.send(zpl, function () {
+                    console.log("Printed successfully to: " + device.name);
+                    resolve();
+                }, function (error) {
+                    const errorMsg = "Printer Offline or Error: " + error + "\n\nPlease ensure the Zebra printer is switched on, connected to your computer, and selected as the default in the Zebra Browser Print app.";
+                    alert(errorMsg);
+                    reject(errorMsg);
+                });
+            } else {
+                const errorMsg = "No Active Zebra Printer Found.\n\nPlease check:\n1. Zebra Browser Print app is running (tray icon).\n2. Printer is plugged in and turned on.\n3. Printer is selected as default in the Browser Print settings.";
+                alert(errorMsg);
+                reject(errorMsg);
+            }
+        }, function (error) {
+            const errorMsg = "BrowserPrint Connection Failed.\n\nError: " + error + "\n\nPlease ensure the Zebra Browser Print desktop application is running and accessible.";
+            alert(errorMsg);
+            reject(errorMsg);
+        });
+    });
+}
+
+function previewStockLabel(id) {
+    const item = stockItems.find(i => i.id === id);
+    if (!item) return;
+
+    const zpl = fillZPLTemplate(item);
+
+    // Labelary API - 8 dpmm (203 DPI), 4x2 inches label
+    const url = "https://api.labelary.com/v1/printers/8dpmm/labels/4.09x2/0/";
+
+    // Encode to binary to avoid browser adding charset=UTF-8 which Labelary rejects
+    const encoder = new TextEncoder();
+    const data = encoder.encode(zpl);
+
+    fetch(url, {
+        method: "POST",
+        body: data
+    }).then(response => {
+        if (!response.ok) throw new Error("Labelary API error");
+        return response.blob();
+    }).then(blob => {
+        const fileURL = URL.createObjectURL(blob);
+        const win = window.open(fileURL, '_blank');
+        if (!win) alert("Pop-up blocked! Please allow pop-ups to see the label preview.");
+    }).catch(err => {
+        console.error("Preview failed", err);
+        alert("Preview failed. Check console for details.");
+    });
+}
+
+async function updateModalLabelPreview(item = null, containerPrefix = 'modal-label-preview') {
+    let finalItem = item;
+    const form = document.getElementById('stock-item-form');
+
+    if (!finalItem && form) {
+        const formData = new FormData(form);
+        finalItem = Object.fromEntries(formData.entries());
+    }
+
+    if (!finalItem) return;
+
+    const previewImg = document.getElementById(`${containerPrefix}-img`);
+    const previewSpinner = document.getElementById(`${containerPrefix}-spinner`);
+    const placeholder = document.getElementById(`${containerPrefix}-placeholder`);
+
+    if (previewSpinner) previewSpinner.style.display = 'block';
+    if (placeholder) placeholder.style.display = 'none';
+
+    try {
+        const zpl = fillZPLTemplate(finalItem);
+
+        const url = "https://api.labelary.com/v1/printers/8dpmm/labels/4.09x2/0/";
+        const encoder = new TextEncoder();
+        const data = encoder.encode(zpl);
+
+        const response = await fetch(url, { method: "POST", body: data });
+        if (!response.ok) throw new Error("API status: " + response.status);
+
+        const blob = await response.blob();
+        const localUrl = URL.createObjectURL(blob);
+
+        if (previewImg) {
+            previewImg.src = localUrl;
+            previewImg.style.display = 'block';
+        }
+    } catch (err) {
+        console.warn("Label Preview failed:", err);
+        if (placeholder) {
+            placeholder.innerHTML = '<div class="text-danger small">Preview Failed<br>Click Refresh</div>';
+            placeholder.style.display = 'block';
+        }
+        if (previewImg) previewImg.style.display = 'none';
+    } finally {
+        if (previewSpinner) previewSpinner.style.display = 'none';
+    }
+}
+
+// Debounce for live label preview
+let labelPreviewDebounceTimer;
+function triggerLabelPreviewDebounce() {
+    clearTimeout(labelPreviewDebounceTimer);
+    labelPreviewDebounceTimer = setTimeout(updateModalLabelPreview, 1000); // 1-second debounce to protect API
+}
 let stockItems = [];
 let stockCurrentPage = 1;
 const stockItemsPerPage = 12; // Grid friendly (3x4 or 4x3)
@@ -19,7 +212,7 @@ const pendingRequests = new Map(); // Track ongoing requests to deduplicate
 async function getCachedSignedUrl(path) {
     if (!path) return null;
     const now = Date.now();
-    
+
     // 1. Check if we already have a valid local URL
     if (stockImageCache[path] && stockImageCache[path].expires > now) {
         return stockImageCache[path].url;
@@ -29,18 +222,18 @@ async function getCachedSignedUrl(path) {
     if (pendingRequests.has(path)) {
         return pendingRequests.get(path);
     }
-    
+
     // 3. Create a new request and track it
     const requestPromise = (async () => {
         try {
-            const { data, error } = await supabaseClient.storage.from('stock-images').createSignedUrl(path, 86400); 
+            const { data, error } = await supabaseClient.storage.from('stock-images').createSignedUrl(path, 86400);
             if (error) throw error;
-            
+
             stockImageCache[path] = {
                 url: data.signedUrl,
                 expires: Date.now() + CACHE_VALID_MS
             };
-            
+
             localStorage.setItem('stock_image_cache', JSON.stringify(stockImageCache));
             return data.signedUrl;
         } catch (err) {
@@ -76,7 +269,7 @@ function returnToSelection() {
 // Fetch Stock (Server-Side Filtered & Paginated)
 async function fetchStock() {
     showLoading(true);
-    
+
     const rawSearch = (document.querySelector('#stock-search')?.value || '')
         .replace(/gsm/gi, ''); // Strip 'gsm' as it's a frontend-only suffix
     const fuzzySearch = rawSearch.trim().replace(/[^a-zA-Z0-9]+/g, '%');
@@ -174,12 +367,10 @@ async function showStockDetail(id) {
 
     let checkoutInfoHtml = '';
     if (item.status !== 'IN_STOCK' && item.checkouts) {
-        // Find the active checkout (unreturned) locally from pre-fetched data
         const checkout = item.checkouts.find(c => !c.returned_at);
-
         if (checkout) {
             checkoutInfoHtml = `
-                <details class="mb-2 border rounded-3 overflow-hidden bg-white" style="border-color: #eee !important;">
+                <details class="mb-3 border rounded-3 overflow-hidden bg-white" style="border-color: #eee !important;">
                     <summary class="p-2 px-3 d-flex align-items-center justify-content-between" style="list-style: none; cursor: pointer; outline: none; user-select: none;">
                         <div class="d-flex align-items-center gap-2">
                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
@@ -202,109 +393,83 @@ async function showStockDetail(id) {
 
     const modal = new bootstrap.Modal(document.getElementById('stockDetailModal'));
     const container = document.getElementById('stock-detail-content');
-    
-    // Set content and styling for the detail view (Consistent Design)
+    // Set content and styling for the detail view (3-Column Layout)
     container.innerHTML = `
-        <div class="row g-0 overflow-hidden" style="border-radius: 24px;">
-            <!-- Left Side: Article Photo & Barcode -->
-            <div class="col-lg-5 d-flex flex-column p-4 p-md-5 shadow-sm" style="background: #f8f8f8; min-height: 480px;">
-                <!-- Header: Category & Badge (Aligned with Article No) -->
-                <div class="mb-2 pt-2 d-flex justify-content-between align-items-center">
-                    <span class="badge ${item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark'} px-3 py-2 fw-bold" style="border-radius: 6px; font-size: 0.65rem;">
-                        ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT OF STOCK'}
+        <div class="row g-0 overflow-hidden" style="border-radius: 28px; background: #fff;">
+            <!-- Column 1: Media & Status (lg-5) -->
+            <div class="col-lg-5 d-flex flex-column p-4 border-end" style="background: #f8f9fa;">
+                <div class="d-flex align-items-center gap-2 mb-3 pt-1">
+                    <span class="badge ${item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem;">
+                        ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK'}
                     </span>
-                    <div class="badge bg-green text-white px-3 py-2 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.65rem; letter-spacing: 1px;">${item.type || '-'}</div>
+                    <div class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || '-'}</div>
                 </div>
 
-                <!-- Distribution info -->
+                <!-- History info if applicable -->
                 ${checkoutInfoHtml}
 
-                <!-- Interactive Zoom Image Container -->
-                <div class="d-flex align-items-center justify-content-center my-2 bg-white rounded-3 shadow-sm position-relative overflow-hidden" 
+                <!-- Interactive Zoom Image -->
+                <div class="bg-white rounded-4 border shadow-sm position-relative overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
                      id="detail-img-zoom-container"
-                     style="height: 260px; cursor: zoom-in;">
-                    <img src="${placeholderImg}" id="detail-img-stock" class="img-fluid" 
-                         style="max-height: 240px; max-width: 90%; object-fit: contain; border-radius: 12px; transition: transform 0.1s ease-out; transform-origin: center;">
-                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-muted fw-bold" style="font-size: 0.5rem; opacity: 0.5; pointer-events: none;">MAGNIFY TO INSPECT</div>
-                </div>
-                
-                <!-- Print Action (Left Side) -->
-                <button class="btn btn-light w-100 py-3 mb-3 fw-bold d-flex align-items-center justify-content-center gap-2 border shadow-sm" 
-                        style="border-radius: 14px; font-size: 0.85rem; transition: all 0.3s ease;"
-                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0.125rem 0.25rem rgba(0,0,0,0.075)';"
-                        onclick="generateStockPDF('${item.id}')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    PRINT ARTICLE REPORT
-                </button>
-                
-                <!-- Barcode Visualization (Aligned with Buttons) -->
-                <div class="w-100 text-center py-2 bg-white rounded-3 border mt-auto">
-                    <svg id="detail-barcode-svg" style="max-height: 40px; width: 100%;"></svg>
-                    <div class="mt-1"><code class="text-muted" style="font-size: 0.65rem;">${item.barcode}</code></div>
+                     style="height: 380px; cursor: zoom-in;"
+                     onclick="openBigView('${item.resolved_url || placeholderImg}')">
+                    <img src="${item.resolved_url || placeholderImg}" id="detail-img-stock" class="img-fluid" 
+                         style="max-height: 350px; max-width: 95%; object-fit: contain; border-radius: 12px; transition: transform 0.1s ease-out;">
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-muted fw-bold" style="font-size: 0.45rem; opacity: 0.4; letter-spacing: 0.5px;">CLICK FOR BIG VIEW</div>
                 </div>
             </div>
 
-            <!-- Right Side: Tech Details -->
-            <div class="col-lg-7 p-4 p-md-5 bg-white position-relative d-flex flex-column shadow-sm">
+            <!-- Column 2: Label Header & Preview (lg-7) -->
+            <div class="col-lg-7 p-4 p-md-5 d-flex flex-column position-relative" style="background: #fff;">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="modal"></button>
                 
-                <div class="mb-3 pt-2">
-                    <div class="fw-bold text-dark mb-0" style="font-size: 1.6rem; word-break: break-all; line-height: 1.1;">${item.article_no}</div>
-                </div>
-
-                <!-- Specs List -->
-                <div class="flex-grow-1 mb-3">
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Content</div>
-                        <div class="col-7 text-dark small fw-bold">${item.content || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Count</div>
-                        <div class="col-7 text-dark small fw-bold">${item.count || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Density</div>
-                        <div class="col-7 text-dark small fw-bold">${item.density || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Width</div>
-                        <div class="col-7 text-dark small fw-bold">${item.width || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Weight</div>
-                        <div class="col-7 text-dark small fw-bold">${item.weight ? item.weight + ' GSM' : '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Item Name</div>
-                        <div class="col-7 text-dark small fw-bold">${item.item || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Finishing</div>
-                        <div class="col-7 text-dark small fw-bold">${item.finish || '-'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">Remarks</div>
-                        <div class="col-7 text-dark small fw-bold text-muted" style="font-style: italic;">${item.remark || 'N/A'}</div>
-                    </div>
-                    <div class="row g-0 py-2 border-bottom">
-                        <div class="col-5 text-muted small fw-bold text-uppercase">System Entry</div>
-                        <div class="col-7 text-dark small fw-bold">${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</div>
+                <div class="mb-4">
+                    <h4 class="fw-bold text-dark mb-1" style="font-size: 1.8rem; letter-spacing: -1px;">${item.article_no}</h4>
+                    <div class="d-flex align-items-center gap-2 text-muted small fw-bold">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        ADDED ON ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'}
                     </div>
                 </div>
 
-                <!-- Footer Actions -->
-                <div class="mt-auto pt-3 border-top">
-                    <button class="btn btn-green w-100 py-3 mb-2 fw-bold shadow-sm" style="border-radius: 14px;"
-                            onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); openStockModal('${item.id}')">
-                        EDIT RECORD
-                    </button>
-                    <button class="btn btn-outline-danger w-100 py-2 btn-sm fw-bold border-0" 
-                            style="border-radius: 12px; opacity: 0.6; font-size: 0.7rem;"
-                            onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); deleteStockItem('${item.id}', '${item.article_no}')">
-                        DELETE ARTICLE
-                    </button>
+                <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                    <h6 class="mb-3 fw-bold text-dark opacity-50" style="letter-spacing: 1px; font-size: 0.7rem; text-uppercase;">Zebra Label Preview</h6>
+                    
+                    <div id="detail-label-preview-container" class="bg-white border rounded-4 shadow-sm overflow-hidden d-flex align-items-center justify-content-center position-relative w-100" style="aspect-ratio: 4 / 2; background: #fff !important; border-width: 2px !important;">
+                        <div id="detail-label-preview-spinner" class="spinner-border text-green spinner-border-sm" style="display: none; position: absolute; z-index: 2;"></div>
+                        <img id="detail-label-preview-img" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                        <div id="detail-label-preview-placeholder" class="text-center p-4">
+                            <div class="spinner-grow text-green opacity-25"></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Aligned Action Footer (Unified Row) -->
+            <div class="col-12 p-4 border-top d-flex gap-3" style="background: #fcfcfc; border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;">
+                <button class="btn btn-green flex-grow-1 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" 
+                        style="border-radius: 16px; font-size: 0.85rem;"
+                        onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); openStockModal('${item.id}')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    EDIT RECORD
+                </button>
+                <button class="btn btn-outline-danger px-4 fw-bold shadow-sm d-flex align-items-center justify-content-center" 
+                        style="border-radius: 16px;" 
+                        onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); deleteStockItem('${item.id}', '${item.article_no}')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+                <div class="border-end mx-1" style="opacity: 0.2; width: 1px;"></div>
+                <button class="btn btn-light flex-grow-1 py-3 fw-bold border shadow-sm d-flex align-items-center justify-content-center gap-2" 
+                        style="border-radius: 16px; font-size: 0.85rem;" 
+                        onclick="generateStockPDF('${item.id}')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    PRINT SWATCH
+                </button>
+                <button class="btn btn-dark flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow" 
+                        style="border-radius: 16px; font-size: 0.85rem;"
+                        onclick="printStockLabel('${item.id}')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    PRINT LABEL
+                </button>
             </div>
         </div>
     `;
@@ -313,25 +478,10 @@ async function showStockDetail(id) {
     const zoomContainer = container.querySelector('#detail-img-zoom-container');
     const zoomImg = container.querySelector('#detail-img-stock');
 
-    // Generate Visual Barcode
-    setTimeout(() => {
-        try {
-            JsBarcode("#detail-barcode-svg", item.barcode, {
-                format: "CODE128",
-                width: 1.5,
-                height: 50,
-                displayValue: false, // We show it separately below
-                margin: 0,
-                background: "transparent"
-            });
-        } catch (e) {
-            console.error("Barcode generation failed", e);
-        }
-    }, 100);
+    // Initial label preview load
+    updateModalLabelPreview(item, 'detail-label-preview');
 
-    if (item.resolved_url) {
-        if (zoomImg) zoomImg.src = item.resolved_url;
-    } else if (item.image_url) {
+    if (!item.resolved_url && item.image_url) {
         getCachedSignedUrl(item.image_url).then(url => {
             if (url && zoomImg) zoomImg.src = url;
         });
@@ -389,15 +539,15 @@ document.getElementById('gsm-max-filter')?.addEventListener('keydown', (e) => {
 // View Toggle
 function toggleStockView(mode) {
     stockViewMode = mode;
-    
+
     // Update buttons
     document.getElementById('view-grid-btn').classList.toggle('active', mode === 'grid');
     document.getElementById('view-list-btn').classList.toggle('active', mode === 'list');
-    
+
     // Update containers
     document.getElementById('stock-grid-view').style.display = mode === 'grid' ? 'flex' : 'none';
     document.getElementById('stock-list-view').style.display = mode === 'list' ? 'block' : 'none';
-    
+
     applyStockFilter(); // Re-render current data
 }
 
@@ -406,71 +556,88 @@ function toggleStockView(mode) {
 function createStockCard(item) {
     const col = document.createElement('div');
     col.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
-    
+
     const card = document.createElement('div');
     card.className = 'card h-100 border-0 shadow-sm stock-card position-relative overflow-hidden';
-    card.style.borderRadius = '20px';
-    card.style.transition = 'all 0.3s ease';
+    card.style.borderRadius = '24px';
+    card.style.transition = 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)';
     card.style.cursor = 'pointer';
+    card.style.background = '#fff';
     card.onclick = () => showStockDetail(item.id);
 
-    // Hover effect
-    card.onmouseover = () => card.style.transform = 'translateY(-10px)';
-    card.onmouseout = () => card.style.transform = 'translateY(0)';
-
-    const badgeClass = item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark';
-    const badgeText = item.status === 'IN_STOCK' ? 'In Stock' : 'Out of stock';
-    
     const isSelected = selectedStockIds.includes(item.id);
+    const statusBg = item.status === 'IN_STOCK' ? '#28a745' : '#ffc107';
+    const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
 
     card.innerHTML = `
-        <div class="position-relative overflow-hidden" style="height: 200px; background: #f8f9fa;">
-            <img src="${placeholderImg}" id="img-grid-${item.id}" class="w-100 h-100" style="object-fit: cover;">
+        <div class="position-relative overflow-hidden" style="height: 240px; background: #fdfdfd;">
+            <!-- Main Image -->
+            <img src="${placeholderImg}" id="img-grid-${item.id}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.6s ease;">
             
-            <!-- Selection Checkbox -->
-            <div class="position-absolute top-0 start-0 m-2" style="z-index: 5;">
+            <!-- Floating Checkbox Over Image -->
+            <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
                 <input type="checkbox" class="form-check-input stock-checkbox" 
-                       style="width: 20px; height: 20px; cursor: pointer; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                       style="width: 22px; height: 22px; cursor: pointer; border-radius: 8px; border: 2.5px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: ${isSelected ? '#28a745' : 'rgba(255,255,255,0.7)'};"
                        onclick="event.stopPropagation(); toggleStockSelection('${item.id}')"
                        ${isSelected ? 'checked' : ''}>
             </div>
 
-            <!-- Top Right: Availability -->
-            <div class="position-absolute top-0 end-0 m-2">
-                <span class="badge ${badgeClass} shadow-sm px-2 py-1 border-0 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.5rem; letter-spacing: 0.5px; opacity: 0.95;">${badgeText}</span>
+            <!-- Status Pill Float -->
+            <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
+                <div style="background: ${statusBg}; color: ${item.status === 'IN_STOCK' ? '#fff' : '#111'}; padding: 4px 10px; border-radius: 100px; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    ${statusText}
+                </div>
+            </div>
+
+            <!-- Dark Overlay for bottom text readability -->
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.3), transparent); pointer-events: none;"></div>
+            
+            <!-- Type Pill (Bottom Left Float) -->
+            <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
+                <div style="background: rgba(255,255,255,0.9); color: #333; padding: 3px 8px; border-radius: 6px; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.5px; backdrop-filter: blur(4px);">
+                    ${item.type || 'FABRIC'}
+                </div>
             </div>
         </div>
-        <div class="card-body p-3 d-flex flex-column" style="gap: 10px;">
-            <div class="mb-1">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="fw-bold text-dark fs-6" style="letter-spacing: -0.2px; word-break: break-all; line-height: 1.1;">${item.article_no}</div>
-                    <span class="badge bg-light text-muted border px-2 py-1 fw-bold text-uppercase flex-shrink-0" style="border-radius: 6px; font-size: 0.5rem; letter-spacing: 0.5px; opacity: 0.7;">${item.type}</span>
+        
+        <div class="card-body p-3 pt-4 d-flex flex-column" style="gap: 12px;">
+            <div class="position-relative">
+                <div class="article-no-display fw-bold text-dark" style="font-size: 1.1rem; letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 4px;">
+                    ${item.article_no}
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="text-success small fw-bold" style="font-size: 0.7rem; opacity: 0.9;">
+                        ${item.content || 'Premium Quality'}
+                    </div>
                 </div>
             </div>
             
-            <div class="flex-grow-1 d-flex flex-column" style="gap: 4px;">
-                <!-- Line 1: Content & Date -->
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="text-success small fw-bold overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; line-height: 1.2;">
-                        ${item.content || '-'}
-                    </div>
-                    <div class="text-muted fw-bold text-uppercase ps-2" style="font-size: 0.6rem; opacity: 0.6; letter-spacing: 0.5px; margin-top: 1px;">
-                        ${item.created_at ? new Date(item.created_at).toLocaleString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
+            <div class="mt-auto border-top pt-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex flex-column gap-1">
+                    <span class="text-muted fw-bold text-uppercase" style="font-size: 0.55rem; letter-spacing: 1px; opacity: 0.5;">Specification</span>
+                    <div class="d-flex align-items-center gap-2 text-dark fw-bold" style="font-size: 0.85rem;">
+                        <span>${item.weight ? item.weight + ' GSM' : '-'}</span>
+                        <span style="width: 1px; height: 10px; background: #eee;"></span>
+                        <span class="opacity-50" style="font-weight: 400;">${item.count || '-'}</span>
                     </div>
                 </div>
-                <!-- Line 2: GSM & Count -->
-                <div class="d-flex justify-content-between align-items-center text-muted fw-bold small" style="letter-spacing: -0.1px;">
-                    <div style="opacity: 0.85;">${item.weight ? item.weight + ' GSM' : '-'}</div>
-                    <div class="flex-shrink-0" style="opacity: 0.45; font-weight: 500; font-size: 0.75rem;">${item.count || '-'}</div>
+                <div class="text-muted fw-bold text-uppercase text-end" style="font-size: 0.62rem; opacity: 0.7; letter-spacing: 0.5px; line-height: 1.2;">
+                    <div style="opacity: 0.5; font-size: 0.5rem; margin-bottom: 2px;">ADDED ON</div>
+                    ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
                 </div>
             </div>
         </div>
+        
+        <style>
+            .stock-card:hover { transform: translateY(-8px) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important; }
+            .stock-card:hover img { transform: scale(1.05); }
+        </style>
     `;
 
     if (item.image_url) {
         getCachedSignedUrl(item.image_url).then(url => {
             if (url) {
-                item.resolved_url = url; // Persistent cache for modal reuse
+                item.resolved_url = url;
                 const img = card.querySelector(`#img-grid-${item.id}`);
                 if (img) img.src = url;
             }
@@ -483,42 +650,67 @@ function createStockCard(item) {
 
 function createStockRow(item) {
     const tr = document.createElement('tr');
+    tr.className = 'align-middle';
     tr.style.cursor = 'pointer';
+    tr.style.transition = 'background 0.2s ease';
+    tr.onmouseover = () => tr.style.background = '#fcfcfc';
+    tr.onmouseout = () => tr.style.background = 'transparent';
     tr.onclick = (e) => {
-        if (!e.target.closest('button')) showStockDetail(item.id);
+        if (!e.target.closest('button') && !e.target.closest('.stock-checkbox')) showStockDetail(item.id);
     };
 
-    const badgeClass = item.status === 'IN_STOCK' ? 'bg-success-subtle text-success border-success' : 'bg-warning-subtle text-warning border-warning';
-    const badgeText = item.status === 'IN_STOCK' ? 'In Stock' : 'Out of stock';
-    
+    const statusBg = item.status === 'IN_STOCK' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
+    const statusColor = item.status === 'IN_STOCK' ? '#28a745' : '#856404';
+    const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
+
     const isSelected = selectedStockIds.includes(item.id);
 
     tr.innerHTML = `
         <td class="ps-4">
             <input type="checkbox" class="form-check-input stock-checkbox" 
-                   style="width: 18px; height: 18px; cursor: pointer; border-radius: 6px;"
+                   style="width: 20px; height: 20px; cursor: pointer; border-radius: 7px; border: 2px solid #ddd;"
                    onclick="event.stopPropagation(); toggleStockSelection('${item.id}')"
                    ${isSelected ? 'checked' : ''}>
         </td>
         <td>
-            <div style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #f0f0f0;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee;">
                 <img src="${placeholderImg}" id="img-list-${item.id}" class="w-100 h-100" style="object-fit: cover;">
             </div>
         </td>
-        <td class="fw-bold text-dark">${item.article_no}</td>
-        <td><span class="badge bg-light text-dark border px-2">${item.type}</span></td>
-        <td class="small fw-bold">${item.count || '-'}</td>
-        <td class="small fw-bold">${item.weight ? item.weight + ' GSM' : '-'}</td>
-        <td class="text-muted small">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
-        <td><span class="badge ${badgeClass} border px-2">${badgeText}</span></td>
-        <td><code>${item.barcode}</code></td>
+        <td>
+            <div class="fw-bold text-dark fs-6" style="letter-spacing: -0.3px;">${item.article_no}</div>
+        </td>
+        <td>
+            <div class="text-success small fw-bold" style="font-size: 0.75rem;">${item.content || '-'}</div>
+        </td>
+        <td>
+            <span class="badge bg-light text-muted border px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || 'FABRIC'}</span>
+        </td>
+        <td class="small fw-bold text-dark opacity-75">${item.count || '-'}</td>
+        <td class="small fw-bold text-dark opacity-75">${item.weight ? item.weight + ' GSM' : '-'}</td>
+        <td class="text-muted fw-bold text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.5px;">
+            <div style="opacity: 0.4; font-size: 0.5rem; margin-bottom: 2px;">ADDED ON</div>
+            ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
+        </td>
+        <td>
+            <span class="badge border-0 px-2 py-1 fw-bold text-uppercase" style="background: ${statusBg}; color: ${statusColor}; border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.8px;">${statusText}</span>
+        </td>
+        <td>
+            <div class="text-muted overflow-hidden opacity-50" style="font-size: 0.6rem; letter-spacing: 0.5px; width: 60px;">${item.barcode ? String(item.barcode).substring(0, 8) + '...' : '-'}</div>
+        </td>
         <td class="text-end pe-4">
-            <div class="d-flex justify-content-end gap-2">
-                <button class="btn btn-sm btn-green px-3 py-1 shadow-sm fw-bold border-0" style="border-radius: 8px; font-size: 0.7rem;" onclick="openStockModal('${item.id}')">
-                    EDIT
+            <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); generateStockPDF('${item.id}')" title="Print Swatch">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 </button>
-                <button class="btn btn-sm btn-outline-danger px-2 border-0" style="border-radius: 8px;" onclick="deleteStockItem('${item.id}', '${item.article_no}')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); shareStockItem('${item.id}')" title="Copy Details">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </button>
+                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); openStockModal('${item.id}')" title="Edit">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover text-danger" onclick="event.stopPropagation(); deleteStockItem('${item.id}', '${item.article_no}')" title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                 </button>
             </div>
         </td>
@@ -569,7 +761,7 @@ function changeStockPage(page) {
 function generateBarcode() {
     // Generate a 12-digit numeric barcode (Code 128 style)
     // Starting with 88 (or any prefix) then timestamp-based random digits
-    const prefix = "88"; 
+    const prefix = "88";
     const timestamp = Date.now().toString().slice(-7); // Last 7 digits
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return prefix + timestamp + random;
@@ -624,7 +816,7 @@ async function startWebcam() {
         startBtn.style.display = 'none';
         captureBtn.style.display = 'inline-block';
         retakeBtn.style.display = 'none';
-        
+
         video.play();
     } catch (err) {
         alert('Could not access webcam: ' + err.message);
@@ -641,22 +833,22 @@ function stopWebcam() {
 async function capturePhoto() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    
+
     // Extract absolute resolution from the live stream
     const vWidth = video.videoWidth;
     const vHeight = video.videoHeight;
-    
+
     // Exact mapping to prevent shifting or distortion
     canvas.width = vWidth;
     canvas.height = vHeight;
-    
+
     // Explicitly draw the full frame to the full canvas
     ctx.drawImage(video, 0, 0, vWidth, vHeight, 0, 0, vWidth, vHeight);
-    
+
     // Compression Loop to ensure < 50KB (Now using WebP)
     let quality = 0.8;
     let dataUrl = '';
-    
+
     while (quality > 0.1) {
         dataUrl = canvas.toDataURL('image/webp', quality);
         const sizeInBytes = (dataUrl.length * 0.75); // Estimation
@@ -667,11 +859,11 @@ async function capturePhoto() {
     capturePreview.src = dataUrl;
     capturePreview.style.display = 'block';
     document.getElementById('stock-sources-content').style.display = 'none';
-    
+
     // Toggle action controls
     captureBtn.style.display = 'none';
     retakeBtn.style.display = 'inline-block';
-    
+
     document.getElementById('stock-image-data').value = dataUrl;
     stopWebcam();
 }
@@ -683,7 +875,7 @@ if (retakeBtn) retakeBtn.onclick = () => {
     document.getElementById('stock-sources-content').style.display = 'block';
     document.getElementById('stock-image-data').value = '';
     document.getElementById('stock-file-input').value = '';
-    
+
     // If on camera tab, start webcam again
     if (document.getElementById('cam-tab').classList.contains('active')) {
         startWebcam();
@@ -739,7 +931,7 @@ document.getElementById('stock-file-input')?.addEventListener('change', async (e
             document.getElementById('stock-sources-content').style.display = 'none';
             document.getElementById('photo-action-overlay').style.display = 'block';
             document.getElementById('stock-image-data').value = dataUrl;
-            
+
             showLoading(false);
         };
         img.src = event.target.result;
@@ -761,7 +953,7 @@ function openStockModal(id = null) {
     const form = document.getElementById('stock-item-form');
     form.reset();
     document.getElementById('stock-image-data').value = '';
-    
+
     // Kill any hanging stream
     stopWebcam();
 
@@ -771,7 +963,7 @@ function openStockModal(id = null) {
     placeholder.style.display = 'block';
     video.style.display = 'none';
     document.getElementById('stock-sources-content').style.display = 'block';
-    
+
     // Reset camera controls
     startBtn.style.display = 'inline-block';
     captureBtn.style.display = 'none';
@@ -781,9 +973,10 @@ function openStockModal(id = null) {
         const item = stockItems.find(i => i.id === id);
         if (!item) return;
 
-        document.getElementById('stock-modal-submit-btn').textContent = "Update Article";
+        document.getElementById('stock-modal-submit-btn').textContent = "Update";
+        document.getElementById('save-print-article-btn').textContent = "Update & Print";
         document.getElementById('stock-item-id').value = item.id;
-        
+
         // Fill fields
         form.querySelector('[name="article_no"]').value = item.article_no;
         form.querySelector('[name="barcode"]').value = item.barcode;
@@ -807,14 +1000,23 @@ function openStockModal(id = null) {
             }
         }
     } else {
-        document.getElementById('stock-modal-submit-btn').textContent = "Save Article";
+        document.getElementById('stock-modal-submit-btn').textContent = "Save";
+        document.getElementById('save-print-article-btn').textContent = "Save & Print";
         document.getElementById('stock-item-id').value = '';
         document.getElementById('add-stock-barcode').value = generateBarcode();
     }
-    
+
     updateAddBarcodeVisualization();
+
+    // Trigger the full label preview for the initial state
+    updateModalLabelPreview();
+
     stockItemModal.show();
 }
+
+// Attach live preview updates to form inputs
+document.getElementById('stock-item-form')?.addEventListener('input', triggerLabelPreviewDebounce);
+document.getElementById('stock-item-form')?.addEventListener('change', triggerLabelPreviewDebounce);
 
 // Modals Reset
 document.getElementById('stockItemModal')?.addEventListener('hidden.bs.modal', () => {
@@ -824,11 +1026,23 @@ document.getElementById('stockItemModal')?.addEventListener('hidden.bs.modal', (
     document.getElementById('photo-action-overlay').style.display = 'none';
     startBtn.style.display = 'inline-block';
     captureBtn.style.display = 'none';
-    
+
     document.getElementById('stock-item-form').reset();
     document.getElementById('stock-image-data').value = '';
     document.getElementById('stock-file-input').value = '';
-    
+
+    // Reset preview area
+    const previewImg = document.getElementById('modal-label-preview-img');
+    const placeholder = document.getElementById('modal-label-preview-placeholder');
+    if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+    }
+    if (placeholder) {
+        placeholder.innerHTML = '<div class="text-muted small mb-2">Fetching live label...</div><div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>';
+        placeholder.style.display = 'block';
+    }
+
     // Reset tabs to Camera
     const camTabTrigger = document.querySelector('#cam-tab');
     if (camTabTrigger) {
@@ -843,19 +1057,19 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
     const stockData = Object.fromEntries(formData.entries());
     const itemId = stockData.id;
     const imageData = stockData.image_data;
-    
+
     delete stockData.id;
     delete stockData.image_data;
 
     showLoading(true);
     try {
         let finalImageUrl = null;
-        
+
         // Handle New Image if provided
         if (imageData && imageData.startsWith('data:image')) {
             const fileName = `stock-${Date.now()}.webp`;
             const blob = await (await fetch(imageData)).blob();
-            
+
             // If editing, try to delete old image first
             if (itemId) {
                 const oldItem = stockItems.find(i => i.id === itemId);
@@ -868,7 +1082,7 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
             const { data: uploadData, error: uploadError } = await supabaseClient.storage
                 .from('stock-images')
                 .upload(fileName, blob);
-            
+
             if (uploadError) throw uploadError;
             finalImageUrl = uploadData.path;
             delete stockImageCache[finalImageUrl]; // Ensure new image isn't stale
@@ -894,13 +1108,41 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
         }
 
         if (error) throw error;
-        
+
         stockItemModal.hide();
         fetchStock();
     } catch (err) {
         alert("Operation failed: " + err.message);
     } finally {
         showLoading(false);
+    }
+});
+
+// Save & Print Article Combination
+document.getElementById('save-print-article-btn')?.addEventListener('click', async () => {
+    const form = document.getElementById('stock-item-form');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Capture current form data for printing
+    const formData = new FormData(form);
+    const itemData = Object.fromEntries(formData.entries());
+
+    // Explicitly add gsm suffix if needed for preview/template consistency
+    if (itemData.weight) {
+        // itemData.weight_gsm = itemData.weight + " GSM"; // We use {weight} + " GSM" in template
+    }
+
+    // Attempt print first
+    try {
+        await printStockLabelFromData(itemData);
+        // Only if print succeeds, trigger the form submit to perform the database save
+        form.requestSubmit();
+    } catch (err) {
+        // Error already alerted in printStockLabelFromData
+        console.error("Save cancelled because print failed.");
     }
 });
 
@@ -928,7 +1170,7 @@ function updateCheckoutUI() {
             <button type="button" class="btn btn-sm text-danger" onclick="removeFromCheckoutList('${item.barcode}')">×</button>
         </div>
     `).join('');
-    
+
     // Preserve the empty state message if needed
     if (checkoutList.length > 0) {
         checkoutItemsList.innerHTML = itemsHtml;
@@ -939,14 +1181,14 @@ function updateCheckoutUI() {
 
 function addToCheckoutList(barcode) {
     if (!barcode) return;
-    
+
     const item = stockItems.find(i => i.barcode.toString() === barcode.toString());
     if (!item) {
         checkoutScanFeedback.textContent = "Barcode not found";
         checkoutScanFeedback.className = "small mt-1 text-danger";
         return;
     }
-    
+
     if (item.status !== 'IN_STOCK') {
         checkoutScanFeedback.textContent = "Item is already out";
         checkoutScanFeedback.className = "small mt-1 text-danger";
@@ -1011,7 +1253,7 @@ document.getElementById('checkout-form')?.addEventListener('submit', async (e) =
 
         bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
         alert(`Successfully checked out ${checkoutList.length} items.`);
-        
+
         // Reset
         clearCheckoutList();
         e.target.reset();
@@ -1035,14 +1277,14 @@ async function viewStockImage(path) {
 
 async function deleteStockItem(id, articleNo) {
     if (!confirm(`Are you sure you want to delete ${articleNo}?`)) return;
-    
+
     showLoading(true);
     try {
         const item = stockItems.find(i => i.id === id);
         if (item?.image_url) {
             // Delete image from storage first
             await supabaseClient.storage.from('stock-images').remove([item.image_url]);
-            
+
             // Clear from persistent cache
             delete stockImageCache[item.image_url];
             localStorage.setItem('stock_image_cache', JSON.stringify(stockImageCache));
@@ -1050,7 +1292,7 @@ async function deleteStockItem(id, articleNo) {
 
         const { error } = await supabaseClient.from('Stock').delete().eq('id', id);
         if (error) throw error;
-        
+
         fetchStock();
     } catch (err) {
         alert("Delete failed: " + err.message);
@@ -1073,7 +1315,7 @@ document.getElementById('check-in-form')?.addEventListener('submit', async (e) =
     e.preventDefault();
     const barcode = checkInInput.value;
     if (!barcode) return;
-    
+
     showLoading(true);
     try {
         const { data, error } = await supabaseClient
@@ -1097,7 +1339,7 @@ document.getElementById('check-in-form')?.addEventListener('submit', async (e) =
                     .from('Stock')
                     .update({ status: 'IN_STOCK' })
                     .eq('barcode', barcode);
-                
+
                 if (updateError) throw updateError;
                 showCheckInFeedback("Item returned to stock (No distribution log found)", "alert-success");
                 fetchStock();
@@ -1125,7 +1367,7 @@ function showCheckInFeedback(msg, className) {
     checkInFeedback.textContent = msg;
     checkInFeedback.className = `p-3 rounded-3 mt-3 alert ${className}`;
     checkInFeedback.style.display = 'block';
-    
+
     // Auto hide after 3 seconds
     setTimeout(() => {
         checkInFeedback.style.display = 'none';
@@ -1166,7 +1408,7 @@ function clearStockFilters() {
     document.getElementById('gsm-min-filter').value = '';
     document.getElementById('gsm-max-filter').value = '';
     document.getElementById('stock-sort-select').value = 'created_at-desc';
-    
+
     stockCurrentPage = 1;
     applyStockFilter();
 }
@@ -1175,10 +1417,12 @@ async function generateStockPDF(id) {
     const item = stockItems.find(i => i.id === id);
     if (!item) return;
 
+    const zpl = fillZPLTemplate(item);
+    const labelImageUrl = `http://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`;
     const imgUrl = item.resolved_url || placeholderImg;
 
     const printWindow = window.open('', '_blank', 'width=1000,height=800');
-    
+
     printWindow.document.write(`
         <html>
         <head>
@@ -1187,45 +1431,40 @@ async function generateStockPDF(id) {
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
                 
-                body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background: #fff; color: #111; }
+                body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: #fff; color: #111; }
                 
-                .spec-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+                .spec-card { border: 1.5px solid #28a745; border-radius: 12px; overflow: hidden; max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
                 
                 .card-header { background: #28a745; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; flex-shrink: 0; }
-                .logo { height: 28px; }
-                .brand-title { font-weight: 800; letter-spacing: 0.5px; font-size: 13px; text-transform: uppercase; }
+                .logo { height: 35px; }
+                .brand-title { font-weight: 800; letter-spacing: 1px; font-size: 16px; text-transform: uppercase; }
                 
-                .info-section { padding: 12px 20px; flex-shrink: 0; }
-                .article-no { font-size: 16px; font-weight: 900; color: #28a745; margin-bottom: 8px; letter-spacing: -0.2px; line-height: 1.1; }
+                .info-section { padding: 15px 20px; flex-shrink: 0; background: #fff; border-bottom: 2px dashed #eee; }
+                .header-row { display: flex; gap: 20px; align-items: center; }
+                .header-left { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+                .contact-row { font-size: 9.5px; line-height: 1.5; color: #444; font-weight: 500; word-break: break-word; }
+                .contact-row b { color: #111; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-right: 5px; font-size: 10px; }
+                .header-right { width: 310px; display: flex; flex-direction: column; flex-shrink: 0; }
                 
-                .specs-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 6px 0; margin-bottom: 6px; }
-                .spec-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 0.5px solid #f0f0f0; align-items: center; }
-                .spec-row:last-child { border-bottom: none; }
-                .spec-label { color: #888; font-weight: 800; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.6px; }
-                .spec-value { font-weight: 700; font-size: 11px; color: #111; text-align: right; }
+                .label-preview-box { background: #fff; width: 100%; }
+                .label-preview-box img { width: 100%; height: auto; border-radius: 0; }
                 
-                .image-section { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: center; flex-grow: 1; }
-                .image-section img { width: 100%; max-height: 650px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background: #fff; padding: 2px; }
+                .image-section { padding: 5px 15px 15px 15px; background: #fcfcfc; display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+                .image-section img { width: 100%; max-height: 800px; object-fit: contain; background: #fff; padding: 3px; border-radius: 12px; }
                 
-                .footer-section { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-                .contact-block { font-size: 9px; font-weight: 700; color: #777; line-height: 1.5; }
-                .contact-block b { color: #111; font-size: 11px; display: block; margin-bottom: 2px; }
-                
-                .barcode-box { text-align: right; }
-                #barcode-svg { max-height: 55px; max-width: 180px; }
-                
-                @page { size: A4; margin: 5mm; }
+                @page { size: A4; margin: 0; }
                 @media print {
                     body { padding: 0; background: none; }
-                    .spec-card { border: none; max-width: 100%; width: 100%; height: 285mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
-                    .image-section { flex-grow: 1; min-height: 180mm; }
-                    .image-section img { max-height: 240mm; width: 100%; max-width: 100%; }
-                    .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15px 30px; }
-                    .info-section { padding: 25px 30px; }
-                    .footer-section { padding: 25px 30px; }
-                    .article-no { font-size: 24px; }
-                    .spec-value { font-size: 15px; }
-                    .spec-label { font-size: 10px; }
+                    .spec-card { border: none; max-width: 100%; width: 100%; height: 297mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+                    .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 25px 40px; }
+                    .logo { height: 50px; }
+                    .brand-title { font-size: 22px; }
+                    .info-section { padding: 30px 40px; }
+                    .header-row { gap: 40px; }
+                    .header-right { width: 380px; }
+                    .contact-row { font-size: 12px; }
+                    .image-section { flex-grow: 1; padding: 30px 40px; }
+                    .image-section img { max-height: 250mm; }
                 }
             </style>
         </head>
@@ -1237,23 +1476,25 @@ async function generateStockPDF(id) {
                 </div>
                 
                 <div class="info-section">
-                    <div class="article-no">${item.article_no}</div>
-                    <div class="specs-strip">
-                        <div class="left-col">
-                            ${['content', 'count', 'density'].map(field => `
-                                <div class="spec-row">
-                                    <span class="spec-label">${field}</span>
-                                    <span class="spec-value">${item[field] || '-'}</span>
-                                </div>
-                            `).join('')}
+                    <div class="header-row">
+                        <div class="header-left">
+                            <div class="contact-row">
+                                <b>India Office:</b> 326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018
+                            </div>
+                            <div class="contact-row">
+                                <b>China Office:</b> Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China-213100
+                            </div>
+                            <div class="contact-row">
+                                <b>Contact:</b> +91 9810639056<br>
+                                +91 0124-4799566<br>
+                                sales@greeninternationalindia.com<br>
+                                www.greeninternationalindia.com
+                            </div>
                         </div>
-                        <div class="right-col">
-                            ${['width', 'weight', 'finish'].map(field => `
-                                <div class="spec-row">
-                                    <span class="spec-label">${field}</span>
-                                    <span class="spec-value">${item[field] || '-'} ${field === 'weight' && item[field] ? 'GSM' : ''}</span>
-                                </div>
-                            `).join('')}
+                        <div class="header-right">
+                             <div class="label-preview-box">
+                                <img src="${labelImageUrl}">
+                             </div>
                         </div>
                     </div>
                 </div>
@@ -1261,34 +1502,7 @@ async function generateStockPDF(id) {
                 <div class="image-section">
                     <img src="${imgUrl}" crossorigin="anonymous">
                 </div>
-                
-                <div class="footer-section">
-                    <div class="contact-block">
-                        <b>Green International Collections</b>
-                        <div>www.greeninternationalindia.com</div>
-                        <div>info@greeninternationalindia.com</div>
-                    </div>
-                    <div class="barcode-box">
-                        <svg id="barcode-svg"></svg>
-                    </div>
-                </div>
             </div>
-
-            <script>
-                window.onload = function() {
-                    if (window.JsBarcode) {
-                        JsBarcode("#barcode-svg", "${item.barcode}", {
-                            format: "CODE128",
-                            height: 50,
-                            width: 1.6,
-                            displayValue: true,
-                            fontSize: 11,
-                            fontOptions: "bold",
-                            lineColor: "#111"
-                        });
-                    }
-                }
-            </script>
         </body>
         </html>
     `);
@@ -1341,7 +1555,7 @@ async function batchDeleteStock() {
             .in('id', selectedStockIds);
 
         if (error) throw error;
-        
+
         selectedStockIds = [];
         updateBatchActionBar();
         fetchStock();
@@ -1353,9 +1567,52 @@ async function batchDeleteStock() {
     }
 }
 
+async function batchPrintStockLabels() {
+    if (selectedStockIds.length === 0) return;
+
+    if (typeof BrowserPrint === 'undefined') {
+        alert("Zebra BrowserPrint library not loaded. Please ensure the JS files are correctly included.");
+        return;
+    }
+
+    BrowserPrint.getDefaultDevice("printer", async function (device) {
+        if (!device || !device.name) {
+            alert("No Active Zebra Printer Found.\n\nPlease ensure the Zebra Browser Print desktop app is running and a printer is selected as the default.");
+            return;
+        }
+
+        const promises = selectedStockIds.map(id => {
+            const item = stockItems.find(i => i.id === id);
+            if (!item) return null;
+
+            const zpl = fillZPLTemplate(item);
+            return new Promise((resolve) => {
+                device.send(zpl,
+                    () => resolve({ success: true }),
+                    (err) => resolve({ success: false, article: item.article_no, error: err })
+                );
+            });
+        });
+
+        // Filter out any null promises (items not found)
+        const validPromises = promises.filter(p => p !== null);
+        const results = await Promise.all(validPromises);
+
+        const failed = results.filter(r => !r.success);
+        if (failed.length > 0) {
+            const errorReport = failed.map(f => `• ${f.article}: ${f.error}`).join('\n');
+            alert(`Batch Results:\n✅ Sent: ${results.length - failed.length}\n❌ Failed: ${failed.length}\n\nErrors:\n${errorReport}\n\nNote: Please ensure the printer is online and connected.`);
+        } else {
+            alert(`Successfully sent ${results.length} labels to ${device.name}.`);
+        }
+    }, function (error) {
+        alert("Zebra Browser Print Connection Failed.\n\nError: " + error + "\n\nPlease ensure the Desktop App is running.");
+    });
+}
+
 async function generateBatchStockPDF() {
     if (selectedStockIds.length === 0) return;
-    
+
     showLoading(true);
     try {
         const selectedItems = stockItems.filter(i => selectedStockIds.includes(i.id));
@@ -1368,44 +1625,47 @@ async function generateBatchStockPDF() {
             <head>
                 <base href="${baseUrl}">
                 <title>Green Batch Spec Report</title>
-                <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
                 <style>
                     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+                    
                     body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #fff; }
                     
-                    .page-container { page-break-after: always; min-height: 285mm; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+                    .page-container { page-break-after: always; min-height: 285mm; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
                     .page-container:last-child { page-break-after: auto; }
 
-                    .spec-card { border: 1px solid #eee; border-radius: 12px; overflow: hidden; max-width: 550px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+                    .spec-card { border: 1.5px solid #28a745; border-radius: 12px; overflow: hidden; max-width: 650px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; background: #fff; }
+                    
                     .card-header { background: #28a745; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; flex-shrink: 0; }
-                    .logo { height: 28px; }
-                    .brand-title { font-weight: 800; letter-spacing: 0.5px; font-size: 13px; text-transform: uppercase; }
-                    .info-section { padding: 12px 20px; flex-shrink: 0; }
-                    .article-no { font-size: 16px; font-weight: 900; color: #28a745; margin-bottom: 8px; letter-spacing: -0.2px; line-height: 1.1; }
-                    .specs-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 6px 0; margin-bottom: 6px; }
-                    .spec-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 0.5px solid #f0f0f0; align-items: center; }
-                    .spec-row:last-child { border-bottom: none; }
-                    .spec-label { color: #888; font-weight: 800; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.6px; }
-                    .spec-value { font-weight: 700; font-size: 11px; color: #111; text-align: right; }
-                    .image-section { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: center; flex-grow: 1; min-height: 250px; }
-                    .image-section img { width: 100%; max-height: 650px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd; background: #fff; padding: 2px; }
-                    .footer-section { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-                    .contact-block { font-size: 9px; font-weight: 700; color: #777; line-height: 1.5; }
-                    .contact-block b { color: #111; font-size: 11px; display: block; margin-bottom: 2px; }
-                    .barcode-box { text-align: right; }
-                    .barcode-svg { max-height: 55px; max-width: 180px; }
+                    .logo { height: 35px; }
+                    .brand-title { font-weight: 800; letter-spacing: 1px; font-size: 16px; text-transform: uppercase; }
+                    
+                    .info-section { padding: 15px 20px; flex-shrink: 0; background: #fff; border-bottom: 2px dashed #eee; }
+                    .header-row { display: flex; gap: 20px; align-items: center; }
+                    .header-left { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+                    .contact-row { font-size: 9.5px; line-height: 1.5; color: #444; font-weight: 500; word-break: break-word; }
+                    .contact-row b { color: #111; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-right: 5px; font-size: 10px; }
+                    .header-right { width: 310px; display: flex; flex-direction: column; flex-shrink: 0; }
+                    
+                    .label-preview-box { background: #fff; width: 100%; }
+                    .label-preview-box img { width: 100%; height: auto; border-radius: 0; }
+                    
+                    .image-section { padding: 5px 15px 15px 15px; background: #fcfcfc; display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+                    .image-section img { width: 100%; max-height: 800px; object-fit: contain; background: #fff; padding: 3px; border-radius: 12px; }
                     
                     @page { size: A4; margin: 0; }
                     @media print {
                         body { padding: 0; }
-                        .page-container { padding: 10mm; height: 297mm; display: block; overflow: hidden; }
-                        .spec-card { border: none; max-width: 100%; width: 100%; height: 275mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
-                        .image-section { flex-grow: 1; min-height: 120mm; }
-                        .image-section img { max-height: 220mm; width: 100%; }
-                        .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15px 30px; }
-                        .info-section { padding: 25px 30px; }
-                        .footer-section { padding: 25px 30px; }
-                        .article-no { font-size: 24px; }
+                        .page-container { padding: 0; height: 297mm; display: block; overflow: hidden; }
+                        .spec-card { border: none; max-width: 100%; width: 100%; height: 297mm; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+                        .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 25px 40px; }
+                        .logo { height: 50px; }
+                        .brand-title { font-size: 22px; }
+                        .info-section { padding: 30px 40px; }
+                        .header-row { gap: 40px; }
+                        .header-right { width: 380px; }
+                        .contact-row { font-size: 12px; }
+                        .image-section { flex-grow: 1; padding: 30px 40px; }
+                        .image-section img { max-height: 250mm; }
                     }
                 </style>
             </head>
@@ -1418,41 +1678,38 @@ async function generateBatchStockPDF() {
                                 <div class="brand-title">Green International</div>
                             </div>
                             <div class="info-section">
-                                <div class="article-no">${item.article_no}</div>
-                                <div class="specs-strip">
-                                    <div class="left-col">
-                                        ${['content', 'count', 'density'].map(f => `<div class="spec-row"><span class="spec-label">${f}</span><span class="spec-value">${item[f] || '-'}</span></div>`).join('')}
+                                <div class="header-row">
+                                    <div class="header-left">
+                                        <div class="contact-row">
+                                            <b>India Office:</b> 326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018
+                                        </div>
+                                        <div class="contact-row">
+                                            <b>China Office:</b> Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China-213100
+                                        </div>
+                                        <div class="contact-row">
+                                            <b>Contact:</b> +91 9810639056<br>
+                                            +91 0124-4799566<br>
+                                            sales@greeninternationalindia.com<br>
+                                            www.greeninternationalindia.com
+                                        </div>
                                     </div>
-                                    <div class="right-col">
-                                        ${['width', 'weight', 'finish'].map(f => `<div class="spec-row"><span class="spec-label">${f}</span><span class="spec-value">${item[f] || '-'} ${f==='weight' && item[f] ? 'GSM' : ''}</span></div>`).join('')}
+                                    <div class="header-right">
+                                        <div class="label-preview-box">
+                                            <img src="http://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(fillZPLTemplate(item))}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="image-section">
                                 <img src="${item.resolved_url || placeholderImg}" crossorigin="anonymous">
                             </div>
-                            <div class="footer-section">
-                                <div class="contact-block">
-                                    <b>Green International Collections</b>
-                                    <div>www.greeninternationalindia.com</div>
-                                    <div>info@greeninternationalindia.com</div>
-                                </div>
-                                <div class="barcode-box">
-                                    <svg class="barcode-svg" data-barcode="${item.barcode}"></svg>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 `).join('')}
                 <script>
                     window.onload = function() {
-                        document.querySelectorAll('.barcode-svg').forEach(el => {
-                            JsBarcode(el, el.dataset.barcode, {
-                                format: "CODE128", height: 50, width: 1.6, displayValue: true, fontSize: 11, fontOptions: "bold", lineColor: "#111"
-                            });
-                        });
                         setTimeout(() => {
-                            // If user wants auto-print, uncomment: window.print();
+                            // window.print();
                         }, 1000);
                     }
                 </script>
@@ -1473,11 +1730,11 @@ document.addEventListener('change', (e) => {
     if (e.target.id === 'stock-select-all') {
         const checkboxes = document.querySelectorAll('.stock-checkbox');
         const isChecked = e.target.checked;
-        
+
         checkboxes.forEach(box => {
             box.checked = isChecked;
             const articleId = box.onclick.toString().match(/'([^']+)'/)[1];
-            
+
             const index = selectedStockIds.indexOf(articleId);
             if (isChecked && index === -1) selectedStockIds.push(articleId);
             else if (!isChecked && index !== -1) selectedStockIds.splice(index, 1);
@@ -1497,10 +1754,13 @@ async function shareStockItem(id) {
         const btn = document.querySelector(`button[onclick*="shareStockItem('${id}')"]`);
         if (btn) {
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> COPIED!`;
             const originalClass = btn.className;
-            btn.className = "btn btn-success flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 border shadow-sm text-white";
-            
+            const isSmall = btn.classList.contains('btn-sm');
+
+            btn.innerHTML = `<svg width="${isSmall ? 14 : 18}" height="${isSmall ? 14 : 18}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${isSmall ? 'Copied' : 'Copied'}`;
+            btn.classList.remove('btn-light', 'btn-green');
+            btn.classList.add('btn-success', 'text-white');
+
             setTimeout(() => {
                 btn.innerHTML = originalHtml;
                 btn.className = originalClass;
@@ -1509,4 +1769,40 @@ async function shareStockItem(id) {
     } catch (err) {
         console.error('Share failed:', err);
     }
+}
+
+// Fullscreen Lightbox for Big View
+function openBigView(src) {
+    if (!src || src === placeholderImg) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'fadeIn';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.92)';
+    overlay.style.zIndex = '99999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.cursor = 'zoom-out';
+    overlay.style.backdropFilter = 'blur(10px)';
+    overlay.onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 200);
+    };
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = 'shadow-lg';
+    img.style.maxWidth = '90%';
+    img.style.maxHeight = '90%';
+    img.style.objectFit = 'contain';
+    img.style.borderRadius = '24px';
+    img.style.transition = 'transform 0.3s ease';
+    img.style.border = '1px solid rgba(255,255,255,0.1)';
+
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
 }

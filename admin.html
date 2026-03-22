@@ -378,6 +378,7 @@
                                     </th>
                                     <th style="width: 80px;">Image</th>
                                     <th>Article No</th>
+                                    <th>Content</th>
                                     <th>Type</th>
                                     <th>Count</th>
                                     <th>Weight</th>
@@ -403,6 +404,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-green btn-sm fw-bold px-3 py-2" onclick="generateBatchStockPDF()" style="border-radius: 10px;">BULK REPORT</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="batchPrintStockLabels()" style="border-radius: 10px;">BULK LABELS</button>
                             <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-2" onclick="batchDeleteStock()" style="border-radius: 10px;">DELETE BATCH</button>
                             <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-2" onclick="clearStockSelection()" style="border-radius: 10px;">CANCEL</button>
                         </div>
@@ -782,14 +784,14 @@
     <!-- Stock Modals -->
     <!-- Stock Item Modal (Add/Edit) -->
     <div class="modal fade" id="stockItemModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 740px;">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1150px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
                 <form id="stock-item-form">
                     <div class="modal-body p-0">
-                        <!-- Top Section: Content and Details -->
+                        <!-- Top Section: Content, Details, and Preview -->
                         <div class="row g-0">
-                            <!-- Left: Content Wrapper -->
-                            <div class="col-lg-5 p-3 d-flex flex-column" style="background: #f8f8f8;">
+                            <!-- Left: Media/Camera Wrapper -->
+                            <div class="col-lg-3 p-3 d-flex flex-column border-end" style="background: #fcfcfc;">
                                 <div class="flex-grow-1">
                                     <ul class="nav nav-pills nav-justified mb-2 bg-white p-1 rounded-3 shadow-sm" id="stock-source-tabs" role="tablist">
                                         <li class="nav-item" role="presentation">
@@ -851,15 +853,23 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-auto pt-2">
-                                    <div class="text-center py-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 80px;">
+                                <div class="mt-auto pt-3">
+                                    <!-- Barcode Number Controls -->
+                                    <div class="input-group mb-2">
+                                        <input type="number" name="barcode" id="add-stock-barcode" class="form-control form-control-sm fw-bold border-end-0" required placeholder="Barcode ID" 
+                                            style="border-radius: 8px 0 0 8px; background: #fff;">
+                                        <button class="btn btn-outline-success btn-sm px-2 fw-bold" type="button" id="regenerate-stock-barcode"
+                                            style="border-radius: 0 8px 8px 0; border-width: 1px;">Refresh</button>
+                                    </div>
+
+                                    <!-- Barcode Visual Preview -->
+                                    <div class="text-center py-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 80px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                                         <svg id="add-stock-barcode-svg" style="max-height: 40px; width: 100%;"></svg>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Right: Tech Details Wrapper -->
-                            <div class="col-lg-7 p-3 p-md-4 bg-white position-relative">
+                            <!-- Center: Tech Details Wrapper -->
+                            <div class="col-lg-5 p-3 p-md-4 bg-white position-relative border-end">
                                 <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
                                 <input type="hidden" name="id" id="stock-item-id">
                                 <div class="row g-2">
@@ -911,27 +921,33 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Right: Full Label Preview Wrapper -->
+                            <div class="col-lg-4 p-3 p-md-4 bg-light d-flex flex-column border-start" style="background: #fdfdfd !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="m-0 fw-bold text-dark" style="letter-spacing: -0.2px;">Label Preview</h6>
+                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold" onclick="updateModalLabelPreview()" style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
+                                </div>
+                                <div id="modal-label-preview-container" class="bg-white border rounded-4 shadow-sm overflow-hidden d-flex align-items-center justify-content-center position-relative w-100" style="aspect-ratio: 4 / 2; background: #fff !important;">
+                                    <div id="modal-label-preview-spinner" class="spinner-border text-green spinner-border-sm" style="display: none; position: absolute; z-index: 2;"></div>
+                                    <img id="modal-label-preview-img" src="" style="width: 100%; height: 100%; object-fit: contain; display: none; background: #fff;">
+                                    <div id="modal-label-preview-placeholder" class="text-center p-4">
+                                        <div class="text-muted small mb-2">Fetching live label...</div>
+                                        <div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>
+                                    </div>
+                                </div>
+                                <p class="text-muted small text-center mt-3 mb-0" style="font-size: 0.65rem;">
+                                    <i class="fas fa-info-circle me-1"></i> Preview shows 203 DPI layout (4x2 in)
+                                </p>
+                            </div>
                         </div>
 
-                        <!-- Bottom Section: Actions and Identifier (Shared straight line) -->
-                        <div class="row g-0 border-top align-items-center">
-                            <div class="col-lg-5 p-3" style="background: #f8f8f8;">
-                                <div class="input-group">
-                                    <input type="number" name="barcode" id="add-stock-barcode" class="form-control fw-bold py-2" required placeholder="Barcode ID" 
-                                        style="border-radius: 12px 0 0 12px; background: #fff; border-right: 0;">
-                                    <button class="btn btn-outline-success px-3 fw-bold small" type="button" id="regenerate-stock-barcode"
-                                        style="border-radius: 0 12px 12px 0; border-width: 1px;">Refresh</button>
-                                </div>
-                            </div>
-                            <div class="col-lg-7 p-3 bg-white">
-                                <div class="d-flex gap-2 w-100">
-                                    <button type="submit" class="btn btn-green flex-grow-1 py-2 fw-bold" id="stock-modal-submit-btn" style="border-radius: 12px;">
-                                        Save Article
-                                    </button>
-                                    <button type="button" class="btn btn-light px-3 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px; border: 1px solid #eee;">
-                                        Cancel
-                                    </button>
-                                </div>
+                        <!-- Bottom Section: Uniform Actions -->
+                        <div class="p-3 bg-white border-top">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-light px-4 fw-bold text-muted border" data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                                <button type="button" class="btn btn-outline-dark px-4 fw-bold" id="save-print-article-btn" style="border-radius: 12px;">Save & Print</button>
+                                <button type="submit" class="btn btn-green px-5 fw-bold" id="stock-modal-submit-btn" style="border-radius: 12px;">Save</button>
                             </div>
                         </div>
                     </div>
@@ -1080,6 +1096,8 @@
     <script src="assets/js/admin/details.js"></script>
     <script src="assets/js/admin/export.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="assets/js/admin/BrowserPrint-3.1.250.min.js"></script>
+    <script src="assets/js/admin/BrowserPrint-Zebra-1.1.250.min.js"></script>
     <script src="assets/js/admin/stock.js"></script>
     <!-- Stock Item Modal (Add/Edit) -->
     <div class="modal fade" id="stockItemModal" tabindex="-1">
@@ -1088,8 +1106,8 @@
 
     <!-- Stock Read-Only Detail Modal -->
     <div class="modal fade" id="stockDetailModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1150px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 28px; overflow: hidden;">
                 <div class="modal-body p-0" id="stock-detail-content">
                     <!-- Detail content will be injected here -->
                 </div>
