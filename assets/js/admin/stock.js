@@ -550,22 +550,20 @@ function toggleStockView(mode) {
 
     applyStockFilter(); // Re-render current data
 }
-
-
-
 function createStockCard(item) {
     const col = document.createElement('div');
     col.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
 
     const card = document.createElement('div');
-    card.className = 'card h-100 border-0 shadow-sm stock-card position-relative overflow-hidden';
+    card.setAttribute('data-id', item.id);
+    const isSelected = selectedStockIds.includes(item.id);
+    card.className = `card h-100 border-0 shadow-sm stock-card position-relative overflow-hidden ${isSelected ? 'selected' : ''}`;
     card.style.borderRadius = '24px';
     card.style.transition = 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)';
     card.style.cursor = 'pointer';
     card.style.background = '#fff';
     card.onclick = () => showStockDetail(item.id);
 
-    const isSelected = selectedStockIds.includes(item.id);
     const statusBg = item.status === 'IN_STOCK' ? '#28a745' : '#ffc107';
     const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
 
@@ -631,6 +629,8 @@ function createStockCard(item) {
         <style>
             .stock-card:hover { transform: translateY(-8px) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important; }
             .stock-card:hover img { transform: scale(1.05); }
+            .stock-card.selected { border: 2.5px solid #28a745 !important; box-shadow: 0 10px 30px rgba(40,167,69,0.15) !important; padding: -2.5px; }
+            .stock-card.selected .stock-checkbox { background: #28a745 !important; }
         </style>
     `;
 
@@ -650,7 +650,9 @@ function createStockCard(item) {
 
 function createStockRow(item) {
     const tr = document.createElement('tr');
-    tr.className = 'align-middle';
+    tr.setAttribute('data-id', item.id);
+    const isSelected = selectedStockIds.includes(item.id);
+    tr.className = `align-middle stock-row ${isSelected ? 'selected' : ''}`;
     tr.style.cursor = 'pointer';
     tr.style.transition = 'background 0.2s ease';
     tr.onmouseover = () => tr.style.background = '#fcfcfc';
@@ -662,8 +664,6 @@ function createStockRow(item) {
     const statusBg = item.status === 'IN_STOCK' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
     const statusColor = item.status === 'IN_STOCK' ? '#28a745' : '#856404';
     const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
-
-    const isSelected = selectedStockIds.includes(item.id);
 
     tr.innerHTML = `
         <td class="ps-4">
@@ -1512,11 +1512,40 @@ async function generateStockPDF(id) {
 // Batch Operations Logic
 function toggleStockSelection(id) {
     const index = selectedStockIds.indexOf(id);
-    if (index === -1) {
+    const isSelectedNow = index === -1;
+    
+    if (isSelectedNow) {
         selectedStockIds.push(id);
     } else {
         selectedStockIds.splice(index, 1);
     }
+
+    // Direct UI Feedback for Grid
+    const cards = document.querySelectorAll(`.stock-card[data-id="${id}"]`);
+    cards.forEach(card => {
+        const cb = card.querySelector('.stock-checkbox');
+        if (isSelectedNow) {
+            card.classList.add('selected');
+            if (cb) cb.checked = true;
+        } else {
+            card.classList.remove('selected');
+            if (cb) cb.checked = false;
+        }
+    });
+
+    // Direct UI Feedback for Table
+    const rows = document.querySelectorAll(`.stock-row[data-id="${id}"]`);
+    rows.forEach(row => {
+        const cb = row.querySelector('.stock-checkbox');
+        if (isSelectedNow) {
+            row.classList.add('selected');
+            if (cb) cb.checked = true;
+        } else {
+            row.classList.remove('selected');
+            if (cb) cb.checked = false;
+        }
+    });
+
     updateBatchActionBar();
 }
 
