@@ -1614,12 +1614,50 @@ async function generateBatchStockPDF() {
     if (selectedStockIds.length === 0) return;
 
     showLoading(true);
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const originalLoadingContent = loadingOverlay ? loadingOverlay.innerHTML : '';
+
     try {
         const selectedItems = stockItems.filter(i => selectedStockIds.includes(i.id));
         if (selectedItems.length === 0) return;
 
+        // Progress rendering to avoid Labelary throttling
+        for (let i = 0; i < selectedItems.length; i++) {
+            const item = selectedItems[i];
+            
+            if (loadingOverlay) {
+                loadingOverlay.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                        <div class="text-white h5 fw-bold mb-1">Generating Batch Report</div>
+                        <div class="text-white-50 mb-3">Rendering article ${i + 1} of ${selectedItems.length}</div>
+                        <div class="badge bg-light text-dark px-3 py-2" style="border-radius: 8px;">${item.article_no}</div>
+                    </div>
+                `;
+            }
+
+            try {
+                const zpl = fillZPLTemplate(item);
+                const response = await fetch(`https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    item.temp_rendered_label = await new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                }
+            } catch (err) {
+                console.error("Labelary fetch failed for " + item.article_no, err);
+            }
+            
+            // Small throttle delay
+            await new Promise(r => setTimeout(r, 150));
+        }
+
         const baseUrl = window.location.href.split('#')[0].split('?')[0].substring(0, window.location.href.lastIndexOf('/') + 1);
         const printWindow = window.open('', '_blank');
+        
         printWindow.document.write(`
             <html>
             <head>
@@ -1674,7 +1712,7 @@ async function generateBatchStockPDF() {
                     <div class="page-container">
                         <div class="spec-card">
                             <div class="card-header">
-                                <img class="logo" src="assets/images/green-logo.png">
+                                <img src="assets/images/green-logo.png" class="logo">
                                 <div class="brand-title">Green International</div>
                             </div>
                             <div class="info-section">
@@ -1687,15 +1725,12 @@ async function generateBatchStockPDF() {
                                             <b>China Office:</b> Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China-213100
                                         </div>
                                         <div class="contact-row">
-                                            <b>Contact:</b> +91 9810639056<br>
-                                            +91 0124-4799566<br>
-                                            sales@greeninternationalindia.com<br>
-                                            www.greeninternationalindia.com
+                                            <b>Contact:</b> +91 9810639056 | +91 0124-4799566 | sales@greeninternationalindia.com
                                         </div>
                                     </div>
                                     <div class="header-right">
                                         <div class="label-preview-box">
-                                            <img src="http://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(fillZPLTemplate(item))}">
+                                            <img src="${item.temp_rendered_label || ''}">
                                         </div>
                                     </div>
                                 </div>
@@ -1721,6 +1756,7 @@ async function generateBatchStockPDF() {
     } catch (err) {
         alert("Batch report failed: " + err.message);
     } finally {
+        if (loadingOverlay) loadingOverlay.innerHTML = originalLoadingContent;
         showLoading(false);
     }
 }
