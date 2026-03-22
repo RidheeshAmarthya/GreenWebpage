@@ -271,7 +271,7 @@ async function fetchStock() {
     showLoading(true);
 
     const rawSearch = (document.querySelector('#stock-search')?.value || '')
-        .replace(/gsm/gi, ''); // Strip 'gsm' as it's a frontend-only suffix
+        .replace(/gsm/gi, ''); 
     const fuzzySearch = rawSearch.trim().replace(/[^a-zA-Z0-9]+/g, '%');
     const searchTerm = `%${fuzzySearch}%`;
 
@@ -282,43 +282,61 @@ async function fetchStock() {
     const sortVal = document.querySelector('#stock-sort-select')?.value || 'created_at-desc';
     const [column, order] = sortVal.split('-');
 
-    // Build Supabase Query
+    // Build Supabase Query (Exclude GSM and Pagination from DB query to handle numeric logic in JS)
     let query = supabaseClient
         .from('Stock')
         .select(`
             *,
             checkouts: Stock_Checkouts(name, company, created_at, returned_at)
-        `, { count: 'exact' });
+        `);
 
-    // 1. Fuzzy Search (Article No, Content, Item Name, Finish, Remark, Count, Width)
+    // 1. Fuzzy Search
     if (rawSearch.trim()) {
         query = query.or(`article_no.ilike.${searchTerm},content.ilike.${searchTerm},item.ilike.${searchTerm},finish.ilike.${searchTerm},remark.ilike.${searchTerm},count.ilike.${searchTerm},width.ilike.${searchTerm}%`);
     }
 
-    // 2. Structured Filters
+    // 2. Basic Structured Filters
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-    if (gsmMin) query = query.gte('weight', gsmMin);
-    if (gsmMax) query = query.lte('weight', gsmMax);
 
-    // 3. Sorting
+    // 3. Sorting (Still handled by DB)
     query = query.order(column, { ascending: order === 'asc' });
 
-    // 4. Pagination
-    const from = (stockCurrentPage - 1) * stockItemsPerPage;
-    const to = from + stockItemsPerPage - 1;
-    query = query.range(from, to);
+    const { data: allMatches, error } = await query;
 
-    const { data, count, error } = await query;
-
-    showLoading(false);
     if (error) {
+        showLoading(false);
         console.error(error);
         return;
     }
 
-    stockItems = data;
-    renderStockItems(stockItems, count);
+    // 4. Robust Numeric GSM Filtering in JavaScript
+    // This is necessary because the DB column is likely 'text', 
+    // and standard gte/lte filters use lexicographical (string) 1 < 5 comparison.
+    let filteredData = allMatches;
+    if (gsmMin || gsmMax) {
+        const minVal = gsmMin ? parseFloat(gsmMin) : -Infinity;
+        const maxVal = gsmMax ? parseFloat(gsmMax) : Infinity;
+
+        filteredData = allMatches.filter(item => {
+            if (!item.weight) return false;
+            // Extract numeric part (handles "110 GSM", "110", etc)
+            const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
+            if (isNaN(itemVal)) return false; 
+            return itemVal >= minVal && itemVal <= maxVal;
+        });
+    }
+
+    const totalCount = filteredData.length;
+
+    // 5. Manual Pagination after JS Filtering
+    const from = (stockCurrentPage - 1) * stockItemsPerPage;
+    const to = from + stockItemsPerPage;
+    const paginatedItems = filteredData.slice(from, to);
+
+    showLoading(false);
+    stockItems = paginatedItems;
+    renderStockItems(stockItems, totalCount);
 }
 
 // Redirect all filter changes to fetchStock
