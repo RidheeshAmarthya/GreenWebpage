@@ -117,7 +117,11 @@ function renderTimeline(colorIndex) {
     }
 
     // Sort logs by date descending (newest first)
-    const sortedLogs = [...colorObj.logs].sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+    const sortedLogs = [...colorObj.logs].sort((a, b) => {
+        const dateDiff = new Date(b.log_date) - new Date(a.log_date);
+        if (dateDiff !== 0) return dateDiff;
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
 
     sortedLogs.forEach(log => {
         const item = document.createElement('div');
@@ -243,7 +247,11 @@ function printOrderReport(order) {
     const colors = order.colors || [];
     let colorsHtml = colors.map(colorObj => {
         const logsHtml = (colorObj.logs || [])
-            .sort((a, b) => new Date(b.log_date) - new Date(a.log_date))
+            .sort((a, b) => {
+                const dateDiff = new Date(b.log_date) - new Date(a.log_date);
+                if (dateDiff !== 0) return dateDiff;
+                return new Date(b.created_at) - new Date(a.created_at);
+            })
             .map(log => `
                  <tr>
                      <td>${formatDate(log.log_date)}</td>
@@ -371,7 +379,11 @@ async function printSingleColor() {
     printSection.innerHTML = '';
 
     const logsHtml = (colorObj.logs || [])
-        .sort((a, b) => new Date(b.log_date) - new Date(a.log_date))
+        .sort((a, b) => {
+            const dateDiff = new Date(b.log_date) - new Date(a.log_date);
+            if (dateDiff !== 0) return dateDiff;
+            return new Date(b.created_at) - new Date(a.created_at);
+        })
         .map(log => `
              <tr>
                  <td>${formatDate(log.log_date)}</td>

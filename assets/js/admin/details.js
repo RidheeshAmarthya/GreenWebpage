@@ -100,7 +100,11 @@ function renderColors(colors) {
         const colorDiv = document.createElement('div');
         colorDiv.className = 'color-card-admin';
 
-        let logsHtml = (color['Color-Logs'] || []).sort((a, b) => new Date(b.date) - new Date(a.date)).map(log => `
+        let logsHtml = (color['Color-Logs'] || []).sort((a, b) => {
+            const dateDiff = new Date(b.date) - new Date(a.date);
+            if (dateDiff !== 0) return dateDiff;
+            return new Date(b.created_at) - new Date(a.created_at);
+        }).map(log => `
             <div class="timeline-item-match">
                 <div class="timeline-date">${formatDate(log.date)}</div>
                 <div class="timeline-dot"></div>
