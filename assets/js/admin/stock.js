@@ -297,9 +297,13 @@ async function fetchStock() {
             checkouts: Stock_Checkouts(name, company, created_at, returned_at)
         `);
 
-    // 1. Fuzzy Search
-    if (rawSearch.trim()) {
-        query = query.or(`article_no.ilike.${searchTerm},content.ilike.${searchTerm},item.ilike.${searchTerm},finish.ilike.${searchTerm},remark.ilike.${searchTerm},count.ilike.${searchTerm},width.ilike.${searchTerm}%`);
+    // 1. Multi-keyword Fuzzy Search (AND logic between keywords)
+    const searchTerms = rawSearch.trim().split(/\s+/).filter(k => k.length > 0);
+    if (searchTerms.length > 0) {
+        searchTerms.forEach(term => {
+            const fuzzyTerm = `%${term.replace(/[^a-zA-Z0-9]+/g, '%')}%`;
+            query = query.or(`article_no.ilike.${fuzzyTerm},content.ilike.${fuzzyTerm},item.ilike.${fuzzyTerm},finish.ilike.${fuzzyTerm},remark.ilike.${fuzzyTerm},count.ilike.${fuzzyTerm},width.ilike.${fuzzyTerm},weight.ilike.${fuzzyTerm}`);
+        });
     }
 
     // 2. Basic Structured Filters
