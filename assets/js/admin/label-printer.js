@@ -196,14 +196,11 @@
                 btn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><polyline points="20 6 9 17 4 12"/></svg> DONE';
                 btn.className = "btn btn-success w-100 py-3 fw-bold";
 
-                // Reset form after successful print
+                // Revert button state after success (preserving data)
                 setTimeout(() => {
-                    form.reset();
-                    updateManualLabelPreview();
-
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
-                    btn.className = "btn btn-dark w-100 py-3 fw-bold";
+                    btn.className = "btn btn-dark btn-sm flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center";
                 }, 2000);
             } catch (err) {
                 alert("Printer Error: " + err.message);
