@@ -45,7 +45,8 @@
 ^FT145,348^A0N,28,28^FH\\^CI28^FD: {finish}^FS^CI27
 ^FT145,383^A0N,28,28^FH\\^CI28^FD: {remark}^FS^CI27
 
-^FO565,20^BCN,60,Y,N,N^FD{barcode}^FS
+^BY2
+^FO550,20^BCN,60,Y,N,N^FD{barcode}^FS
 
 ^FO570,310^GFA,1041,2001,29,:Z64:eJztlL9v00AUx7+2mziKqjoDEtkSKRKKWEglhgih2v0POpAZ9z/I0hVfG4QihDozVkyRB2bEAI76LyBYqGToErHUGx7cHO/d2c4F2Fg52e9+vPfxu/fenYH71GwWAI+HaPNCHMc0tyJqjoxkRBOSBZ5G8pkrpQwAj7r1jIRM4ZDMbV7g1Rzo8dhiZQa2z1kUSgA+KxkhSx7nXkWu2Q3ZKLJQX8l6FSkBWX92rQxzxgsmpdCMocz8mkwc+ca2Adu2HQk19n+Q8L7btkwd2lPZIkuqjoWbURymUp6uBXcsvJRfNzdIZSgr0stKJcUEf1ZUQ01mbEIJ5mXfUoZFRbqZZ5L5Npn/QVommXGOSlLVRgkmXSYpL8o8UnlaKqVJirUQQipSbJM0sW4nk4nckMmWT1lXdZtke6M2lkmunMq82JCJEWdUksWfcXKVtM/tDLkmKf+eW+1I/laVmqRlS55u19PNlJ9ImdNJgHkS3Nwp6jPgL/UZEhtSzudzyi0rE7miScRCx2nJ26srXZVeEtH4a49EoUkVoa6nl/rViV9rn+qUa9JL+Jrk+q5o8qNKqCZ7m1umyZ5B8g3JGgbpGT7rm12UpBVtSN5Axt+qSLzkH8eClG2B9jxeoBXHi/YF3bwF/rd/bUKgBX54xNJUTgJ0wI814WnjiaGz6KSOwY+jz+zaVEJh1Bwld82vOkJh1GwlW+Vbko1gn/odNNGgvkvvnQ3pZQ/Sm5Ev6D+b3ogu0lFkj1F56kzDo1FAZCc8If9BeOgelcq3GK/StJ+KvcVwtMJBnn47PS+DdQt0gmlynNAoHCXo5cHSel76tPv2u7QvBgJ7/XAk8KgfzgbnpbKJu1Pa7iHvN9gXGOHY+blTKvcwHicDcS0o/GQsMMTgRfyqVO6APB0yuYvgWGCKQbNO0x7CvrjGNdcmJc993GvWKSJPoVBkFwHJEA9dlSad6DS9nInLM87NpcDq4rFz9rpWniy/OEg+U25OqERR1rU+VWSLIvtgQ7ynfR5QYeKLIfIha34Baf92ow==:97FE
 
@@ -71,7 +72,7 @@
         zpl = zpl.replace(/{item}/g, data.item || '');
         zpl = zpl.replace(/{finish}/g, data.finish || '');
         zpl = zpl.replace(/{remark}/g, data.remark || '');
-        zpl = zpl.replace(/{barcode}/g, data.barcode || '');
+        zpl = zpl.replace(/{barcode}/g, String(data.barcode || '').trim());
         return zpl;
     }
 
