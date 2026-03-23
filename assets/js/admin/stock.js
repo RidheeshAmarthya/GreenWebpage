@@ -837,6 +837,7 @@ const placeholder = document.getElementById('webcam-placeholder');
 const startBtn = document.getElementById('start-webcam-btn');
 const captureBtn = document.getElementById('capture-photo-btn');
 const retakeBtn = document.getElementById('retake-photo-btn');
+const webcamOverlay = document.getElementById('webcam-overlay');
 
 async function startWebcam() {
     try {
@@ -844,6 +845,7 @@ async function startWebcam() {
         webcamStream = stream;
         video.srcObject = stream;
         video.style.display = 'block';
+        if (webcamOverlay) webcamOverlay.classList.remove('d-none');
         placeholder.style.display = 'none';
         capturePreview.style.display = 'none';
         startBtn.style.display = 'none';
@@ -860,6 +862,7 @@ function stopWebcam() {
     if (webcamStream) {
         webcamStream.getTracks().forEach(track => track.stop());
         webcamStream = null;
+        if (webcamOverlay) webcamOverlay.classList.add('d-none');
     }
 }
 
@@ -871,12 +874,18 @@ async function capturePhoto() {
     const vWidth = video.videoWidth;
     const vHeight = video.videoHeight;
 
-    // Exact mapping to prevent shifting or distortion
-    canvas.width = vWidth;
-    canvas.height = vHeight;
+    // Calculate crop size relative to what's shown in the 280px-high 'cover' container
+    // Since UI box is 180px in a 280px container, we take ~64% of the visible part.
+    // However, a simple square crop of the shortest dimension is more reliable.
+    const cropSize = Math.min(vWidth, vHeight) * 0.7; // 70% of shortest side
+    const startX = (vWidth - cropSize) / 2;
+    const startY = (vHeight - cropSize) / 2;
 
-    // Explicitly draw the full frame to the full canvas
-    ctx.drawImage(video, 0, 0, vWidth, vHeight, 0, 0, vWidth, vHeight);
+    canvas.width = cropSize;
+    canvas.height = cropSize;
+
+    // Center-square crop
+    ctx.drawImage(video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
 
     // Compression Loop to ensure < 50KB (Now using WebP)
     let quality = 0.8;
@@ -903,6 +912,15 @@ async function capturePhoto() {
 
 if (startBtn) startBtn.onclick = startWebcam;
 if (captureBtn) captureBtn.onclick = capturePhoto;
+
+// Enter key shortcut for capturing photo
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && captureBtn && captureBtn.getClientRects().length > 0 && webcamStream) {
+        e.preventDefault();
+        capturePhoto();
+    }
+});
+
 if (retakeBtn) retakeBtn.onclick = () => {
     capturePreview.style.display = 'none';
     document.getElementById('stock-sources-content').style.display = 'block';
