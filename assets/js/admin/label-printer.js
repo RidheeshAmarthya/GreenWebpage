@@ -124,23 +124,57 @@
         const printerModal = document.getElementById('labelPrinterModal');
         if (!form) return;
 
-        // Auto-refresh preview on field changes
-        form.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('change', () => updateManualLabelPreview());
+        // Persistence Logic
+        const saveManualLabelState = () => {
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            localStorage.setItem('quick_label_data', JSON.stringify(data));
+        };
+
+        const loadManualLabelState = () => {
+            try {
+                const saved = localStorage.getItem('quick_label_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    Object.keys(data).forEach(key => {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input) input.value = data[key];
+                    });
+                }
+            } catch (e) { console.error("Could not load saved label data", e); }
+        };
+
+        // Auto-refresh and Save on field changes
+        form.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', () => {
+                saveManualLabelState();
+                updateManualLabelPreview();
+            });
         });
 
-        // Load empty preview immediately when modal opens
+        // Initial Load
+        loadManualLabelState();
+
+        // Load preview immediately when modal opens
         if (printerModal) {
             printerModal.addEventListener('shown.bs.modal', () => {
                 updateManualLabelPreview();
             });
 
-            // Auto-clear form when modal is closed
+            // Removed automatic reset on close - replaced with manual clear button
             printerModal.addEventListener('hidden.bs.modal', () => {
-                form.reset();
                 updateManualLabelPreview();
             });
         }
+
+        // Global Clear Function
+        window.clearManualLabelForm = () => {
+            if (confirm('Clear all fields? This will delete your current manual work.')) {
+                form.reset();
+                localStorage.removeItem('quick_label_data');
+                updateManualLabelPreview();
+            }
+        };
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
