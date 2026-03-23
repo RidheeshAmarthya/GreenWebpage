@@ -12,6 +12,24 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let currentColors = [];
 
+// Auto-Sync Version with GitHub Commits
+async function updateBuildVersion() {
+    try {
+        const response = await fetch('https://api.github.com/repos/RidheeshAmarthya/GreenWebpage/commits?per_page=1');
+        const linkHeader = response.headers.get('Link');
+        if (linkHeader) {
+            const lastPageMatch = linkHeader.match(/page=(\d+)>; rel="last"/);
+            if (lastPageMatch && lastPageMatch[1]) {
+                const count = lastPageMatch[1];
+                document.querySelectorAll('.js-build-version').forEach(el => {
+                    el.textContent = `v1.${count}`;
+                });
+            }
+        }
+    } catch (e) { console.debug("Using static version fallback."); }
+}
+updateBuildVersion();
+
 // Session Configuration
 const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours absolute limit
 const INACTIVITY_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours inactivity limit
