@@ -297,12 +297,33 @@ async function fetchStock() {
             checkouts: Stock_Checkouts(name, company, created_at, returned_at)
         `);
 
-    // 1. Multi-keyword Fuzzy Search (AND logic between keywords)
-    const searchTerms = rawSearch.trim().split(/\s+/).filter(k => k.length > 0);
+    // 1. Multi-keyword Intelligent Search
+    const searchTerms = rawSearch.trim().toLowerCase().split(/\s+/).filter(k => k.length > 0);
+    const synonymMap = {
+        'spx': 'spandex',
+        'poly': 'polyester',
+        'cot': 'cotton',
+        'vis': 'viscose',
+        'ny': 'nylon',
+        'tw': 'twill'
+    };
+
     if (searchTerms.length > 0) {
         searchTerms.forEach(term => {
-            const fuzzyTerm = `%${term.replace(/[^a-zA-Z0-9]+/g, '%')}%`;
-            query = query.or(`article_no.ilike.${fuzzyTerm},content.ilike.${fuzzyTerm},item.ilike.${fuzzyTerm},finish.ilike.${fuzzyTerm},remark.ilike.${fuzzyTerm},count.ilike.${fuzzyTerm},width.ilike.${fuzzyTerm},weight.ilike.${fuzzyTerm}`);
+            const clean = term.replace(/[^a-z0-9]+/g, '');
+            let variants = [clean];
+            
+            // Expand with synonyms
+            if (synonymMap[clean]) variants.push(synonymMap[clean]);
+            
+            // Robust Fuzzy conditions
+            const conditions = variants.map(v => {
+                // Typo leeway: if word is > 3 chars, allow ending mismatch (e.g. polyest% matches polyester/polyest)
+                const fuzzy = v.length > 3 ? `%${v.substring(0, v.length - 1)}%` : `%${v}%`;
+                return `article_no.ilike.${fuzzy},content.ilike.${fuzzy},item.ilike.${fuzzy},finish.ilike.${fuzzy},remark.ilike.${fuzzy},count.ilike.${fuzzy},width.ilike.${fuzzy},weight.ilike.${fuzzy}`;
+            }).join(',');
+
+            query = query.or(conditions);
         });
     }
 
