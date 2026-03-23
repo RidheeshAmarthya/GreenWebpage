@@ -14,7 +14,7 @@ let currentColors = [];
 
 // Session Configuration
 const SESSION_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours absolute limit
-const INACTIVITY_TIMEOUT = 60 * 60 * 1000;   // 1 hour inactivity limit
+const INACTIVITY_TIMEOUT = 12 * 60 * 60 * 1000; // 12 hours inactivity limit
 
 // DOM Elements
 const loginContainer = document.getElementById('login-container');

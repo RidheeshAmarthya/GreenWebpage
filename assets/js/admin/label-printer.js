@@ -58,9 +58,9 @@
         let zpl = ZPL_TEMPLATE;
 
         // If barcode is empty, remove the barcode commands entirely from ZPL
-        if (!data.barcode || data.barcode.trim() === "") {
+        if (!data.barcode || String(data.barcode).trim() === "") {
             // Remove the scannable barcode horizontal bars command
-            zpl = zpl.replace(/\^FO565,20\^BCN,60,Y,N,N\^FD{barcode}\^FS/g, "");
+            zpl = zpl.replace(/\^FO550,20\^BCN,60,Y,N,N\^FD{barcode}\^FS/g, "");
         }
 
         zpl = zpl.replace(/{article_no}/g, data.article_no || '');
