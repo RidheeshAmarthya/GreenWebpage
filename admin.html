@@ -906,18 +906,19 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-auto pt-3">
+                                <div class="mt-auto pt-3 opacity-75">
                                     <!-- Barcode Number Controls -->
-                                    <div class="input-group mb-2">
-                                        <input type="number" name="barcode" id="add-stock-barcode" class="form-control form-control-sm fw-bold border-end-0" required placeholder="Barcode ID" 
-                                            style="border-radius: 8px 0 0 8px; background: #fff;">
-                                        <button class="btn btn-outline-success btn-sm px-2 fw-bold" type="button" id="regenerate-stock-barcode"
-                                            style="border-radius: 0 8px 8px 0; border-width: 1px;">Refresh</button>
+                                    <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.6rem;">Internal Barcode <span class="fw-normal text-lowercase">(Optional / Advanced)</span></label>
+                                    <div class="input-group mb-2 shadow-none" style="opacity: 0.8 !important;">
+                                        <input type="number" name="barcode" id="add-stock-barcode" class="form-control form-control-sm border-end-0 bg-light" placeholder="Barcode ID" 
+                                            style="border-radius: 8px 0 0 8px; font-size: 0.75rem;">
+                                        <button class="btn btn-outline-secondary btn-sm px-2" type="button" id="regenerate-stock-barcode"
+                                            style="border-radius: 0 8px 8px 0; border-width: 1px; font-size: 0.7rem;">Refresh</button>
                                     </div>
 
                                     <!-- Barcode Visual Preview -->
-                                    <div class="text-center py-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 80px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                                        <svg id="add-stock-barcode-svg" style="max-height: 40px; width: 100%;"></svg>
+                                    <div class="text-center py-2 bg-light rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 50px; opacity: 0.6;">
+                                        <svg id="add-stock-barcode-svg" style="max-height: 30px; width: 100%;"></svg>
                                     </div>
                                 </div>
                             </div>
@@ -1215,11 +1216,11 @@
                                 <div class="row g-2">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Article No *</label>
-                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="GIE-..." style="border-radius: 10px;">
+                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="Enter Article No..." style="border-radius: 10px;">
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Barcode</label>
-                                        <input type="text" name="barcode" class="form-control fw-bold" placeholder="8... (Optional)" style="border-radius: 10px;">
+                                    <div class="col-12 col-md-6 opacity-50">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Barcode <span class="fw-normal text-lowercase">(Optional)</span></label>
+                                        <input type="text" name="barcode" class="form-control bg-light" placeholder="Internal / Advanced" style="border-radius: 10px; font-size: 0.8rem;">
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Content</label>
