@@ -110,6 +110,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12 col-md-5 col-lg-4">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm" style="border-radius: 20px; transition: transform 0.3s ease;" data-bs-toggle="modal" data-bs-target="#labelPrinterModal">
+                            <div class="card-body p-5 d-flex flex-column h-100">
+                                <div class="icon-circle mx-auto mb-4" style="background: rgba(52, 58, 64, 0.1); color: #343a40; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                </div>
+                                <h2 class="h4 fw-bold mb-3">Label Printer</h2>
+                                <p class="text-muted mb-4 small">Manual one-off label generation for Zebra ZD230 without database entry.</p>
+                                <div class="mt-auto d-flex gap-2">
+                                    <button class="btn btn-dark flex-grow-1 py-3" style="border-radius: 12px; font-weight: 700; border: none;">Open Printer</button>
+                                    <button type="button" class="btn btn-outline-dark px-3" style="border-radius: 12px; border: 1px solid #ddd;" data-bs-toggle="modal" data-bs-target="#printerSetupModal" title="Download Printer Software">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -288,9 +305,11 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Checkout
                         </button>
-                        <button class="btn btn-green px-4 d-flex align-items-center gap-2 shadow-sm" onclick="openStockModal()" style="height: 52px; border-radius: 12px; font-weight: 600;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Add Article
+                        <button class="btn btn-green px-4 py-3 fw-bold d-flex align-items-center gap-2 shadow-sm" 
+                                 style="border-radius: 14px;"
+                                 onclick="openStockModal()">
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                             Add Article
                         </button>
                     </div>
                 </div>
@@ -336,7 +355,7 @@
                     <div class="d-flex flex-wrap gap-2 align-items-center">
                         <select id="stock-type-filter" class="form-select bg-light border-0" style="height: 48px; border-radius: 12px; width: auto; min-width: 160px; font-size: 0.85rem; font-weight: 500;">
                             <option value="all">Categories: ALL</option>
-                            <option value="Swatchcard">Swatchcards</option>
+                            <option value="Swatchcard">Swatchcard</option>
                             <option value="Hanger">Hangers</option>
                             <option value="Sampling Yardage">Sampling Yardage</option>
                         </select>
@@ -1098,7 +1117,145 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="assets/js/admin/BrowserPrint-3.1.250.min.js"></script>
     <script src="assets/js/admin/BrowserPrint-Zebra-1.1.250.min.js"></script>
+    <!-- Printer Setup Modal -->
+    <div class="modal fade" id="printerSetupModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark">Printer Setup Guide</h5>
+                        <p class="text-muted small mb-0">Zebra ZD230 Series</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-2">1. Download Driver</h6>
+                        <p class="text-muted small mb-3">Select your operating system to download the Zebra Browser Print software.</p>
+                        <div class="d-grid gap-2">
+                            <a href="assets/zprint/zebra-browser-print-windows-v132489.exe.zip" class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3" style="border-radius: 12px;">
+                                <div class="text-start">
+                                    <div class="fw-bold">Windows v1.3.2</div>
+                                    <div class="small opacity-50">.EXE Utility</div>
+                                </div>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </a>
+                            <a href="assets/zprint/zebra-browser-print-mac-v132489.zip" class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3" style="border-radius: 12px;">
+                                <div class="text-start">
+                                    <div class="fw-bold">macOS v1.3.2</div>
+                                    <div class="small opacity-50">.DMG Package</div>
+                                </div>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light rounded-4">
+                        <h6 class="fw-bold mb-2 small text-uppercase" style="letter-spacing: 0.5px;">Instruction</h6>
+                        <ul class="text-muted small mb-0 ps-3">
+                            <li class="mb-2">Run the software once downloaded.</li>
+                            <li class="mb-2">Accept the security risk message in your browser (localhost:9100).</li>
+                            <li>Ensure the Zebra ZD230 is connected via USB.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Label Printer Modal (Standalone) -->
+    <div class="modal fade" id="labelPrinterModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 900px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <div>
+                        <h4 class="modal-title fw-bold text-dark">Quick Label Printer</h4>
+                        <p class="text-muted small mb-0">Manual bypass for one-off labels (Zebra ZD230)</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <form id="label-printer-form">
+                        <div class="row g-0">
+                            <!-- Left: Tech Details (Condensed Add UI) -->
+                            <div class="col-lg-7 p-4 bg-white border-end">
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Article No *</label>
+                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="GIE-..." style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Barcode</label>
+                                        <input type="text" name="barcode" class="form-control fw-bold" placeholder="8... (Optional)" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Content</label>
+                                        <input type="text" name="content" class="form-control" placeholder="Material..." style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Count</label>
+                                        <input type="text" name="count" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Density</label>
+                                        <input type="text" name="density" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Width</label>
+                                        <input type="text" name="width" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-md-6 col-6">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Weight (GSM)</label>
+                                        <input type="number" name="weight" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Item Name</label>
+                                        <input type="text" name="item" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Finishing</label>
+                                        <input type="text" name="finish" class="form-control" style="border-radius: 10px;">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Remarks</label>
+                                        <textarea name="remark" class="form-control" rows="2" style="border-radius: 10px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Full Label Preview (Identical to Add Article) -->
+                            <div class="col-lg-5 p-4 bg-light d-flex flex-column" style="background: #fdfdfd !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="m-0 fw-bold text-dark">Live Preview</h6>
+                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold" onclick="updateManualLabelPreview()" style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
+                                </div>
+                                <div id="manual-label-preview-container" class="bg-white border rounded-4 shadow-sm overflow-hidden d-flex align-items-center justify-content-center position-relative w-100" style="aspect-ratio: 4 / 2; background: #fff !important;">
+                                    <div id="manual-label-preview-spinner" class="spinner-border text-green spinner-border-sm" style="display: none; position: absolute; z-index: 2;"></div>
+                                    <img id="manual-label-preview-img" src="" style="width: 100%; height: 100%; object-fit: contain; display: block; background: #fff;">
+                                    <div id="manual-label-preview-placeholder" class="text-center p-4 d-none">
+                                        <div class="text-muted small mb-2">Configure fields to preview...</div>
+                                        <div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>
+                                    </div>
+                                </div>
+                                <p class="text-muted small text-center mt-3 mb-0" style="font-size: 0.65rem;">
+                                    <i class="fas fa-info-circle me-1"></i> Preview renders via Labelary (203 DPI)
+                                </p>
+                                
+                                <div class="mt-auto pt-4 border-top">
+                                    <button type="submit" class="btn btn-dark w-100 py-3 fw-bold shadow-sm" style="border-radius: 14px;">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                        PRINT STANDALONE LABEL
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/admin/stock.js"></script>
+    <script src="assets/js/admin/label-printer.js" defer></script>
     <!-- Stock Item Modal (Add/Edit) -->
     <div class="modal fade" id="stockItemModal" tabindex="-1">
         ... (already there)

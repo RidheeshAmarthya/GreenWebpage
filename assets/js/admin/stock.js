@@ -22,46 +22,55 @@ const ZPL_TEMPLATE = `^XA
 ^PW831
 ^LL406
 ^LS0
-^FT40,62^A0N,51,51^FH\\^CI28^FDGREEN INTERNATIONAL EXIMP^FS^CI27
-^FT40,103^A0N,28,28^FH\\^CI28^FDArticle No ^FS^CI27
-^FT40,138^A0N,28,28^FH\\^CI28^FDContent^FS^CI27
-^FT40,173^A0N,28,28^FH\\^CI28^FDCount:^FS^CI27
-^FT40,208^A0N,28,28^FH\\^CI28^FDDensity^FS^CI27
-^FT40,243^A0N,28,28^FH\\^CI28^FDWidth^FS^CI27
-^FT40,278^A0N,28,28^FH\\^CI28^FDWeight^FS^CI27
-^FT40,313^A0N,28,28^FH\\^CI28^FDItem^FS^CI27
-^FT40,348^A0N,28,28^FH\\^CI28^FDFinish^FS^CI27
-^FT40,383^A0N,28,28^FH\\^CI28^FDRemark^FS^CI27
-^FT156,103^A0N,28,28^FH\\^CI28^FD: {article_no}^FS^CI27
-^FT156,138^A0N,28,28^FH\\^CI28^FD: {content}^FS^CI27
-^FT156,173^A0N,28,28^FH\\^CI28^FD: {count}^FS^CI27
-^FT156,208^A0N,28,28^FH\\^CI28^FD: {density}^FS^CI27
-^FT156,243^A0N,28,28^FH\\^CI28^FD: {width}^FS^CI27
-^FT156,278^A0N,28,28^FH\\^CI28^FD: {weight} GSM^FS^CI27
-^FT156,313^A0N,28,28^FH\\^CI28^FD: {item}^FS^CI27
-^FT156,348^A0N,28,28^FH\\^CI28^FD: {finish}^FS^CI27
-^FT156,383^A0N,28,28^FH\\^CI28^FD: {remark}^FS^CI27
+
+^FT55,62^A0N,51,51^FH\\^CI28^FDGREEN INTERNATIONAL^FS^CI27
+^FT642,50^A0N,22,22^FH\\^CI28^FD{barcode}^FS^CI27
+
+^FT57,103^A0N,28,28^FH\\^CI28^FDArticle No ^FS^CI27
+^FT57,138^A0N,28,28^FH\\^CI28^FDContent^FS^CI27
+^FT57,173^A0N,28,28^FH\\^CI28^FDCount:^FS^CI27
+^FT57,208^A0N,28,28^FH\\^CI28^FDDensity^FS^CI27
+^FT57,243^A0N,28,28^FH\\^CI28^FDWidth^FS^CI27
+^FT57,278^A0N,28,28^FH\\^CI28^FDWeight^FS^CI27
+^FT57,313^A0N,28,28^FH\\^CI28^FDItem^FS^CI27
+^FT57,348^A0N,28,28^FH\\^CI28^FDFinish^FS^CI27
+^FT57,383^A0N,28,28^FH\\^CI28^FDRemark^FS^CI27
+
+
+^FT167,103^A0N,28,28^FH\\^CI28^FD:{article_no}^FS^CI27
+^FT167,138^A0N,28,28^FH\\^CI28^FD:{content}^FS^CI27
+^FT167,173^A0N,28,28^FH\\^CI28^FD:{count}^FS^CI27
+^FT167,208^A0N,28,28^FH\\^CI28^FD:{density}^FS^CI27
+^FT167,243^A0N,28,28^FH\\^CI28^FD:{width}^FS^CI27
+^FT167,278^A0N,28,28^FH\\^CI28^FD:{weight} GSM^FS^CI27
+^FT167,313^A0N,28,28^FH\\^CI28^FD:{item}^FS^CI27
+^FT167,348^A0N,28,28^FH\\^CI28^FD:{finish}^FS^CI27
+^FT167,383^A0N,28,28^FH\\^CI28^FD:{remark}^FS^CI27
+
 ^BY2
-^FO725,30^BCB,44,Y,N,N^FD{barcode}^FS
-^FO440,310^GFA,1041,2001,29,:Z64:eJztlL9v00AUx7+2mziKqjoDEtkSKRKKWEglhgih2v0POpAZ9z/I0hVfG4QihDozVkyRB2bEAI76LyBYqGToErHUGx7cHO/d2c4F2Fg52e9+vPfxu/fenYH71GwWAI+HaPNCHMc0tyJqjoxkRBOSBZ5G8pkrpQwAj7r1jIRM4ZDMbV7g1Rzo8dhiZQa2z1kUSgA+KxkhSx7nXkWu2Q3ZKLJQX8l6FSkBWX92rQxzxgsmpdCMocz8mkwc+ca2Adu2HQk19n+Q8L7btkwd2lPZIkuqjoWbURymUp6uBXcsvJRfNzdIZSgr0stKJcUEf1ZUQ01mbEIJ5mXfUoZFRbqZZ5L5Npn/QVommXGOSlLVRgkmXSYpL8o8UnlaKqVJirUQQipSbJM0sW4nk4nckMmWT1lXdZtke6M2lkmunMq82JCJEWdUksWfcXKVtM/tDLkmKf+eW+1I/laVmqRlS55u19PNlJ9ImdNJgHkS3Nwp6jPgL/UZEhtSzudzyi0rE7miScRCx2nJ26srXZVeEtH4a49EoUkVoa6nl/rViV9rn+qUa9JL+Jrk+q5o8qNKqCZ7m1umyZ5B8g3JGgbpGT7rm12UpBVtSN5Axt+qSLzkH8eClG2B9jxeoBXHi/YF3bwF/rd/bUKgBX54xNJUTgJ0wI814WnjiaGz6KSOwY+jz+zaVEJh1Bwld82vOkJh1GwlW+Vbko1gn/odNNGgvkvvnQ3pZQ/Sm5Ev6D+b3ogu0lFkj1F56kzDo1FAZCc8If9BeOgelcq3GK/StJ+KvcVwtMJBnn47PS+DdQt0gmlynNAoHCXo5cHSel76tPv2u7QvBgJ7/XAk8KgfzgbnpbKJu1Pa7iHvN9gXGOHY+blTKvcwHicDcS0o/GQsMMTgRfyqVO6APB0yuYvgWGCKQbNO0x7CvrjGNdcmJc993GvWKSJPoVBkFwHJEA9dlSad6DS9nInLM87NpcDq4rFz9rpWniy/OEg+U25OqERR1rU+VWSLIvtgQ7ynfR5QYeKLIfIha34Baf92ow==:97FE
-^FO500,165^GFA,497,1968,16,:Z64:eJyl1DGOxCAMBVCPKChzg8xFULgWBRLTpdwrIVHkGqzmEhQIr202k612QoYmegUK+BsjYtExYDRgERvgBQdyqou4ADgHoFJcFoD5vbE4p2ugvYttL3tjPzId6Lo1bhjtJ0asu+m+4EM15rj/f+Z6uu5XfZ33/qp5UT6pwrFGLHnp6FV6thvmYSOuJWyc75OOJn5ocVbtfsbUb9j3s6fC9a2qgpLLjZoCWovUxz7zJUPgeI3KNlNeo57ouaCsZtu9sbnip807H/4wHU9cjbTbuCdc1436FxbV5nnY+PVwYaO8I3D7jpvatfeH1ASwFKD81XnTZ0P866LpfKrRg5qH3e9XA71naZhhU74rNVtKdBrJZ9zU7kzc36+DkKJZwGZ4630e93kEx7xW18zvmeZZonkG9ruNm+dh1dFwYtfdy/Fr8DrRD/Itz2fNA1nq2Q00YJXMo2FLuSsYRfNtn+8DlvlMeaWUYa/3iH8A/30lLg==:2C57
+^FO7,110^BCB,44,N,N,N^FD{barcode}^FS
+
+^FO570,310^GFA,1041,2001,29,:Z64:eJztlL9v00AUx7+2mziKqjoDEtkSKRKKWEglhgih2v0POpAZ9z/I0hVfG4QihDozVkyRB2bEAI76LyBYqGToErHUGx7cHO/d2c4F2Fg52e9+vPfxu/fenYH71GwWAI+HaPNCHMc0tyJqjoxkRBOSBZ5G8pkrpQwAj7r1jIRM4ZDMbV7g1Rzo8dhiZQa2z1kUSgA+KxkhSx7nXkWu2Q3ZKLJQX8l6FSkBWX92rQxzxgsmpdCMocz8mkwc+ca2Adu2HQk19n+Q8L7btkwd2lPZIkuqjoWbURymUp6uBXcsvJRfNzdIZSgr0stKJcUEf1ZUQ01mbEIJ5mXfUoZFRbqZZ5L5Npn/QVommXGOSlLVRgkmXSYpL8o8UnlaKqVJirUQQipSbJM0sW4nk4nckMmWT1lXdZtke6M2lkmunMq82JCJEWdUksWfcXKVtM/tDLkmKf+eW+1I/laVmqRlS55u19PNlJ9ImdNJgHkS3Nwp6jPgL/UZEhtSzudzyi0rE7miScRCx2nJ26srXZVeEtH4a49EoUkVoa6nl/rViV9rn+qUa9JL+Jrk+q5o8qNKqCZ7m1umyZ5B8g3JGgbpGT7rm12UpBVtSN5Axt+qSLzkH8eClG2B9jxeoBXHi/YF3bwF/rd/bUKgBX54xNJUTgJ0wI814WnjiaGz6KSOwY+jz+zaVEJh1Bwld82vOkJh1GwlW+Vbko1gn/odNNGgvkvvnQ3pZQ/Sm5Ev6D+b3ogu0lFkj1F56kzDo1FAZCc8If9BeOgelcq3GK/StJ+KvcVwtMJBnn47PS+DdQt0gmlynNAoHCXo5cHSel76tPv2u7QvBgJ7/XAk8KgfzgbnpbKJu1Pa7iHvN9gXGOHY+blTKvcwHicDcS0o/GQsMMTgRfyqVO6APB0yuYvgWGCKQbNO0x7CvrjGNdcmJc993GvWKSJPoVBkFwHJEA9dlSad6DS9nInLM87NpcDq4rFz9rpWniy/OEg+U25OqERR1rU+VWSLIvtgQ7ynfR5QYeKLIfIha34Baf92ow==:97FE
+
+^FO630,170^GFA,497,1968,16,:Z64:eJyl1DGOxCAMBVCPKChzg8xFULgWBRLTpdwrIVHkGqzmEhQIr202k612QoYmegUK+BsjYtExYDRgERvgBQdyqou4ADgHoFJcFoD5vbE4p2ugvYttL3tjPzId6Lo1bhjtJ0asu+m+4EM15rj/f+Z6uu5XfZ33/qp5UT6pwrFGLHnp6FV6thvmYSOuJWyc75OOJn5ocVbtfsbUb9j3s6fC9a2qgpLLjZoCWovUxz7zJUPgeI3KNlNeo57ouaCsZtu9sbnip807H/4wHU9cjbTbuCdc1436FxbV5nnY+PVwYaO8I3D7jpvatfeH1ASwFKD81XnTZ0P866LpfKrRg5qH3e9XA71naZhhU74rNVtKdBrJZ9zU7kzc36+DkKJZwGZ4630e93kEx7xW18zvmeZZonkG9ruNm+dh1dFwYtfdy/Fr8DrRD/Itz2fNA1nq2Q00YJXMo2FLuSsYRfNtn+8DlvlMeaWUYa/3iH8A/30lLg==:2C57
+
 ^XZ`;
 
 function fillZPLTemplate(item) {
     let zpl = ZPL_TEMPLATE;
-    // Replace placeholders with item data. Use empty string for null/undefined to prevent ZPL errors.
-    // Note: If item properties can contain ZPL control characters (like '^', '~'),
-    // they might need to be escaped or handled specifically to avoid breaking the ZPL command structure.
-    zpl = zpl.replace('{article_no}', item.article_no || '');
-    zpl = zpl.replace('{content}', item.content || '');
-    zpl = zpl.replace('{count}', item.count || '');
-    zpl = zpl.replace('{density}', item.density || '');
-    zpl = zpl.replace('{width}', item.width || '');
-    zpl = zpl.replace('{weight}', item.weight || '');
-    zpl = zpl.replace('{item}', item.item || '');
-    zpl = zpl.replace('{finish}', item.finish || '');
-    zpl = zpl.replace('{remark}', item.remark || '');
-    zpl = zpl.replace('{barcode}', item.barcode || '');
+
+    // Replace ALL occurrences of each placeholder using global regex
+    zpl = zpl.replace(/{article_no}/g, item.article_no || '');
+    zpl = zpl.replace(/{content}/g, item.content || '');
+    zpl = zpl.replace(/{count}/g, item.count || '');
+    zpl = zpl.replace(/{density}/g, item.density || '');
+    zpl = zpl.replace(/{width}/g, item.width || '');
+    zpl = zpl.replace(/{weight}/g, item.weight || '');
+    zpl = zpl.replace(/{item}/g, item.item || '');
+    zpl = zpl.replace(/{finish}/g, item.finish || '');
+    zpl = zpl.replace(/{remark}/g, item.remark || '');
+    zpl = zpl.replace(/{barcode}/g, item.barcode || '');
+
     return zpl;
 }
 
@@ -271,7 +280,7 @@ async function fetchStock() {
     showLoading(true);
 
     const rawSearch = (document.querySelector('#stock-search')?.value || '')
-        .replace(/gsm/gi, ''); 
+        .replace(/gsm/gi, '');
     const fuzzySearch = rawSearch.trim().replace(/[^a-zA-Z0-9]+/g, '%');
     const searchTerm = `%${fuzzySearch}%`;
 
@@ -322,7 +331,7 @@ async function fetchStock() {
             if (!item.weight) return false;
             // Extract numeric part (handles "110 GSM", "110", etc)
             const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
-            if (isNaN(itemVal)) return false; 
+            if (isNaN(itemVal)) return false;
             return itemVal >= minVal && itemVal <= maxVal;
         });
     }
@@ -777,12 +786,10 @@ function changeStockPage(page) {
 
 // Generators
 function generateBarcode() {
-    // Generate a 12-digit numeric barcode (Code 128 style)
-    // Starting with 88 (or any prefix) then timestamp-based random digits
-    const prefix = "88";
-    const timestamp = Date.now().toString().slice(-7); // Last 7 digits
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return prefix + timestamp + random;
+    // Generate an 8-digit numeric barcode starting with 8
+    const prefix = "8";
+    const randomBody = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+    return prefix + randomBody;
 }
 
 // Barcode Refresh Listener
@@ -1531,7 +1538,7 @@ async function generateStockPDF(id) {
 function toggleStockSelection(id) {
     const index = selectedStockIds.indexOf(id);
     const isSelectedNow = index === -1;
-    
+
     if (isSelectedNow) {
         selectedStockIds.push(id);
     } else {
@@ -1585,11 +1592,11 @@ function updateBatchActionBar() {
 function clearStockSelection() {
     selectedStockIds = [];
     updateBatchActionBar();
-    
+
     // Uncheck all checkboxes
     const boxes = document.querySelectorAll('.stock-checkbox');
     boxes.forEach(b => b.checked = false);
-    
+
     const selectAll = document.getElementById('stock-select-all');
     if (selectAll) selectAll.checked = false;
 
@@ -1681,7 +1688,7 @@ async function generateBatchStockPDF() {
         // Progress rendering to avoid Labelary throttling
         for (let i = 0; i < selectedItems.length; i++) {
             const item = selectedItems[i];
-            
+
             if (loadingOverlay) {
                 loadingOverlay.innerHTML = `
                     <div class="text-center">
@@ -1707,14 +1714,14 @@ async function generateBatchStockPDF() {
             } catch (err) {
                 console.error("Labelary fetch failed for " + item.article_no, err);
             }
-            
+
             // Small throttle delay
             await new Promise(r => setTimeout(r, 150));
         }
 
         const baseUrl = window.location.href.split('#')[0].split('?')[0].substring(0, window.location.href.lastIndexOf('/') + 1);
         const printWindow = window.open('', '_blank');
-        
+
         printWindow.document.write(`
             <html>
             <head>
