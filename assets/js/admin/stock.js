@@ -861,6 +861,7 @@ const capturePreview = document.getElementById('webcam-capture-preview');
 const placeholder = document.getElementById('webcam-placeholder');
 const startBtn = document.getElementById('start-webcam-btn');
 const captureBtn = document.getElementById('capture-photo-btn');
+const footerCaptureBtn = document.getElementById('footer-capture-photo-btn');
 const retakeBtn = document.getElementById('retake-photo-btn');
 const webcamOverlay = document.getElementById('webcam-overlay');
 
@@ -875,6 +876,7 @@ async function startWebcam() {
         capturePreview.style.display = 'none';
         startBtn.style.display = 'none';
         captureBtn.style.display = 'inline-block';
+        if (footerCaptureBtn) footerCaptureBtn.style.display = 'inline-block';
         retakeBtn.style.display = 'none';
 
         video.play();
@@ -889,6 +891,7 @@ function stopWebcam() {
         webcamStream = null;
         if (webcamOverlay) webcamOverlay.classList.add('d-none');
     }
+    if (footerCaptureBtn) footerCaptureBtn.style.display = 'none';
 }
 
 async function capturePhoto() {
@@ -929,6 +932,7 @@ async function capturePhoto() {
 
     // Toggle action controls
     captureBtn.style.display = 'none';
+    if (footerCaptureBtn) footerCaptureBtn.style.display = 'none';
     retakeBtn.style.display = 'inline-block';
 
     document.getElementById('stock-image-data').value = dataUrl;
@@ -937,10 +941,14 @@ async function capturePhoto() {
 
 if (startBtn) startBtn.onclick = startWebcam;
 if (captureBtn) captureBtn.onclick = capturePhoto;
+if (footerCaptureBtn) footerCaptureBtn.onclick = capturePhoto;
 
-// Enter key shortcut for capturing photo
+// Enter or Space key shortcut for capturing photo
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && captureBtn && captureBtn.getClientRects().length > 0 && webcamStream) {
+    // Only trigger if camera is active and we are not in an input field (to allow space character entry)
+    const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
+    if ((e.key === 'Enter' || e.key === ' ') && captureBtn && captureBtn.getClientRects().length > 0 && webcamStream) {
+        if (isInput && e.key === ' ') return; // Don't prevent space in text inputs
         e.preventDefault();
         capturePhoto();
     }
@@ -1043,6 +1051,7 @@ function openStockModal(id = null) {
     // Reset camera controls
     startBtn.style.display = 'inline-block';
     captureBtn.style.display = 'none';
+    if (footerCaptureBtn) footerCaptureBtn.style.display = 'none';
     retakeBtn.style.display = 'none';
 
     if (id) {
@@ -1102,6 +1111,7 @@ document.getElementById('stockItemModal')?.addEventListener('hidden.bs.modal', (
     document.getElementById('photo-action-overlay').style.display = 'none';
     startBtn.style.display = 'inline-block';
     captureBtn.style.display = 'none';
+    if (footerCaptureBtn) footerCaptureBtn.style.display = 'none';
 
     document.getElementById('stock-item-form').reset();
     document.getElementById('stock-image-data').value = '';
