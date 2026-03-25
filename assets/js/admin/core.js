@@ -110,29 +110,39 @@ function updateUI() {
     }
 }
 
+function updateCurrentScrollState() {
+    if (history.state) {
+        const newState = { ...history.state, scroll: window.scrollY };
+        history.replaceState(newState, '', window.location.hash);
+    }
+}
+
 function showHub(push = true) {
     if (selectionView.style.display === 'block') return; // Avoid scroll reset
+    updateCurrentScrollState();
     selectionView.style.display = 'block';
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
     stockManagerView.style.display = 'none';
     selectedOrder = null;
     if (push && window.location.hash !== '#hub') {
-        history.pushState({ view: 'hub' }, '', '#hub');
+        history.pushState({ view: 'hub', scroll: 0 }, '', '#hub');
     }
 }
 
 function goToOrders() {
     if (ordersListView.style.display === 'block') return; // Avoid scroll reset
+    updateCurrentScrollState();
     fetchOrders(); // This will fetch and then handle navigation
     if (window.location.hash !== '#orders') {
-        history.pushState({ view: 'list' }, '', '#orders');
+        history.pushState({ view: 'list', scroll: 0 }, '', '#orders');
     }
 }
 
 function returnToOrdersList(e, push = true) {
     if (e) e.preventDefault();
     if (ordersListView.style.display === 'block') return; // Avoid scroll reset
+    updateCurrentScrollState();
     selectionView.style.display = 'none';
     ordersListView.style.display = 'block';
     orderDetailView.style.display = 'none';
@@ -140,7 +150,7 @@ function returnToOrdersList(e, push = true) {
     selectedOrder = null;
 
     if (push && window.location.hash !== '#orders') {
-        history.pushState({ view: 'list' }, '', '#orders');
+        history.pushState({ view: 'list', scroll: 0 }, '', '#orders');
     }
 }
 
@@ -154,8 +164,9 @@ document.addEventListener('show.bs.modal', (e) => {
         return;
     }
     const currentHash = window.location.hash;
-    // Push new state for modal
-    history.pushState({ modalId: e.target.id, previousHash: currentHash }, '', '#' + e.target.id);
+    updateCurrentScrollState();
+    // Push new state for modal, maintaining the current view scroll in previous history
+    history.pushState({ modalId: e.target.id, previousHash: currentHash, scroll: window.scrollY }, '', '#' + e.target.id);
 });
 
 document.addEventListener('hide.bs.modal', (e) => {
@@ -230,6 +241,13 @@ window.addEventListener('popstate', (event) => {
         } else if (hash === '#hub' || hash === '') {
             showHub(false);
         }
+    }
+
+    // Restore scroll position IF provided in state
+    if (state && typeof state.scroll === 'number') {
+        setTimeout(() => {
+            window.scrollTo({ top: state.scroll, behavior: 'instant' });
+        }, 10);
     }
 });
 

@@ -259,6 +259,8 @@ async function getCachedSignedUrl(path) {
 function goToStock(push = true) {
     if (stockManagerView.style.display === 'block') return; // Avoid scroll reset
     
+    if (typeof updateCurrentScrollState === 'function') updateCurrentScrollState();
+    
     selectionView.style.display = 'none';
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
@@ -267,8 +269,12 @@ function goToStock(push = true) {
     if (window.innerWidth < 768) {
         toggleStockView('grid');
     }
+
     fetchStock();
-    if (push) history.pushState({ view: 'stock' }, '', '#stock');
+
+    if (push && window.location.hash !== '#stock') {
+        history.pushState({ view: 'stock', scroll: 0 }, '', '#stock');
+    }
 }
 
 function returnToSelection() {
@@ -480,7 +486,7 @@ async function showStockDetail(id) {
             <div class="col-12 order-2 order-lg-3 p-3 p-md-4 border-top border-bottom border-lg-bottom-0 d-flex gap-2 gap-md-3 detail-actions-container" style="background: #fcfcfc;">
                 <button class="btn btn-green flex-grow-1 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" 
                         style="border-radius: 16px; font-size: 0.85rem;"
-                        onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); openStockModal('${item.id}')">
+                        onclick="editFromDetail('${item.id}')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     <span>EDIT RECORD</span>
                 </button>
@@ -557,6 +563,19 @@ async function showStockDetail(id) {
     }
 
     modal.show();
+}
+
+async function editFromDetail(id) {
+    const detailModalEl = document.getElementById('stockDetailModal');
+    const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+    
+    // Smooth transition
+    detailModalEl.addEventListener('hidden.bs.modal', function onDetailHidden() {
+        detailModalEl.removeEventListener('hidden.bs.modal', onDetailHidden);
+        openStockModal(id);
+    }, { once: true });
+    
+    detailModal.hide();
 }
 
 document.getElementById('stock-search')?.addEventListener('keydown', (e) => {
