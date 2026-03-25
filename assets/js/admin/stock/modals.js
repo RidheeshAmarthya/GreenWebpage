@@ -91,6 +91,7 @@ async function showStockDetail(id) {
                         ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK'}
                     </span>
                     <div class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || '-'}</div>
+                    <div class="badge bg-light text-dark border px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">QTY: ${item.quantity || '1'}</div>
                 </div>
                 ${checkoutInfoHtml}
                 <div class="bg-white rounded-4 border shadow-sm position-relative overflow-hidden mb-3 d-flex align-items-center justify-content-center" 

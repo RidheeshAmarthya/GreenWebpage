@@ -92,6 +92,7 @@ function openStockModal(id = null) {
         form.querySelector('[name="density"]').value = item.density || '';
         form.querySelector('[name="width"]').value = item.width || '';
         form.querySelector('[name="weight"]').value = item.weight || '';
+        form.querySelector('[name="quantity"]').value = item.quantity || '';
         form.querySelector('[name="finish"]').value = item.finish || '';
         form.querySelector('[name="remark"]').value = item.remark || '';
 
@@ -111,6 +112,9 @@ function openStockModal(id = null) {
         document.getElementById('stock-modal-submit-btn').textContent = "Save";
         document.getElementById('save-print-article-btn').textContent = "Save & Print";
         document.getElementById('stock-item-id').value = '';
+        const qtyInput = form.querySelector('[name="quantity"]');
+        if (qtyInput) qtyInput.value = '1';
+        
         const barcodeInput = document.getElementById('add-stock-barcode');
         if (barcodeInput && typeof generateBarcode === 'function') barcodeInput.value = generateBarcode();
     }

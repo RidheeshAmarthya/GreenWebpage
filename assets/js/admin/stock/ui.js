@@ -81,6 +81,11 @@ function createStockCard(item) {
                     ${item.type || 'FABRIC'}
                 </div>
             </div>
+            <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;">
+                <div style="background: rgba(0,0,0,0.6); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1);">
+                    ${item.quantity || '1'} <span style="font-size: 0.45rem; opacity: 0.8; margin-left: 1px;">QTY</span>
+                </div>
+            </div>
         </div>
         <div class="card-body p-3 pt-4 d-flex flex-column" style="gap: 12px;">
             <div class="position-relative">
@@ -170,6 +175,8 @@ function createStockRow(item) {
         </td>
         <td class="small fw-bold text-dark opacity-75">${item.count || '-'}</td>
         <td class="small fw-bold text-dark opacity-75">${item.weight ? item.weight + ' GSM' : '-'}</td>
+        <td class="small fw-bold text-success">${item.quantity || '0'}</td>
+        <td class="small fw-bold text-primary">${item.checkouts ? item.checkouts.length : '0'}</td>
         <td class="text-muted fw-bold text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.5px;">
             <div style="opacity: 0.4; font-size: 0.5rem; margin-bottom: 2px;">ADDED ON</div>
             ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '-'}
