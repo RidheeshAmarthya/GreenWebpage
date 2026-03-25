@@ -867,10 +867,21 @@ const webcamOverlay = document.getElementById('webcam-overlay');
 
 async function startWebcam() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const constraints = {
+            video: {
+                facingMode: { ideal: 'environment' },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         webcamStream = stream;
         video.srcObject = stream;
+        video.setAttribute('playsinline', true); // Critical for iOS
         video.style.display = 'block';
+
         if (webcamOverlay) webcamOverlay.classList.remove('d-none');
         placeholder.style.display = 'none';
         capturePreview.style.display = 'none';
@@ -879,9 +890,11 @@ async function startWebcam() {
         if (footerCaptureBtn) footerCaptureBtn.style.display = 'inline-block';
         retakeBtn.style.display = 'none';
 
-        video.play();
+        // Some mobile browsers require play() to be explicitly awaited
+        await video.play().catch(e => console.warn("Auto-play blocked or failed:", e));
     } catch (err) {
-        alert('Could not access webcam: ' + err.message);
+        console.error("Webcam access failed:", err);
+        alert('Could not access camera. Please ensure you have granted permissions and are using HTTPS.');
     }
 }
 
@@ -895,17 +908,34 @@ function stopWebcam() {
 }
 
 async function capturePhoto() {
+    // Ensure video is ready
+    if (!video || video.readyState < 2) {
+        console.warn("Video not ready for capture");
+        return;
+    }
+
+    // Extract absolute resolution from the live stream
+    let vWidth = video.videoWidth;
+    let vHeight = video.videoHeight;
+
+    // Retry once if dimensions are 0 (common on some mobile startup cycles)
+    if (vWidth === 0 || vHeight === 0) {
+        await new Promise(r => setTimeout(r, 150));
+        vWidth = video.videoWidth;
+        vHeight = video.videoHeight;
+    }
+
+    if (vWidth === 0 || vHeight === 0) {
+        alert("Camera initialization error. Please try again.");
+        return;
+    }
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    // Extract absolute resolution from the live stream
-    const vWidth = video.videoWidth;
-    const vHeight = video.videoHeight;
-
-    // Calculate crop size relative to what's shown in the 280px-high 'cover' container
-    // Since UI box is 180px in a 280px container, we take ~64% of the visible part.
-    // However, a simple square crop of the shortest dimension is more reliable.
-    const cropSize = Math.min(vWidth, vHeight) * 0.7; // 70% of shortest side
+    // Calculate crop size relative to the stream
+    // Square crop of 70% of shortest side
+    const cropSize = Math.min(vWidth, vHeight) * 0.8; 
     const startX = (vWidth - cropSize) / 2;
     const startY = (vHeight - cropSize) / 2;
 
@@ -915,13 +945,14 @@ async function capturePhoto() {
     // Center-square crop
     ctx.drawImage(video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
 
-    // Compression Loop to ensure < 50KB (Now using WebP)
+    // Compression Loop to ensure < 50KB
     let quality = 0.8;
     let dataUrl = '';
+    const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
 
     while (quality > 0.1) {
-        dataUrl = canvas.toDataURL('image/webp', quality);
-        const sizeInBytes = (dataUrl.length * 0.75); // Estimation
+        dataUrl = canvas.toDataURL(format, quality);
+        const sizeInBytes = (dataUrl.length * 0.75);
         if (sizeInBytes < 50000) break;
         quality -= 0.1;
     }
