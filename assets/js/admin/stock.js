@@ -865,6 +865,19 @@ const footerCaptureBtn = document.getElementById('footer-capture-photo-btn');
 const retakeBtn = document.getElementById('retake-photo-btn');
 const webcamOverlay = document.getElementById('webcam-overlay');
 
+// Robust DataURL to Blob converter for mobile Safari compatibility
+function dataURLToBlob(dataURL) {
+    const parts = dataURL.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+    for (let i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+    }
+    return new Blob([uInt8Array], { type: contentType });
+}
+
 async function startWebcam() {
     try {
         const constraints = {
@@ -1034,8 +1047,9 @@ document.getElementById('stock-file-input')?.addEventListener('change', async (e
 
             let quality = 0.8;
             let dataUrl = '';
+            const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
             while (quality > 0.05) {
-                dataUrl = canvas.toDataURL('image/webp', quality);
+                dataUrl = canvas.toDataURL(format, quality);
                 const sizeInBytes = dataUrl.length * 0.75;
                 if (sizeInBytes < 50000) break;
                 quality -= 0.05;
@@ -1044,7 +1058,8 @@ document.getElementById('stock-file-input')?.addEventListener('change', async (e
             capturePreview.src = dataUrl;
             capturePreview.style.display = 'block';
             document.getElementById('stock-sources-content').style.display = 'none';
-            document.getElementById('photo-action-overlay').style.display = 'block';
+            if (retakeBtn) retakeBtn.style.display = 'inline-block';
+            if (startBtn) startBtn.style.display = 'none';
             document.getElementById('stock-image-data').value = dataUrl;
 
             showLoading(false);
@@ -1112,7 +1127,8 @@ function openStockModal(id = null) {
                 capturePreview.src = img.src;
                 capturePreview.style.display = 'block';
                 document.getElementById('stock-sources-content').style.display = 'none';
-                document.getElementById('photo-action-overlay').style.display = 'block';
+                if (retakeBtn) retakeBtn.style.display = 'inline-block';
+                if (startBtn) startBtn.style.display = 'none';
             }
         }
     } else {
@@ -1139,7 +1155,6 @@ document.getElementById('stockItemModal')?.addEventListener('hidden.bs.modal', (
     stopWebcam();
     capturePreview.style.display = 'none';
     document.getElementById('stock-sources-content').style.display = 'block';
-    document.getElementById('photo-action-overlay').style.display = 'none';
     startBtn.style.display = 'inline-block';
     captureBtn.style.display = 'none';
     if (footerCaptureBtn) footerCaptureBtn.style.display = 'none';
@@ -1185,7 +1200,7 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
         // Handle New Image if provided
         if (imageData && imageData.startsWith('data:image')) {
             const fileName = `stock-${Date.now()}.webp`;
-            const blob = await (await fetch(imageData)).blob();
+            const blob = dataURLToBlob(imageData);
 
             // If editing, try to delete old image first
             if (itemId) {
