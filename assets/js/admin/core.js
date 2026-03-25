@@ -111,6 +111,7 @@ function updateUI() {
 }
 
 function showHub(push = true) {
+    if (selectionView.style.display === 'block') return; // Avoid scroll reset
     selectionView.style.display = 'block';
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
@@ -122,6 +123,7 @@ function showHub(push = true) {
 }
 
 function goToOrders() {
+    if (ordersListView.style.display === 'block') return; // Avoid scroll reset
     fetchOrders(); // This will fetch and then handle navigation
     if (window.location.hash !== '#orders') {
         history.pushState({ view: 'list' }, '', '#orders');
@@ -130,6 +132,7 @@ function goToOrders() {
 
 function returnToOrdersList(e, push = true) {
     if (e) e.preventDefault();
+    if (ordersListView.style.display === 'block') return; // Avoid scroll reset
     selectionView.style.display = 'none';
     ordersListView.style.display = 'block';
     orderDetailView.style.display = 'none';
@@ -140,6 +143,30 @@ function returnToOrdersList(e, push = true) {
         history.pushState({ view: 'list' }, '', '#orders');
     }
 }
+
+// Modal History Handling (Global Integration)
+let ignoreNextModalPush = false;
+let ignoreNextPopstate = false;
+
+document.addEventListener('show.bs.modal', (e) => {
+    if (ignoreNextModalPush) {
+        ignoreNextModalPush = false;
+        return;
+    }
+    const currentHash = window.location.hash;
+    // Push new state for modal
+    history.pushState({ modalId: e.target.id, previousHash: currentHash }, '', '#' + e.target.id);
+});
+
+document.addEventListener('hide.bs.modal', (e) => {
+    // If we're closing the modal that corresponds to the current state, pop history
+    if (history.state && history.state.modalId === e.target.id) {
+        ignoreNextPopstate = true;
+        history.back();
+        // Reset flag after a short delay to catch the popstate event
+        setTimeout(() => { ignoreNextPopstate = false; }, 100);
+    }
+});
 
 // Initialization
 async function init() {
@@ -165,6 +192,25 @@ async function init() {
 window.addEventListener('popstate', (event) => {
     if (!user) return;
     
+    if (ignoreNextPopstate) {
+        // This popstate was expected (triggered by manual Modal close)
+        return;
+    }
+
+    // 1. Handle Modal Closing on Browser Back Button
+    const openModals = document.querySelectorAll('.modal.show');
+    if (openModals.length > 0) {
+        openModals.forEach(modal => {
+            const instance = bootstrap.Modal.getInstance(modal);
+            if (instance) {
+                // Hiding a modal from popstate shouldn't trigger history.back()
+                // so we can just hide it. The loop guard in hide.bs.modal handles this.
+                instance.hide();
+            }
+        });
+        return; // Stopped modal from triggering further navigation
+    }
+
     const state = event.state;
     if (state && state.view === 'detail') {
         const order = orders.find(o => o.order_uuid === state.order_uuid);
@@ -172,15 +218,17 @@ window.addEventListener('popstate', (event) => {
     } else if (state && state.view === 'list') {
         returnToOrdersList(null, false);
     } else if (state && state.view === 'stock') {
-        goToStock(false);
+        if (typeof goToStock === 'function') goToStock(false);
     } else if (state && state.view === 'hub') {
         showHub(false);
     } else {
         const hash = window.location.hash;
         if (hash === '#stock') {
-            goToStock(false);
-        } else {
-            handleHashNavigation();
+            if (typeof goToStock === 'function') goToStock(false);
+        } else if (hash === '#orders') {
+            returnToOrdersList(null, false);
+        } else if (hash === '#hub' || hash === '') {
+            showHub(false);
         }
     }
 });

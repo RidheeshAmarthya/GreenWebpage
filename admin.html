@@ -323,8 +323,8 @@
                                 <span class="input-group-text bg-white border-end-0 ps-3" style="border-radius: 14px 0 0 14px;">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                 </span>
-                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder="Quick Search: Article, Content, Remark..."
-                                    style="height: 56px; border-radius: 0 14px 14px 0; font-size: 1rem;">
+                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder=""
+                                       style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
                             </div>
                         </div>
                         <div class="col-12 col-sm-8 col-xl-3">
@@ -390,7 +390,7 @@
                                 box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
                             }
                         </style>
-                        <div class="d-flex align-items-center bg-light px-3 ms-auto-xl" style="height: 48px; border-radius: 12px;">
+                        <div class="d-flex align-items-center bg-light px-3 ms-auto-xl gsm-range-container" style="height: 48px; border-radius: 12px;">
                             <span class="text-muted small fw-bold text-uppercase me-3" style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">GSM Range:</span>
                             <div class="d-flex align-items-center gap-2">
                                 <input type="number" id="gsm-min-filter" class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min" style="font-size: 0.75rem;">
@@ -399,12 +399,69 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-light btn-sm text-muted d-flex align-items-center gap-2 px-3 border-0 shadow-none ms-2" onclick="clearStockFilters()" style="height: 48px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; background: #eee;">
+                        <button class="btn btn-light btn-sm text-muted d-flex align-items-center gap-2 px-3 border-0 shadow-none reset-filter-btn" onclick="clearStockFilters()" style="height: 48px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; background: #eee;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             RESET
                         </button>
                     </div>
                 </div>
+
+                <style>
+                    /* Mobile Specific Fixes for Stock Manager */
+                    @media (max-width: 767.98px) {
+                        #stock-batch-bar { 
+                            min-width: unset !important;
+                            width: 90% !important;
+                            max-width: 400px !important;
+                            padding: 8px 12px !important;
+                            bottom: 15px !important;
+                            border-radius: 12px !important;
+                        }
+                        #stock-batch-bar .d-flex { flex-direction: row !important; gap: 8px !important; align-items: center !important; }
+                        #stock-batch-bar .btn { width: auto !important; flex-grow: 0 !important; font-size: 0.6rem !important; height: 32px !important; padding: 0 10px !important; }
+                        #stock-batch-bar .small { display: none !important; }
+                        
+                        .gsm-range-container { width: 100% !important; justify-content: space-between; order: 2; }
+                        .reset-filter-btn { width: 100% !important; order: 3; margin-top: 5px; }
+                        #stock-type-filter, #stock-status-filter { flex-grow: 1; min-width: 48%; }
+                        
+                        #stockItemModal .modal-dialog { margin: 0; }
+                        #stockItemModal .modal-content { border-radius: 0; }
+                        #stockItemModal .nav-pills .nav-link { font-size: 0.75rem !important; }
+                        
+                        /* Hide full label preview on mobile modal to save space unless explicitly needed, or move it below info */
+                        .label-preview-col { order: 3; }
+                        .tech-details-col { order: 2; border-top: 1px solid #eee; }
+                        .media-col { order: 1; }
+
+                        #stockDetailModal .modal-dialog { margin: 0; }
+                        #stockDetailModal .modal-content { border-radius: 0; }
+                        .detail-actions-container { flex-wrap: wrap !important; }
+                        .detail-actions-container .btn { flex: 1 1 48% !important; font-size: 0.75rem !important; }
+                        .detail-actions-container .btn-outline-danger { flex: 0 0 auto !important; }
+
+                        .detail-modal-close {
+                            position: fixed !important;
+                            top: 15px !important;
+                            right: 15px !important;
+                            z-index: 2000 !important;
+                            background-color: #fff !important;
+                            padding: 12px !important;
+                            border-radius: 50% !important;
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+                            opacity: 1 !important;
+                        }
+
+                        #check-in-barcode-input { height: 70px !important; font-size: 1.5rem !important; border-radius: 15px !important; }
+                    }
+
+                    .detail-modal-close {
+                        position: absolute;
+                        top: 30px;
+                        right: 30px;
+                        z-index: 10;
+                    }
+                </style>
                 <div id="stock-empty" style="display:none;" class="text-center py-5">
                     <p class="text-muted">No stock items found. Click "+ New Article" to add one.</p>
                 </div>
@@ -437,20 +494,21 @@
                     </div>
                 </div>
 
-                <div id="stock-pagination-container" class="px-4 py-3 d-flex justify-content-between align-items-center mt-3"></div>
+                <div id="stock-pagination-container" class="px-4 py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-3"></div>
                 
                 <!-- Batch Action Bar -->
                 <div id="stock-batch-bar" class="position-fixed bottom-4 start-50 translate-middle-x shadow-lg" 
-                     style="display: none; z-index: 1050; background: #fff; padding: 15px 30px; border-radius: 20px; border: 2px solid #28a745; min-width: 450px; bottom: 30px;">
-                    <div class="d-flex align-items-center justify-content-between gap-4">
-                        <div class="text-dark fw-bold">
-                            <span id="selected-count" class="badge bg-green text-white rounded-pill px-2 me-1">0</span> Selected
+                     style="display: none; z-index: 2000; background: #fff; padding: 10px 20px; border-radius: 14px; border: 1.5px solid #28a745; max-width: 95vw; bottom: 20px;">
+                    <div class="d-flex align-items-center justify-content-between gap-3">
+                        <div class="text-dark fw-bold d-flex align-items-center">
+                            <span id="selected-count" class="badge bg-green text-white rounded-pill px-2 me-2">0</span>
+                            <span class="small text-uppercase opacity-50 pe-none d-none d-md-inline" style="letter-spacing: 0.5px; font-size: 0.6rem;">Articles Selected</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-green btn-sm fw-bold px-3 py-2" onclick="generateBatchStockPDF()" style="border-radius: 10px;">BULK REPORT</button>
-                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-2" onclick="batchPrintStockLabels()" style="border-radius: 10px;">BULK LABELS</button>
-                            <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-2" onclick="batchDeleteStock()" style="border-radius: 10px;">DELETE BATCH</button>
-                            <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-2" onclick="clearStockSelection()" style="border-radius: 10px;">CANCEL</button>
+                            <button class="btn btn-green btn-sm fw-bold px-3 py-1" onclick="generateBatchStockPDF()" style="border-radius: 8px; font-size: 0.75rem;">PDF</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-1" onclick="batchPrintStockLabels()" style="border-radius: 8px; font-size: 0.75rem;">PRINT</button>
+                            <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-1" onclick="batchDeleteStock()" style="border-radius: 8px; font-size: 0.75rem;">DELETE</button>
+                            <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-1" onclick="clearStockSelection()" style="border-radius: 8px; font-size: 0.75rem;">CANCEL</button>
                         </div>
                     </div>
                 </div>
@@ -828,14 +886,14 @@
     <!-- Stock Modals -->
     <!-- Stock Item Modal (Add/Edit) -->
     <div class="modal fade" id="stockItemModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 1150px;">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-sm-down">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
                 <form id="stock-item-form">
                     <div class="modal-body p-0">
                         <!-- Top Section: Content, Details, and Preview -->
                         <div class="row g-0">
                             <!-- Left: Media/Camera Wrapper -->
-                            <div class="col-lg-3 p-3 d-flex flex-column border-end" style="background: #fcfcfc;">
+                            <div class="col-lg-3 p-3 d-flex flex-column border-end media-col" style="background: #fcfcfc;">
                                 <div class="flex-grow-1">
                                     <ul class="nav nav-pills nav-justified mb-2 bg-white p-1 rounded-3 shadow-sm" id="stock-source-tabs" role="tablist">
                                         <li class="nav-item" role="presentation">
@@ -922,9 +980,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Center: Tech Details Wrapper -->
-                            <div class="col-lg-5 p-3 p-md-4 bg-white position-relative border-end">
-                                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                            <div class="col-lg-5 p-3 p-md-4 bg-white position-relative border-end tech-details-col">
+                                <button type="button" class="btn-close detail-modal-close" data-bs-dismiss="modal"></button>
                                 <input type="hidden" name="id" id="stock-item-id">
                                 <div class="row g-2">
                                     <div class="col-12">
@@ -977,7 +1034,7 @@
                             </div>
 
                             <!-- Right: Full Label Preview Wrapper -->
-                            <div class="col-lg-4 p-3 p-md-4 bg-light d-flex flex-column border-start" style="background: #fdfdfd !important;">
+                            <div class="col-lg-4 p-3 p-md-4 bg-light d-flex flex-column border-start label-preview-col" style="background: #fdfdfd !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="m-0 fw-bold text-dark" style="letter-spacing: -0.2px;">Label Preview</h6>
                                     <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold" onclick="updateModalLabelPreview()" style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
@@ -1200,14 +1257,14 @@
 
     <!-- Label Printer Modal (Standalone) -->
     <div class="modal fade" id="labelPrinterModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 1050px;">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down" style="max-width: 1050px;">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
                 <div class="modal-header border-0 bg-light p-4">
                     <div>
                         <h4 class="modal-title fw-bold text-dark">Quick Label Printer</h4>
                         <p class="text-muted small mb-0">Manual bypass for one-off labels (Zebra ZD230)</p>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close detail-modal-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
                     <form id="label-printer-form">
@@ -1303,7 +1360,7 @@
 
     <!-- Stock Read-Only Detail Modal -->
     <div class="modal fade" id="stockDetailModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1150px;">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-sm-down">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 28px; overflow: hidden;">
                 <div class="modal-body p-0" id="stock-detail-content">
                     <!-- Detail content will be injected here -->

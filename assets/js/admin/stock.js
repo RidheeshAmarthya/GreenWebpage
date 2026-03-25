@@ -257,10 +257,16 @@ async function getCachedSignedUrl(path) {
 
 // Navigation
 function goToStock(push = true) {
+    if (stockManagerView.style.display === 'block') return; // Avoid scroll reset
+    
     selectionView.style.display = 'none';
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
     stockManagerView.style.display = 'block';
+    // Auto-switch to Grid View on Mobile for better UX
+    if (window.innerWidth < 768) {
+        toggleStockView('grid');
+    }
     fetchStock();
     if (push) history.pushState({ view: 'stock' }, '', '#stock');
 }
@@ -446,33 +452,9 @@ async function showStockDetail(id) {
     // Set content and styling for the detail view (3-Column Layout)
     container.innerHTML = `
         <div class="row g-0 overflow-hidden" style="border-radius: 28px; background: #fff;">
-            <!-- Column 1: Media & Status (lg-5) -->
-            <div class="col-lg-5 d-flex flex-column p-4 border-end" style="background: #f8f9fa;">
-                <div class="d-flex align-items-center gap-2 mb-3 pt-1">
-                    <span class="badge ${item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem;">
-                        ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK'}
-                    </span>
-                    <div class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || '-'}</div>
-                </div>
-
-                <!-- History info if applicable -->
-                ${checkoutInfoHtml}
-
-                <!-- Interactive Zoom Image -->
-                <div class="bg-white rounded-4 border shadow-sm position-relative overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
-                     id="detail-img-zoom-container"
-                     style="height: 380px; cursor: zoom-in;"
-                     onclick="openBigView('${item.resolved_url || placeholderImg}')">
-                    <img src="${item.resolved_url || placeholderImg}" id="detail-img-stock" class="img-fluid" 
-                         style="max-height: 350px; max-width: 95%; object-fit: contain; border-radius: 12px; transition: transform 0.1s ease-out;">
-                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-muted fw-bold" style="font-size: 0.45rem; opacity: 0.4; letter-spacing: 0.5px;">CLICK FOR BIG VIEW</div>
-                </div>
-            </div>
-
-            <!-- Column 2: Label Header & Preview (lg-7) -->
-            <div class="col-lg-7 p-4 p-md-5 d-flex flex-column position-relative" style="background: #fff;">
-                <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="modal"></button>
-                
+            <button type="button" class="btn-close detail-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- Column 2 (Now 1 on Mobile): Label Header & Preview (lg-7) -->
+            <div class="col-lg-7 order-1 order-lg-2 p-4 p-md-5 d-flex flex-column position-relative border-bottom border-lg-bottom-0" style="background: #fff;">
                 <div class="mb-4">
                     <h4 class="fw-bold text-dark mb-1" style="font-size: 1.8rem; letter-spacing: -1px;">${item.article_no}</h4>
                     <div class="d-flex align-items-center gap-2 text-muted small fw-bold">
@@ -494,32 +476,54 @@ async function showStockDetail(id) {
                 </div>
             </div>
 
-            <!-- Aligned Action Footer (Unified Row) -->
-            <div class="col-12 p-4 border-top d-flex gap-3" style="background: #fcfcfc; border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;">
+            <!-- Aligned Action Footer (Now 2 on Mobile): Unified Row -->
+            <div class="col-12 order-2 order-lg-3 p-3 p-md-4 border-top border-bottom border-lg-bottom-0 d-flex gap-2 gap-md-3 detail-actions-container" style="background: #fcfcfc;">
                 <button class="btn btn-green flex-grow-1 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" 
                         style="border-radius: 16px; font-size: 0.85rem;"
                         onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); openStockModal('${item.id}')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    EDIT RECORD
+                    <span>EDIT RECORD</span>
                 </button>
-                <button class="btn btn-outline-danger px-4 fw-bold shadow-sm d-flex align-items-center justify-content-center" 
+                <button class="btn btn-outline-danger px-3 px-md-4 fw-bold shadow-sm d-flex align-items-center justify-content-center" 
                         style="border-radius: 16px;" 
                         onclick="bootstrap.Modal.getInstance(document.getElementById('stockDetailModal')).hide(); deleteStockItem('${item.id}', '${item.article_no}')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
-                <div class="border-end mx-1" style="opacity: 0.2; width: 1px;"></div>
                 <button class="btn btn-light flex-grow-1 py-3 fw-bold border shadow-sm d-flex align-items-center justify-content-center gap-2" 
                         style="border-radius: 16px; font-size: 0.85rem;" 
                         onclick="generateStockPDF('${item.id}')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    PRINT SWATCH
+                    <span>PRINT SWATCH</span>
                 </button>
                 <button class="btn btn-dark flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow" 
                         style="border-radius: 16px; font-size: 0.85rem;"
                         onclick="printStockLabel('${item.id}')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    PRINT LABEL
+                    <span>PRINT LABEL</span>
                 </button>
+            </div>
+
+            <!-- Column 1 (Now 3 on Mobile): Media & Status (lg-5) -->
+            <div class="col-lg-5 order-3 order-lg-1 d-flex flex-column p-4 border-lg-end" style="background: #f8f9fa;">
+                <div class="d-flex align-items-center gap-2 mb-3 pt-1">
+                    <span class="badge ${item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem;">
+                        ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK'}
+                    </span>
+                    <div class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || '-'}</div>
+                </div>
+
+                <!-- History info if applicable -->
+                ${checkoutInfoHtml}
+
+                <!-- Interactive Zoom Image -->
+                <div class="bg-white rounded-4 border shadow-sm position-relative overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
+                     id="detail-img-zoom-container"
+                     style="height: 380px; cursor: zoom-in;"
+                     onclick="openBigView('${item.resolved_url || placeholderImg}')">
+                    <img src="${item.resolved_url || placeholderImg}" id="detail-img-stock" class="img-fluid" 
+                         style="max-height: 350px; max-width: 95%; object-fit: contain; border-radius: 12px; transition: transform 0.1s ease-out;">
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 text-muted fw-bold" style="font-size: 0.45rem; opacity: 0.4; letter-spacing: 0.5px;">CLICK FOR BIG VIEW</div>
+                </div>
             </div>
         </div>
     `;
@@ -785,7 +789,7 @@ function renderStockPagination(totalItems, totalPages) {
     const endRange = Math.min(stockCurrentPage * stockItemsPerPage, totalItems);
 
     container.innerHTML = `
-        <div class="text-muted small">
+        <div class="text-muted small text-center text-sm-start">
             Showing <strong>${startRange}-${endRange}</strong> of <strong>${totalItems}</strong> items
         </div>
         <div class="d-flex gap-2">
@@ -2012,4 +2016,9 @@ function openBigView(src) {
 
     overlay.appendChild(img);
     document.body.appendChild(overlay);
+}
+
+// Initial Mobile Check
+if (window.innerWidth < 768) {
+    toggleStockView('grid');
 }
