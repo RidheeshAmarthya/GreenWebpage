@@ -288,10 +288,6 @@ async function captureForOCR() {
             if (el.captureActions) el.captureActions.style.display = 'none';
             if (el.startBtn) el.startBtn.style.display = 'block';
             if (el.retakeBtn) el.retakeBtn.style.display = 'none';
-            
-            // Ensure the hidden input is saved (so the scanned image is the article's photo)
-            const hiddenInput = document.getElementById('stock-image-data');
-            if (hiddenInput) hiddenInput.value = dataUrl;
         }, 1200);
 
     } catch (err) {
