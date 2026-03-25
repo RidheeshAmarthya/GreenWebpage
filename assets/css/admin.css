@@ -657,3 +657,56 @@ body {
         padding: 30px !important;
     }
 }
+/* Settings Gear Animation */
+.navbar-admin .btn-link svg {
+    transition: transform 0.4s ease, color 0.3s ease;
+    color: #888;
+}
+.navbar-admin .btn-link:hover svg {
+    transform: rotate(45deg);
+    color: var(--primary-green) !important;
+}
+
+/* AI Scan Button Premium Styling */
+#scan-label-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+#scan-label-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+}
+
+#scan-label-btn:disabled {
+    background: #a5a2f3 !important;
+    opacity: 0.9;
+    cursor: wait;
+}
+
+/* AI Processing Pulse */
+@keyframes ai-scan-pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+#scan-label-btn:disabled .fa-magic {
+    animation: ai-scan-pulse 1s infinite ease-in-out;
+}
+
+/* Custom modal styling for Settings */
+#adminSettingsModal .modal-content {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+#gemini-api-key-field:focus {
+    background-color: #fff !important;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}

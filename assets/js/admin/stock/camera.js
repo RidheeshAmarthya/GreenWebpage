@@ -13,6 +13,7 @@ const getCamElements = () => ({
     retakeBtn: document.getElementById('retake-photo-btn'),
     webcamOverlay: document.getElementById('webcam-overlay'),
     sourcesContent: document.getElementById('stock-sources-content'),
+    captureActions: document.getElementById('capture-actions'),
     imgDataField: document.getElementById('stock-image-data'),
     fileInput: document.getElementById('stock-file-input')
 });
@@ -56,8 +57,15 @@ async function startWebcam() {
         if (el.placeholder) el.placeholder.style.display = 'none';
         if (el.capturePreview) el.capturePreview.style.display = 'none';
         if (el.startBtn) el.startBtn.style.display = 'none';
-        if (el.captureBtn) el.captureBtn.style.display = 'inline-block';
-        if (el.footerCaptureBtn) el.footerCaptureBtn.style.display = 'inline-block';
+        if (el.captureActions) el.captureActions.style.display = 'block';
+        if (el.captureBtn) el.captureBtn.style.display = 'block';
+        
+        const scanBtn = document.getElementById('scan-label-btn');
+        if (scanBtn) {
+            scanBtn.style.display = 'block';
+            scanBtn.disabled = false;
+        }
+
         if (el.retakeBtn) el.retakeBtn.style.display = 'none';
 
     } catch (err) {
@@ -75,6 +83,7 @@ function stopWebcam() {
     }
     if (el.footerCaptureBtn) el.footerCaptureBtn.style.display = 'none';
     if (el.video) el.video.style.display = 'none';
+    if (el.captureActions) el.captureActions.style.display = 'none';
     if (el.placeholder && !el.capturePreview?.src) el.placeholder.style.display = 'flex';
 }
 
@@ -134,6 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el.startBtn) el.startBtn.onclick = startWebcam;
     if (el.captureBtn) el.captureBtn.onclick = capturePhoto;
     if (el.footerCaptureBtn) el.footerCaptureBtn.onclick = capturePhoto;
+    
+    const ocrBtn = document.getElementById('scan-label-btn');
+    if (ocrBtn) ocrBtn.onclick = captureForOCR;
 
     if (el.retakeBtn) el.retakeBtn.onclick = () => {
         if (el.capturePreview) el.capturePreview.style.display = 'none';
@@ -147,13 +159,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Keyboard controls
     window.addEventListener('keydown', (e) => {
-        const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
         const elCurrent = getCamElements();
-        if ((e.key === 'Enter' || e.key === ' ') && elCurrent.captureBtn && elCurrent.captureBtn.getClientRects().length > 0 && webcamStream) {
-            if (isInput && e.key === ' ') return;
+        const isCamActive = elCurrent.video && elCurrent.video.style.display !== 'none';
+        
+        // Don't trigger if user is typing in a form field
+        const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
+        if (isInput) return;
+
+        if (!isCamActive) return;
+
+        if (e.key === 'Enter') {
             e.preventDefault();
             capturePhoto();
+        } else if (e.key === ' ') {
+            e.preventDefault();
+            captureForOCR();
         }
     });
 
@@ -195,3 +217,96 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     });
 });
+async function captureForOCR() {
+    const el = getCamElements();
+    if (!el.video || el.video.readyState < 2) return;
+
+    // 1. Capture high-quality frame
+    const vWidth = el.video.videoWidth;
+    const vHeight = el.video.videoHeight;
+    const canvas = document.createElement('canvas');
+    canvas.width = vWidth;
+    canvas.height = vHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(el.video, 0, 0, vWidth, vHeight);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+    // 2. STOP CAMERA IMMEDIATELY as requested
+    stopWebcam();
+
+    // 3. Show static preview while processing
+    if (el.capturePreview) {
+        el.capturePreview.src = dataUrl;
+        el.capturePreview.style.display = 'block';
+        // Hide the sources container (tabs/video/placeholder) so the preview isn't occluded
+        if (el.sourcesContent) el.sourcesContent.style.display = 'none';
+        if (el.placeholder) el.placeholder.style.display = 'none';
+        if (el.webcamOverlay) el.webcamOverlay.classList.add('d-none');
+    }
+
+    // 4. Update Button State
+    const ocrBtn = document.getElementById('scan-label-btn');
+    if (!ocrBtn) return;
+
+    const originalHtml = ocrBtn.innerHTML;
+    ocrBtn.disabled = true;
+    ocrBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>AI SCANNING...';
+    
+    // Re-show capture actions specifically for the loading feedback
+    if (el.captureActions) {
+        el.captureActions.style.display = 'block';
+        if (el.captureBtn) el.captureBtn.style.display = 'none'; // Hide normal photo btn during AI scan
+    }
+
+    try {
+        if (typeof geminiOCR === 'undefined') throw new Error("OCR Module not loaded");
+
+        // 5. Call AI
+        const data = await geminiOCR.scanImage(dataUrl);
+        
+        // 6. Populate form fields
+        geminiOCR.fillForm(data);
+        
+        // 7. Success state
+        ocrBtn.className = "btn btn-success fw-bold py-3 w-100 shadow-sm";
+        ocrBtn.innerHTML = '<i class="fas fa-check me-2"></i>AI SCAN COMPLETE!';
+        
+        // 8. Auto-reset to 'Ready' state (Start Camera button)
+        setTimeout(() => {
+            ocrBtn.disabled = false;
+            ocrBtn.innerHTML = originalHtml;
+            ocrBtn.className = "btn btn-primary fw-bold py-3 w-100 mb-2";
+            
+            // Hide the preview and restore 'Start Camera' button
+            if (el.capturePreview) {
+                el.capturePreview.style.display = 'none';
+                el.capturePreview.src = ''; // Clear temporary preview
+            }
+            if (el.sourcesContent) el.sourcesContent.style.display = 'block';
+            if (el.placeholder) el.placeholder.style.display = 'flex';
+            
+            if (el.captureActions) el.captureActions.style.display = 'none';
+            if (el.startBtn) el.startBtn.style.display = 'block';
+            if (el.retakeBtn) el.retakeBtn.style.display = 'none';
+            
+            // Ensure the hidden input is saved (so the scanned image is the article's photo)
+            const hiddenInput = document.getElementById('stock-image-data');
+            if (hiddenInput) hiddenInput.value = dataUrl;
+        }, 1200);
+
+    } catch (err) {
+        console.error("AI Scan failed:", err);
+        ocrBtn.className = "btn btn-danger fw-bold py-3 w-100 shadow-sm";
+        ocrBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>AI SCAN FAILED';
+        
+        if (el.captureActions) el.captureActions.style.display = 'block';
+        
+        setTimeout(() => {
+            ocrBtn.disabled = false;
+            ocrBtn.innerHTML = originalHtml;
+            ocrBtn.className = "btn btn-primary fw-bold py-3 w-100 mb-2";
+            // Allow retake on failure
+            if (el.retakeBtn) el.retakeBtn.style.display = 'block';
+        }, 2500);
+    }
+}

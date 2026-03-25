@@ -75,6 +75,16 @@
                     <img src="assets/images/green-logo.png" style="height: 34px;" class="d-block d-sm-none">
                 </a>
                 <div class="d-flex align-items-center flex-nowrap">
+                    <!-- Settings Trigger -->
+                    <button class="btn btn-link text-muted p-0 me-3 shadow-none opacity-75 hover-opacity-100"
+                        data-bs-toggle="modal" data-bs-target="#adminSettingsModal" title="Dashboard Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </button>
                     <span id="user-display" class="me-2 text-muted text-truncate d-none d-md-block"
                         style="max-width: 150px; font-size: 0.75rem;"></span>
                     <button id="logout-btn" class="btn btn-outline-danger btn-sm py-1 px-3 fw-bold shadow-sm"
@@ -506,13 +516,13 @@
                             <span class="text-muted small fw-bold text-uppercase me-3"
                                 style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">GSM Range:</span>
                             <div class="d-flex align-items-center gap-2">
-                                <input type="number" id="gsm-min-filter"
+                                <input type="number" id="gsm-min-filter" name="gsm_filter_min"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min"
-                                    style="font-size: 0.75rem;">
+                                    style="font-size: 0.75rem;" autocomplete="off">
                                 <span class="text-muted small op-50">to</span>
-                                <input type="number" id="gsm-max-filter"
+                                <input type="number" id="gsm-max-filter" name="gsm_filter_max"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max"
-                                    style="font-size: 0.75rem;">
+                                    style="font-size: 0.75rem;" autocomplete="off">
                             </div>
                         </div>
 
@@ -1115,7 +1125,7 @@
                                         style="width: 100%; aspect-ratio: 1 / 1;">
                                         <!-- Shared Preview Image -->
                                         <img id="webcam-capture-preview"
-                                            style="width: 100%; height: 100%; object-fit: contain; display: none; background: #000;">
+                                            style="width: 100%; height: 100%; object-fit: cover; display: none; background: #000;">
 
                                         <!-- Tab Content (Sources) -->
                                         <div id="stock-sources-content" class="h-100 w-100">
@@ -1190,10 +1200,28 @@
                                         class="mt-2 text-center p-2 bg-white rounded-3 border shadow-sm">
                                         <button type="button" class="btn btn-outline-dark fw-bold px-3 py-3 w-100"
                                             id="start-webcam-btn">START CAMERA</button>
-                                        <button type="button" class="btn btn-success fw-bold px-4 py-3 w-100"
-                                            id="capture-photo-btn" style="display: none;">TAKE PHOTO</button>
+                                        
+                                        <div id="capture-actions" style="display: none;">
+                                            <button type="button" class="btn btn-primary fw-bold py-3 w-100 mb-2"
+                                                id="scan-label-btn">
+                                                <i class="fas fa-magic me-2"></i>SCAN LABEL & AUTO-FILL
+                                            </button>
+                                            <button type="button" class="btn btn-success fw-bold py-3 w-100"
+                                                id="capture-photo-btn">
+                                                <i class="fas fa-camera me-2"></i>TAKE PHOTO (UPLOAD)
+                                            </button>
+                                        </div>
+
                                         <button type="button" class="btn btn-warning fw-bold px-3 py-3 w-100"
                                             id="retake-photo-btn" style="display: none;">CHANGE PHOTO / RETAKE</button>
+
+                                        <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                                            <small class="text-muted" style="font-size: 0.6rem;">Gemini OCR v1.5</small>
+                                            <a href="javascript:void(0)" data-bs-toggle="modal"
+                                                data-bs-target="#adminSettingsModal"
+                                                class="text-decoration-none small text-primary fw-bold"
+                                                style="font-size: 0.65rem;">API KEY SETTINGS</a>
+                                        </div>
                                     </div>
 
                                     <input type="hidden" id="stock-image-data" name="image_data">
@@ -1732,6 +1760,10 @@
         </div>
     </div>
 
+    <!-- Settings & OCR Modules -->
+    <script src="assets/js/admin/settings.js" defer></script>
+    <script src="assets/js/admin/stock/ocr.js" defer></script>
+
     <!-- Stock Manager Module -->
     <script src="assets/js/admin/stock/constants.js" defer></script>
     <script src="assets/js/admin/stock/globals.js" defer></script>
@@ -1754,6 +1786,60 @@
             <div class="modal-content border-0 shadow-lg" style="border-radius: 28px; overflow: hidden;">
                 <div class="modal-body p-0" id="stock-detail-content">
                     <!-- Detail content will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Admin Settings Modal -->
+    <div class="modal fade" id="adminSettingsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold">Dashboard Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted"
+                            style="font-size: 0.65rem; letter-spacing: 0.5px;">Gemini API Key (for OCR)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                                <i class="fas fa-key text-muted" style="font-size: 0.8rem;"></i>
+                            </span>
+                            <input type="password" id="gemini-api-key-field" class="form-control border-start-0 bg-light"
+                                placeholder="Enter your API key"
+                                style="border-radius: 0 10px 10px 0; font-family: monospace; font-size: 0.8rem;">
+                        </div>
+                        <div class="form-text mt-2" style="font-size: 0.65rem; color: #777;">
+                            This key is used for AI-powered label scanning. It is stored <strong>locally in your
+                                browser</strong> and never leaves your device.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted"
+                            style="font-size: 0.65rem; letter-spacing: 0.5px;">Gemini Model Name</label>
+                        <input type="text" id="gemini-model-name-field" class="form-control bg-light"
+                            placeholder="e.g., gemini-1.5-flash-latest"
+                            style="border-radius: 10px; font-size: 0.8rem;">
+                        <div class="form-text mt-2" style="font-size: 0.65rem; color: #777;">
+                            Default: <code>gemini-flash-latest</code>. Try <code>gemini-1.5-flash</code> or
+                            <code>gemini-2.0-flash-exp</code>.
+                        </div>
+                    </div>
+
+                    <div class="text-center p-3 bg-light rounded-3 mb-1 border" style="border-style: dashed !important;">
+                        <p class="mb-2 small fw-bold">Don't have a key?</p>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                            class="btn btn-sm btn-outline-primary fw-bold" style="font-size: 0.7rem;">Get Free Gemini API
+                            Key</a>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal"
+                        style="border-radius: 8px; font-size: 0.75rem;">Cancel</button>
+                    <button type="button" class="btn btn-dark px-4 fw-bold shadow-sm" onclick="saveAdminSettings()"
+                        style="border-radius: 8px; font-size: 0.75rem;">Save Settings</button>
                 </div>
             </div>
         </div>
