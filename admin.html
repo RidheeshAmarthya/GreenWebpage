@@ -30,6 +30,7 @@
             background-color: var(--primary-green) !important;
             color: white !important;
         }
+
         #stockItemModal .nav-pills .nav-link {
             color: #555;
         }
@@ -67,61 +68,107 @@
 
     <!-- Dashboard View -->
     <div id="dashboard-container">
-        <nav class="navbar navbar-expand-lg navbar-admin fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#" id="navbar-logo-btn" style="cursor: pointer;"><img
-                        src="assets/images/green-logo.png" style="height: 40px;"></a>
-                <div class="ms-auto d-flex align-items-center">
-                    <span id="user-display" class="me-3 text-muted small"></span>
-                    <button id="logout-btn" class="btn btn-outline-danger btn-sm">Logout</button>
+        <nav class="navbar navbar-expand navbar-admin fixed-top">
+            <div class="container d-flex align-items-center justify-content-between flex-nowrap px-3">
+                <a class="navbar-brand me-1" href="#" id="navbar-logo-btn" style="cursor: pointer;">
+                    <img src="assets/images/green-logo.png" style="height: 38px;" class="d-none d-sm-block">
+                    <img src="assets/images/green-logo.png" style="height: 34px;" class="d-block d-sm-none">
+                </a>
+                <div class="d-flex align-items-center flex-nowrap">
+                    <span id="user-display" class="me-2 text-muted text-truncate d-none d-md-block"
+                        style="max-width: 150px; font-size: 0.75rem;"></span>
+                    <button id="logout-btn" class="btn btn-outline-danger btn-sm py-1 px-3 fw-bold shadow-sm"
+                        style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 8px;">LOGOUT</button>
                 </div>
             </div>
         </nav>
 
-        <main class="container" style="margin-top: 100px;">
+        <main class="container" style="margin-top: 50px;">
             <!-- Hub / Selection View -->
             <div id="selection-view" style="display: none;">
                 <div class="text-center mb-5">
-                    <h1 class="display-5 fw-bold mb-2">Welcome Back <span class="badge border bg-white text-muted fw-bold ms-2 align-middle js-build-version" style="font-size: 0.75rem; border-radius: 8px; vertical-align: middle; padding: 4px 8px;">v1.105</span></h1>
+                    <h1 class="display-5 fw-bold mb-2">Welcome Back <span
+                            class="badge border bg-white text-muted fw-bold ms-2 align-middle js-build-version"
+                            style="font-size: 0.75rem; border-radius: 8px; vertical-align: middle; padding: 4px 8px;">v1.105</span>
+                    </h1>
                     <p class="text-muted">Select a module to continue</p>
                 </div>
                 <div class="row g-4 justify-content-center">
                     <div class="col-12 col-md-5 col-lg-4">
-                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToOrders()" style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToOrders()"
+                            style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
                             <div class="card-body p-5">
-                                <div class="icon-circle mx-auto mb-4" style="background: rgba(40,167,69,0.1); color: #28a745; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+                                <div class="icon-circle mx-auto mb-4"
+                                    style="background: rgba(40,167,69,0.1); color: #28a745; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                        <polyline points="3.29 7 12 12 20.71 7" />
+                                        <line x1="12" y1="22" x2="12" y2="12" />
+                                    </svg>
                                 </div>
                                 <h2 class="h4 fw-bold mb-3">Order Manager</h2>
-                                <p class="text-muted mb-4 small">Track production timelines, manage colors, and update bulk shipment status.</p>
-                                <button class="btn btn-green w-100 py-3" style="border-radius: 12px;">Open Dashboard</button>
+                                <p class="text-muted mb-4 small">Track production timelines, manage colors, and update
+                                    bulk shipment status.</p>
+                                <button class="btn btn-green w-100 py-3" style="border-radius: 12px;">Open
+                                    Dashboard</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-5 col-lg-4">
-                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToStock()" style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToStock()"
+                            style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
                             <div class="card-body p-5">
-                                <div class="icon-circle mx-auto mb-4" style="background: rgba(255, 133, 27, 0.1); color: #ff851b; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                <div class="icon-circle mx-auto mb-4"
+                                    style="background: rgba(255, 133, 27, 0.1); color: #ff851b; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <line x1="3" y1="9" x2="21" y2="9" />
+                                        <line x1="9" y1="21" x2="9" y2="9" />
+                                    </svg>
                                 </div>
                                 <h2 class="h4 fw-bold mb-3">Stock Manager</h2>
-                                <p class="text-muted mb-4 small">Manage swatchcards, hangers, and dead stock with barcode-based checkout.</p>
-                                <button class="btn w-100 py-3 text-white fw-bold shadow-sm" style="background: #ff851b; border-radius: 12px; border: none;">Open Stock Manager</button>
+                                <p class="text-muted mb-4 small">Manage swatchcards, hangers, and dead stock with
+                                    barcode-based checkout.</p>
+                                <button class="btn w-100 py-3 text-white fw-bold shadow-sm"
+                                    style="background: #ff851b; border-radius: 12px; border: none;">Open Stock
+                                    Manager</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-5 col-lg-4">
-                        <div class="card h-100 card-hub text-center border-0 shadow-sm" style="border-radius: 20px; transition: transform 0.3s ease;" data-bs-toggle="modal" data-bs-target="#labelPrinterModal">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm"
+                            style="border-radius: 20px; transition: transform 0.3s ease;" data-bs-toggle="modal"
+                            data-bs-target="#labelPrinterModal">
                             <div class="card-body p-5 d-flex flex-column h-100">
-                                <div class="icon-circle mx-auto mb-4" style="background: rgba(52, 58, 64, 0.1); color: #343a40; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                <div class="icon-circle mx-auto mb-4"
+                                    style="background: rgba(52, 58, 64, 0.1); color: #343a40; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M6 9V2h12v7" />
+                                        <path
+                                            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                        <rect x="6" y="14" width="12" height="8" />
+                                    </svg>
                                 </div>
                                 <h2 class="h4 fw-bold mb-3">Label Printer</h2>
-                                <p class="text-muted mb-4 small">Manual one-off label generation for Zebra ZD230 without database entry.</p>
+                                <p class="text-muted mb-4 small">Manual one-off label generation for Zebra ZD230 without
+                                    database entry.</p>
                                 <div class="mt-auto d-flex gap-2">
-                                    <button class="btn btn-dark flex-grow-1 py-3" style="border-radius: 12px; font-weight: 700; border: none;">Open Printer</button>
-                                    <button type="button" class="btn btn-outline-dark px-3" style="border-radius: 12px; border: 1px solid #ddd;" data-bs-toggle="modal" data-bs-target="#printerSetupModal" title="Download Printer Software">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <button class="btn btn-dark flex-grow-1 py-3"
+                                        style="border-radius: 12px; font-weight: 700; border: none;">Open
+                                        Printer</button>
+                                    <button type="button" class="btn btn-outline-dark px-3"
+                                        style="border-radius: 12px; border: 1px solid #ddd;" data-bs-toggle="modal"
+                                        data-bs-target="#printerSetupModal" title="Download Printer Software">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
@@ -139,7 +186,8 @@
                     </ol>
                 </nav>
                 <div class="mb-5">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+                    <div
+                        class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
                         <h1 class="mb-0 h1"><strong>Orders Management</strong></h1>
                         <button class="btn btn-green px-4 shadow-sm" data-bs-toggle="modal"
                             data-bs-target="#addOrderModal" style="height: 50px; border-radius: 10px;">
@@ -149,15 +197,18 @@
 
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md-5">
-                            <input type="text" id="order-search" class="form-control" placeholder="Search Green Order ID..."
+                            <input type="text" id="order-search" class="form-control"
+                                placeholder="Search Green Order ID..."
                                 style="height: 50px; border-radius: 10px; border: 1px solid #ddd; padding-left: 20px;">
                         </div>
                         <div class="col-12 col-md-7">
                             <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                                <button class="btn btn-outline-success px-4" id="export-excel-btn" style="height: 50px; border-radius: 10px; font-weight: 600;">
+                                <button class="btn btn-outline-success px-4" id="export-excel-btn"
+                                    style="height: 50px; border-radius: 10px; font-weight: 600;">
                                     Export Bulk Excel
                                 </button>
-                                <button class="btn btn-outline-dark px-4" id="export-latest-btn" style="height: 50px; border-radius: 10px; font-weight: 600;">
+                                <button class="btn btn-outline-dark px-4" id="export-latest-btn"
+                                    style="height: 50px; border-radius: 10px; font-weight: 600;">
                                     Print Status Summary
                                 </button>
                             </div>
@@ -195,7 +246,9 @@
                             <tbody id="orders-tbody"></tbody>
                         </table>
                     </div>
-                    <div id="pagination-container" class="px-4 py-3 d-flex justify-content-between align-items-center border-top bg-light" style="border-radius: 0 0 15px 15px;"></div>
+                    <div id="pagination-container"
+                        class="px-4 py-3 d-flex justify-content-between align-items-center border-top bg-light"
+                        style="border-radius: 0 0 15px 15px;"></div>
                 </div>
             </div>
 
@@ -223,7 +276,12 @@
                         <div class="d-flex align-items-center gap-2">
                             <button id="admin-share-btn" class="btn btn-share-box fw-bold"
                                 style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; background: #e8f5e9; color: #155724; border: none; transition: all 0.3s ease;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                                    <polyline points="16 6 12 2 8 6" />
+                                    <line x1="12" y1="2" x2="12" y2="15" />
+                                </svg>
                                 Share Link
                             </button>
                             <button id="print-order-btn" class="btn btn-light-print fw-bold"
@@ -256,7 +314,8 @@
                         </div>
                         <div class="info-item">
                             <label>Estimated Bulk Delivery</label>
-                            <span id="detail-delivery-date" style="color: var(--primary-green); font-weight: 800;"></span>
+                            <span id="detail-delivery-date"
+                                style="color: var(--primary-green); font-weight: 800;"></span>
                         </div>
                         <div class="info-item">
                             <button id="detail-tna-btn" class="btn btn-share-box fw-bold w-100"
@@ -295,21 +354,37 @@
                         <h1 class="mb-1 h2 fw-bold text-dark">Stock Management</h1>
                         <p class="text-muted small mb-0">Monitor inventory levels and process sample distributions.</p>
                     </div>
-                    
+
                     <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#checkInModal" style="height: 52px; border-radius: 12px; font-weight: 600;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal"
+                            data-bs-target="#checkInModal" style="height: 52px; border-radius: 12px; font-weight: 600;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
                             Check In
                         </button>
-                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#checkoutModal" style="height: 52px; border-radius: 12px; font-weight: 600;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <button class="btn btn-outline-dark px-4 d-flex align-items-center gap-2" data-bs-toggle="modal"
+                            data-bs-target="#checkoutModal"
+                            style="height: 52px; border-radius: 12px; font-weight: 600;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
                             Checkout
                         </button>
-                        <button class="btn btn-green px-4 py-3 fw-bold d-flex align-items-center gap-2 shadow-sm" 
-                                 style="border-radius: 14px;"
-                                 onclick="openStockModal()">
-                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                             Add Article
+                        <button class="btn btn-green px-4 py-3 fw-bold d-flex align-items-center gap-2 shadow-sm"
+                            style="border-radius: 14px;" onclick="openStockModal()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Add Article
                         </button>
                     </div>
                 </div>
@@ -318,19 +393,60 @@
                 <div class="bg-white p-4 shadow-sm border mb-5" style="border-radius: 24px;">
                     <!-- Top Level: Search & Sort & Layout -->
                     <div class="row g-3 align-items-center mb-4">
-                        <div class="col-12 col-xl-7">
-                            <div class="input-group shadow-sm" style="border-radius: 14px;">
-                                <span class="input-group-text bg-white border-end-0 ps-3" style="border-radius: 14px 0 0 14px;">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                </span>
-                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder=""
-                                       style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
+                        <!-- View View (Card/List) - Moved to top on mobile -->
+                        <div class="col-12 col-sm-4 col-xl-2 order-1 order-xl-3">
+                            <div class="d-flex justify-content-start justify-content-xl-end align-items-center gap-1"
+                                style="height: 56px;">
+                                <button class="btn btn-sm stock-view-btn px-3 active border-0" id="view-grid-btn"
+                                    onclick="toggleStockView('grid')" style="border-radius: 12px; height: 48px;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="7" />
+                                        <rect x="14" y="3" width="7" height="7" />
+                                        <rect x="14" y="14" width="7" height="7" />
+                                        <rect x="3" y="14" width="7" height="7" />
+                                    </svg>
+                                </button>
+                                <button class="btn btn-sm stock-view-btn px-3 border-0" id="view-list-btn"
+                                    onclick="toggleStockView('list')" style="border-radius: 12px; height: 48px;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="8" y1="6" x2="21" y2="6" />
+                                        <line x1="8" y1="12" x2="21" y2="12" />
+                                        <line x1="8" y1="18" x2="21" y2="18" />
+                                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-8 col-xl-3">
+
+                        <!-- Search Bar -->
+                        <div class="col-12 col-xl-7 order-2 order-xl-1">
                             <div class="input-group shadow-sm" style="border-radius: 14px;">
-                                <span class="input-group-text bg-white border-end-0 ps-3" style="border-radius: 14px 0 0 14px; font-size: 0.7rem; font-weight: 800; color: #888;">SORT BY:</span>
-                                <select id="stock-sort-select" class="form-select border-start-0" onchange="updateStockSort(this.value)" style="height: 56px; border-radius: 0 14px 14px 0; font-size: 0.9rem; font-weight: 600;">
+                                <span class="input-group-text bg-white border-end-0 ps-3"
+                                    style="border-radius: 14px 0 0 14px;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                        stroke-width="2">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                </span>
+                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder=""
+                                    style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
+                            </div>
+                        </div>
+
+                        <!-- Sort Select -->
+                        <div class="col-12 col-sm-8 col-xl-3 order-3 order-xl-2">
+                            <div class="input-group shadow-sm" style="border-radius: 14px;">
+                                <span class="input-group-text bg-white border-end-0 ps-3"
+                                    style="border-radius: 14px 0 0 14px; font-size: 0.7rem; font-weight: 800; color: #888;">SORT
+                                    BY:</span>
+                                <select id="stock-sort-select" class="form-select border-start-0"
+                                    onchange="updateStockSort(this.value)"
+                                    style="height: 56px; border-radius: 0 14px 14px 0; font-size: 0.9rem; font-weight: 600;">
                                     <option value="created_at-desc">Newest Added</option>
                                     <option value="created_at-asc">Oldest Added</option>
                                     <option value="article_no-asc">Article No (A-Z)</option>
@@ -339,32 +455,24 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-4 col-xl-2">
-                            <div class="d-flex justify-content-end align-items-center gap-1" style="height: 56px;">
-                                <button class="btn btn-sm stock-view-btn px-3 active border-0" id="view-grid-btn" onclick="toggleStockView('grid')" style="border-radius: 12px; height: 48px;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                                </button>
-                                <button class="btn btn-sm stock-view-btn px-3 border-0" id="view-list-btn" onclick="toggleStockView('list')" style="border-radius: 12px; height: 48px;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Secondary Row: Specific Filters -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                        <select id="stock-type-filter" class="form-select bg-light border-0" style="height: 48px; border-radius: 12px; width: auto; min-width: 160px; font-size: 0.85rem; font-weight: 500;">
+                        <select id="stock-type-filter" class="form-select bg-light border-0"
+                            style="height: 48px; border-radius: 12px; width: auto; min-width: 160px; font-size: 0.85rem; font-weight: 500;">
                             <option value="all">Categories: ALL</option>
                             <option value="Swatchcard">Swatchcard</option>
                             <option value="Hanger">Hangers</option>
                             <option value="Sampling Yardage">Sampling Yardage</option>
                         </select>
-                        <select id="stock-status-filter" class="form-select bg-light border-0" style="height: 48px; border-radius: 12px; width: auto; min-width: 160px; font-size: 0.85rem; font-weight: 500;">
+                        <select id="stock-status-filter" class="form-select bg-light border-0"
+                            style="height: 48px; border-radius: 12px; width: auto; min-width: 160px; font-size: 0.85rem; font-weight: 500;">
                             <option value="all">Availability: ALL</option>
                             <option value="IN_STOCK">In Stock</option>
                             <option value="OUT_OF_STOCK">Out of Stock</option>
                         </select>
-                        
+
                         <style>
                             input::-webkit-outer-spin-button,
                             input::-webkit-inner-spin-button {
@@ -372,10 +480,12 @@
                                 appearance: none;
                                 margin: 0;
                             }
+
                             input[type=number] {
                                 -moz-appearance: textfield;
                                 appearance: textfield;
                             }
+
                             .gsm-input-box {
                                 background: #fff;
                                 border: 1px solid #eee !important;
@@ -384,23 +494,37 @@
                                 height: 32px;
                                 transition: all 0.2s;
                             }
+
                             .gsm-input-box:focus {
                                 border-color: #28a745 !important;
                                 background: #fff;
                                 box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
                             }
                         </style>
-                        <div class="d-flex align-items-center bg-light px-3 ms-auto-xl gsm-range-container" style="height: 48px; border-radius: 12px;">
-                            <span class="text-muted small fw-bold text-uppercase me-3" style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">GSM Range:</span>
+                        <div class="d-flex align-items-center bg-light px-3 ms-auto-xl gsm-range-container"
+                            style="height: 48px; border-radius: 12px;">
+                            <span class="text-muted small fw-bold text-uppercase me-3"
+                                style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">GSM Range:</span>
                             <div class="d-flex align-items-center gap-2">
-                                <input type="number" id="gsm-min-filter" class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min" style="font-size: 0.75rem;">
+                                <input type="number" id="gsm-min-filter"
+                                    class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min"
+                                    style="font-size: 0.75rem;">
                                 <span class="text-muted small op-50">to</span>
-                                <input type="number" id="gsm-max-filter" class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max" style="font-size: 0.75rem;">
+                                <input type="number" id="gsm-max-filter"
+                                    class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max"
+                                    style="font-size: 0.75rem;">
                             </div>
                         </div>
 
-                        <button class="btn btn-light btn-sm text-muted d-flex align-items-center gap-2 px-3 border-0 shadow-none reset-filter-btn" onclick="clearStockFilters()" style="height: 48px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; background: #eee;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <button
+                            class="btn btn-light btn-sm text-muted d-flex align-items-center gap-2 px-3 border-0 shadow-none reset-filter-btn"
+                            onclick="clearStockFilters()"
+                            style="height: 48px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; background: #eee;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
                             RESET
                         </button>
                     </div>
@@ -409,7 +533,7 @@
                 <style>
                     /* Mobile Specific Fixes for Stock Manager */
                     @media (max-width: 767.98px) {
-                        #stock-batch-bar { 
+                        #stock-batch-bar {
                             min-width: unset !important;
                             width: 90% !important;
                             max-width: 400px !important;
@@ -417,28 +541,89 @@
                             bottom: 15px !important;
                             border-radius: 12px !important;
                         }
-                        #stock-batch-bar .d-flex { flex-direction: row !important; gap: 8px !important; align-items: center !important; }
-                        #stock-batch-bar .btn { width: auto !important; flex-grow: 0 !important; font-size: 0.6rem !important; height: 32px !important; padding: 0 10px !important; }
-                        #stock-batch-bar .small { display: none !important; }
-                        
-                        .gsm-range-container { width: 100% !important; justify-content: space-between; order: 2; }
-                        .reset-filter-btn { width: 100% !important; order: 3; margin-top: 5px; }
-                        #stock-type-filter, #stock-status-filter { flex-grow: 1; min-width: 48%; }
-                        
-                        #stockItemModal .modal-dialog { margin: 0; }
-                        #stockItemModal .modal-content { border-radius: 0; }
-                        #stockItemModal .nav-pills .nav-link { font-size: 0.75rem !important; }
-                        
-                        /* Hide full label preview on mobile modal to save space unless explicitly needed, or move it below info */
-                        .label-preview-col { order: 3; }
-                        .tech-details-col { order: 2; border-top: 1px solid #eee; }
-                        .media-col { order: 1; }
 
-                        #stockDetailModal .modal-dialog { margin: 0; }
-                        #stockDetailModal .modal-content { border-radius: 0; }
-                        .detail-actions-container { flex-wrap: wrap !important; }
-                        .detail-actions-container .btn { flex: 1 1 48% !important; font-size: 0.75rem !important; }
-                        .detail-actions-container .btn-outline-danger { flex: 0 0 auto !important; }
+                        #stock-batch-bar .d-flex {
+                            flex-direction: row !important;
+                            gap: 8px !important;
+                            align-items: center !important;
+                        }
+
+                        #stock-batch-bar .btn {
+                            width: auto !important;
+                            flex-grow: 0 !important;
+                            font-size: 0.6rem !important;
+                            height: 32px !important;
+                            padding: 0 10px !important;
+                        }
+
+                        #stock-batch-bar .small {
+                            display: none !important;
+                        }
+
+                        .gsm-range-container {
+                            width: 100% !important;
+                            justify-content: space-between;
+                            order: 2;
+                        }
+
+                        .reset-filter-btn {
+                            width: 100% !important;
+                            order: 3;
+                            margin-top: 5px;
+                        }
+
+                        #stock-type-filter,
+                        #stock-status-filter {
+                            flex-grow: 1;
+                            min-width: 48%;
+                        }
+
+                        #stockItemModal .modal-dialog {
+                            margin: 0;
+                        }
+
+                        #stockItemModal .modal-content {
+                            border-radius: 0;
+                        }
+
+                        #stockItemModal .nav-pills .nav-link {
+                            font-size: 0.75rem !important;
+                        }
+
+                        /* Hide full label preview on mobile modal to save space unless explicitly needed, or move it below info */
+                        .label-preview-col {
+                            order: 3;
+                        }
+
+                        .tech-details-col {
+                            order: 2;
+                            border-top: 1px solid #eee;
+                        }
+
+                        .media-col {
+                            order: 1;
+                        }
+
+                        #stockDetailModal .modal-dialog {
+                            margin: 0;
+                        }
+
+                        #stockDetailModal .modal-content {
+                            border-radius: 0;
+                        }
+
+                        .detail-actions-container {
+                            flex-wrap: wrap !important;
+                        }
+
+                        .detail-actions-container .btn {
+                            flex: 1 1 48% !important;
+                            font-size: 0.75rem !important;
+                        }
+
+                        .detail-actions-container .btn-outline-danger {
+                            flex: 0 0 auto !important;
+                        }
 
                         .detail-modal-close {
                             position: fixed !important;
@@ -448,11 +633,15 @@
                             background-color: #fff !important;
                             padding: 12px !important;
                             border-radius: 50% !important;
-                            box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
                             opacity: 1 !important;
                         }
 
-                        #check-in-barcode-input { height: 70px !important; font-size: 1.5rem !important; border-radius: 15px !important; }
+                        #check-in-barcode-input {
+                            height: 70px !important;
+                            font-size: 1.5rem !important;
+                            border-radius: 15px !important;
+                        }
                     }
 
                     .detail-modal-close {
@@ -468,14 +657,16 @@
 
                 <!-- View Containers -->
                 <div id="stock-grid-view" class="row g-4 mb-4"></div>
-                
-                <div id="stock-list-view" class="bg-white rounded-4 shadow-sm border overflow-hidden mb-4" style="display: none;">
+
+                <div id="stock-list-view" class="bg-white rounded-4 shadow-sm border overflow-hidden mb-4"
+                    style="display: none;">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="bg-light border-0">
                                 <tr class="text-secondary small fw-bold">
                                     <th class="ps-4" style="width: 40px;">
-                                        <input type="checkbox" id="stock-select-all" class="form-check-input" style="cursor: pointer; width: 18px; height: 18px; border-radius: 6px;">
+                                        <input type="checkbox" id="stock-select-all" class="form-check-input"
+                                            style="cursor: pointer; width: 18px; height: 18px; border-radius: 6px;">
                                     </th>
                                     <th style="width: 80px;">Image</th>
                                     <th>Article No</th>
@@ -494,21 +685,30 @@
                     </div>
                 </div>
 
-                <div id="stock-pagination-container" class="px-4 py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-3"></div>
-                
+                <div id="stock-pagination-container"
+                    class="px-4 py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-3">
+                </div>
+
                 <!-- Batch Action Bar -->
-                <div id="stock-batch-bar" class="position-fixed bottom-4 start-50 translate-middle-x shadow-lg" 
-                     style="display: none; z-index: 2000; background: #fff; padding: 10px 20px; border-radius: 14px; border: 1.5px solid #28a745; max-width: 95vw; bottom: 20px;">
+                <div id="stock-batch-bar" class="position-fixed bottom-4 start-50 translate-middle-x shadow-lg"
+                    style="display: none; z-index: 2000; background: #fff; padding: 10px 20px; border-radius: 14px; border: 1.5px solid #28a745; max-width: 95vw; bottom: 20px;">
                     <div class="d-flex align-items-center justify-content-between gap-3">
                         <div class="text-dark fw-bold d-flex align-items-center">
                             <span id="selected-count" class="badge bg-green text-white rounded-pill px-2 me-2">0</span>
-                            <span class="small text-uppercase opacity-50 pe-none d-none d-md-inline" style="letter-spacing: 0.5px; font-size: 0.6rem;">Articles Selected</span>
+                            <span class="small text-uppercase opacity-50 pe-none d-none d-md-inline"
+                                style="letter-spacing: 0.5px; font-size: 0.6rem;">Articles Selected</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-green btn-sm fw-bold px-3 py-1" onclick="generateBatchStockPDF()" style="border-radius: 8px; font-size: 0.75rem;">PDF</button>
-                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-1" onclick="batchPrintStockLabels()" style="border-radius: 8px; font-size: 0.75rem;">PRINT</button>
-                            <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-1" onclick="batchDeleteStock()" style="border-radius: 8px; font-size: 0.75rem;">DELETE</button>
-                            <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-1" onclick="clearStockSelection()" style="border-radius: 8px; font-size: 0.75rem;">CANCEL</button>
+                            <button class="btn btn-green btn-sm fw-bold px-3 py-1" onclick="generateBatchStockPDF()"
+                                style="border-radius: 8px; font-size: 0.75rem;">PDF</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-1"
+                                onclick="batchPrintStockLabels()"
+                                style="border-radius: 8px; font-size: 0.75rem;">PRINT</button>
+                            <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-1" onclick="batchDeleteStock()"
+                                style="border-radius: 8px; font-size: 0.75rem;">DELETE</button>
+                            <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-1"
+                                onclick="clearStockSelection()"
+                                style="border-radius: 8px; font-size: 0.75rem;">CANCEL</button>
                         </div>
                     </div>
                 </div>
@@ -538,7 +738,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Company / Client Name</label>
-                            <input type="text" name="company" class="form-control" maxlength="4" placeholder="e.g. TGT, IKEA">
+                            <input type="text" name="company" class="form-control" maxlength="4"
+                                placeholder="e.g. TGT, IKEA">
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-sm-6 mb-3 mb-sm-0">
@@ -893,70 +1094,115 @@
                         <!-- Top Section: Content, Details, and Preview -->
                         <div class="row g-0">
                             <!-- Left: Media/Camera Wrapper -->
-                            <div class="col-lg-3 p-3 d-flex flex-column border-end media-col" style="background: #fcfcfc;">
+                            <div class="col-lg-3 p-3 d-flex flex-column border-end media-col"
+                                style="background: #fcfcfc;">
                                 <div class="flex-grow-1">
-                                    <ul class="nav nav-pills nav-justified mb-2 bg-white p-1 rounded-3 shadow-sm" id="stock-source-tabs" role="tablist">
+                                    <ul class="nav nav-pills nav-justified mb-2 bg-white p-1 rounded-3 shadow-sm"
+                                        id="stock-source-tabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active py-2 small fw-bold" id="cam-tab" data-bs-toggle="pill" data-bs-target="#pills-cam" type="button" role="tab">Live Camera</button>
+                                            <button class="nav-link active py-2 small fw-bold" id="cam-tab"
+                                                data-bs-toggle="pill" data-bs-target="#pills-cam" type="button"
+                                                role="tab">Live Camera</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link py-2 small fw-bold" id="upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button" role="tab">Upload File</button>
+                                            <button class="nav-link py-2 small fw-bold" id="upload-tab"
+                                                data-bs-toggle="pill" data-bs-target="#pills-upload" type="button"
+                                                role="tab">Upload File</button>
                                         </li>
                                     </ul>
 
-                                    <div class="position-relative bg-white border rounded-4 overflow-hidden shadow-sm" style="height: 280px;">
+                                    <div class="position-relative bg-white border rounded-4 overflow-hidden shadow-sm d-flex align-items-center justify-content-center"
+                                        style="width: 100%; aspect-ratio: 1 / 1;">
                                         <!-- Shared Preview Image -->
-                                         <img id="webcam-capture-preview" style="width: 100%; height: 100%; object-fit: contain; display: none; background: #000;">
-                                        
+                                        <img id="webcam-capture-preview"
+                                            style="width: 100%; height: 100%; object-fit: contain; display: none; background: #000;">
+
                                         <!-- Tab Content (Sources) -->
-                                        <div id="stock-sources-content" class="h-100">
+                                        <div id="stock-sources-content" class="h-100 w-100">
                                             <div class="tab-content h-100">
-                                                <div class="tab-pane fade show active h-100" id="pills-cam" role="tabpanel">
-                                                    <div id="webcam-container" class="position-relative h-100 bg-dark" style="overflow: hidden;">
-                                                        <video id="webcam-preview" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
-                                                        
+                                                <div class="tab-pane fade show active h-100" id="pills-cam"
+                                                    role="tabpanel">
+                                                    <div id="webcam-container"
+                                                        class="position-relative h-100 w-100 bg-dark"
+                                                        style="overflow: hidden;">
+                                                        <video id="webcam-preview" autoplay playsinline
+                                                            style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
+
                                                         <!-- Capture Box Overlay (Centered) -->
-                                                        <div id="webcam-overlay" class="position-absolute d-none" style="inset: 0; pointer-events: none; z-index: 10;">
-                                                            <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-                                                                <div id="capture-box-guide" class="border border-white border-2 shadow-lg" style="width: 180px; height: 180px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); border-radius: 8px;"></div>
-                                                                <div class="mt-2 text-white small fw-bold" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">Center Item in Box</div>
+                                                        <div id="webcam-overlay" class="position-absolute d-none"
+                                                            style="inset: 0; pointer-events: none; z-index: 10;">
+                                                            <div
+                                                                class="w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                                                                <div id="capture-box-guide"
+                                                                    class="border border-white border-2 shadow-lg"
+                                                                    style="height: 75%; width: 75%; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); border-radius: 12px;">
+                                                                </div>
+                                                                <div class="mt-2 text-white small fw-bold"
+                                                                    style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+                                                                    Center Item in Box</div>
                                                             </div>
                                                         </div>
 
-                                                        <div id="webcam-placeholder" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted p-4 text-center">
-                                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                                        <div id="webcam-placeholder"
+                                                            class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted p-4 text-center">
+                                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="1.5"
+                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                class="mb-2">
+                                                                <path
+                                                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                                                <circle cx="12" cy="13" r="4" />
+                                                            </svg>
                                                             <p class="mb-0 small fw-bold">Ready to capture</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="tab-pane fade h-100" id="pills-upload" role="tabpanel">
-                                                    <div class="h-100 p-4 border border-2 border-dashed text-center d-flex flex-column align-items-center justify-content-center" style="border-style: dashed !important; border-color: #ddd !important;">
+                                                    <div class="h-100 p-4 border border-2 border-dashed text-center d-flex flex-column align-items-center justify-content-center"
+                                                        style="border-style: dashed !important; border-color: #ddd !important;">
                                                         <div>
                                                             <div class="mb-3 text-success">
-                                                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                                <svg width="48" height="48" viewBox="0 0 24 24"
+                                                                    fill="none" stroke="currentColor" stroke-width="1.5"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path
+                                                                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                                    <polyline points="17 8 12 3 7 8" />
+                                                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                                                </svg>
                                                             </div>
-                                                            <label for="stock-file-input" class="btn btn-outline-success btn-sm mb-2 fw-bold" style="cursor: pointer;">Choose Image File</label>
-                                                            <input type="file" id="stock-file-input" class="d-none" accept="image/*">
-                                                            <p class="text-muted small mb-0">Drag and drop or click to browse</p>
+                                                            <label for="stock-file-input"
+                                                                class="btn btn-outline-success btn-sm mb-2 fw-bold"
+                                                                style="cursor: pointer;">Choose Image File</label>
+                                                            <input type="file" id="stock-file-input" class="d-none"
+                                                                accept="image/*">
+                                                            <p class="text-muted small mb-0">Drag and drop or click to
+                                                                browse</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Unified Camera/Photo Control Strip (No more occlusion) -->
-                                    <div id="camera-controls-strip" class="mt-2 text-center p-2 bg-white rounded-3 border shadow-sm">
-                                       <button type="button" class="btn btn-outline-dark fw-bold px-3 py-3 w-100" id="start-webcam-btn">START CAMERA</button>
-                                       <button type="button" class="btn btn-success fw-bold px-4 py-3 w-100" id="capture-photo-btn" style="display: none;">TAKE PHOTO</button>
-                                       <button type="button" class="btn btn-warning fw-bold px-3 py-3 w-100" id="retake-photo-btn" style="display: none;">CHANGE PHOTO / RETAKE</button>
+                                    <div id="camera-controls-strip"
+                                        class="mt-2 text-center p-2 bg-white rounded-3 border shadow-sm">
+                                        <button type="button" class="btn btn-outline-dark fw-bold px-3 py-3 w-100"
+                                            id="start-webcam-btn">START CAMERA</button>
+                                        <button type="button" class="btn btn-success fw-bold px-4 py-3 w-100"
+                                            id="capture-photo-btn" style="display: none;">TAKE PHOTO</button>
+                                        <button type="button" class="btn btn-warning fw-bold px-3 py-3 w-100"
+                                            id="retake-photo-btn" style="display: none;">CHANGE PHOTO / RETAKE</button>
                                     </div>
-                                    
+
                                     <input type="hidden" id="stock-image-data" name="image_data">
 
                                     <div class="mt-3">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Type *</label>
-                                        <select name="type" class="form-select form-select-sm" required style="border-radius: 8px; background: #fff;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Type *</label>
+                                        <select name="type" class="form-select form-select-sm" required
+                                            style="border-radius: 8px; background: #fff;">
                                             <option value="Swatchcard">Swatchcard</option>
                                             <option value="Hanger" selected>Hanger</option>
                                             <option value="Sampling Yardage">Sampling Yardage</option>
@@ -966,82 +1212,115 @@
 
                                 <div class="mt-auto pt-3 opacity-75">
                                     <!-- Barcode Number Controls -->
-                                    <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.6rem;">Internal Barcode <span class="fw-normal text-lowercase">(Optional / Advanced)</span></label>
+                                    <label class="form-label small fw-bold text-uppercase text-muted"
+                                        style="letter-spacing: 0.5px; font-size: 0.6rem;">Internal Barcode <span
+                                            class="fw-normal text-lowercase">(Optional / Advanced)</span></label>
                                     <div class="input-group mb-2 shadow-none" style="opacity: 0.8 !important;">
-                                        <input type="number" name="barcode" id="add-stock-barcode" class="form-control form-control-sm border-end-0 bg-light" placeholder="Barcode ID" 
+                                        <input type="number" name="barcode" id="add-stock-barcode"
+                                            class="form-control form-control-sm border-end-0 bg-light"
+                                            placeholder="Barcode ID"
                                             style="border-radius: 8px 0 0 8px; font-size: 0.75rem;">
-                                        <button class="btn btn-outline-secondary btn-sm px-2" type="button" id="regenerate-stock-barcode"
+                                        <button class="btn btn-outline-secondary btn-sm px-2" type="button"
+                                            id="regenerate-stock-barcode"
                                             style="border-radius: 0 8px 8px 0; border-width: 1px; font-size: 0.7rem;">Refresh</button>
                                     </div>
 
                                     <!-- Barcode Visual Preview -->
-                                    <div class="text-center py-2 bg-light rounded-3 d-flex flex-column align-items-center justify-content-center border" style="min-height: 50px; opacity: 0.6;">
+                                    <div class="text-center py-2 bg-light rounded-3 d-flex flex-column align-items-center justify-content-center border"
+                                        style="min-height: 50px; opacity: 0.6;">
                                         <svg id="add-stock-barcode-svg" style="max-height: 30px; width: 100%;"></svg>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-5 p-3 p-md-4 bg-white position-relative border-end tech-details-col">
-                                <button type="button" class="btn-close detail-modal-close" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close detail-modal-close"
+                                    data-bs-dismiss="modal"></button>
                                 <input type="hidden" name="id" id="stock-item-id">
                                 <div class="row g-2">
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
-                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="e.g. GR-9921" style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
+                                        <input type="text" name="article_no" class="form-control fw-bold" required
+                                            placeholder="e.g. GR-9921" style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Content</label>
-                                        <input type="text" name="content" class="form-control" placeholder="Material composition..." style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Content</label>
+                                        <input type="text" name="content" class="form-control"
+                                            placeholder="Material composition..." style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Count</label>
-                                        <input type="text" name="count" class="form-control" placeholder="Count" style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Count</label>
+                                        <input type="text" name="count" class="form-control" placeholder="Count"
+                                            style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Density</label>
-                                        <input type="text" name="density" class="form-control" placeholder="e.g. 72x60" style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Density</label>
+                                        <input type="text" name="density" class="form-control" placeholder="e.g. 72x60"
+                                            style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Width</label>
-                                        <input type="text" name="width" class="form-control" placeholder="Size" style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Width</label>
+                                        <input type="text" name="width" class="form-control" placeholder="Size"
+                                            style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-md-6 col-6">
-                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight (GSM)</label>
-                                         <input type="number" step="0.01" name="weight" class="form-control" placeholder="0.00" 
-                                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                                style="border-radius: 8px;">
-                                     </div>
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight (GSM)</label>
+                                        <input type="number" step="0.01" name="weight" class="form-control"
+                                            placeholder="0.00"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                                            style="border-radius: 8px;">
+                                    </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Item *</label>
-                                        <input type="text" name="item" class="form-control" required placeholder="e.g. Fabric" style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Item *</label>
+                                        <input type="text" name="item" class="form-control" required
+                                            placeholder="e.g. Fabric" style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Finish</label>
-                                        <input type="text" name="finish" class="form-control" placeholder="Treatment / Finish..." style="border-radius: 8px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Finish</label>
+                                        <input type="text" name="finish" class="form-control"
+                                            placeholder="Treatment / Finish..." style="border-radius: 8px;">
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Remark</label>
-                                        <textarea name="remark" class="form-control" rows="2" placeholder="Internal notes..." style="border-radius: 8px;"></textarea>
+                                        <label class="form-label small fw-bold text-uppercase text-muted mb-1"
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Remark</label>
+                                        <textarea name="remark" class="form-control" rows="2"
+                                            placeholder="Internal notes..." style="border-radius: 8px;"></textarea>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Right: Full Label Preview Wrapper -->
-                            <div class="col-lg-4 p-3 p-md-4 bg-light d-flex flex-column border-start label-preview-col" style="background: #fdfdfd !important;">
+                            <div class="col-lg-4 p-3 p-md-4 bg-light d-flex flex-column border-start label-preview-col"
+                                style="background: #fdfdfd !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="m-0 fw-bold text-dark" style="letter-spacing: -0.2px;">Label Preview</h6>
-                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold" onclick="updateModalLabelPreview()" style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
+                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold"
+                                        onclick="updateModalLabelPreview()"
+                                        style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
                                 </div>
-                                <div id="modal-label-preview-container" class="bg-white border rounded-4 shadow-sm overflow-hidden d-flex align-items-center justify-content-center position-relative w-100" style="aspect-ratio: 4 / 2; background: #fff !important;">
-                                    <div id="modal-label-preview-spinner" class="spinner-border text-green spinner-border-sm" style="display: none; position: absolute; z-index: 2;"></div>
-                                    <img id="modal-label-preview-img" src="" style="width: 100%; height: 100%; object-fit: contain; display: none; background: #fff;">
+                                <div id="modal-label-preview-container"
+                                    class="bg-white border rounded-4 shadow-sm overflow-hidden d-flex align-items-center justify-content-center position-relative w-100"
+                                    style="aspect-ratio: 4 / 2; background: #fff !important;">
+                                    <div id="modal-label-preview-spinner"
+                                        class="spinner-border text-green spinner-border-sm"
+                                        style="display: none; position: absolute; z-index: 2;"></div>
+                                    <img id="modal-label-preview-img" src=""
+                                        style="width: 100%; height: 100%; object-fit: contain; display: none; background: #fff;">
                                     <div id="modal-label-preview-placeholder" class="text-center p-4">
                                         <div class="text-muted small mb-2">Fetching live label...</div>
                                         <div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>
@@ -1056,17 +1335,22 @@
                         <!-- Bottom Section: Uniform Actions -->
                         <div class="p-3 bg-white border-top">
                             <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-light px-4 fw-bold text-muted border" data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
-                                <button type="button" class="btn btn-outline-success px-4 fw-bold" id="footer-capture-photo-btn" style="border-radius: 12px; display: none;">TAKE PHOTO</button>
-                                <button type="button" class="btn btn-outline-dark px-4 fw-bold" id="save-print-article-btn" style="border-radius: 12px;">Save & Print</button>
-                                <button type="submit" class="btn btn-green px-5 fw-bold" id="stock-modal-submit-btn" style="border-radius: 12px;">Save</button>
+                                <button type="button" class="btn btn-light px-4 fw-bold text-muted border"
+                                    data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                                <button type="button" class="btn btn-outline-success px-4 fw-bold"
+                                    id="footer-capture-photo-btn" style="border-radius: 12px; display: none;">TAKE
+                                    PHOTO</button>
+                                <button type="button" class="btn btn-outline-dark px-4 fw-bold"
+                                    id="save-print-article-btn" style="border-radius: 12px;">Save & Print</button>
+                                <button type="submit" class="btn btn-green px-5 fw-bold" id="stock-modal-submit-btn"
+                                    style="border-radius: 12px;">Save</button>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-    </div>    </div>
+    </div>
 
     <!-- Stock Checkout Modal -->
     <div class="modal fade" id="checkoutModal" tabindex="-1">
@@ -1084,41 +1368,66 @@
                         <!-- Recipient Section -->
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
-                                <input type="text" name="name" id="checkout-name" class="form-control form-control-lg border-0 bg-light" required placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;">
+                                <label class="form-label small fw-bold text-uppercase text-muted"
+                                    style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
+                                <input type="text" name="name" id="checkout-name"
+                                    class="form-control form-control-lg border-0 bg-light" required
+                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
-                                <input type="text" name="company" id="checkout-company" class="form-control form-control-lg border-0 bg-light" required placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;">
+                                <label class="form-label small fw-bold text-uppercase text-muted"
+                                    style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
+                                <input type="text" name="company" id="checkout-company"
+                                    class="form-control form-control-lg border-0 bg-light" required
+                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;">
                             </div>
                         </div>
 
                         <!-- Scan Zone -->
-                        <div class="p-4 rounded-4 mb-4 text-center border-2" style="border: 2px dashed #eee; background: #fafafa;">
+                        <div class="p-4 rounded-4 mb-4 text-center border-2"
+                            style="border: 2px dashed #eee; background: #fafafa;">
                             <div class="mb-3 text-muted opacity-50">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                                    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                                    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                                    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                                    <line x1="12" y1="8" x2="12" y2="16" />
+                                    <line x1="8" y1="12" x2="16" y2="12" />
+                                </svg>
                             </div>
                             <h6 class="fw-bold mb-2">Scan Sample Barcode</h6>
                             <div class="input-group shadow-sm bg-white rounded-3 overflow-hidden">
-                                <input type="number" id="checkout-barcode-input" class="form-control border-0 py-3 text-center fw-bold" placeholder="Place cursor here & scan" style="font-size: 1.1rem; height: 60px;">
-                                <button type="button" class="btn btn-dark px-4 fw-bold" id="add-to-checkout-btn">ADD</button>
+                                <input type="number" id="checkout-barcode-input"
+                                    class="form-control border-0 py-3 text-center fw-bold"
+                                    placeholder="Place cursor here & scan" style="font-size: 1.1rem; height: 60px;">
+                                <button type="button" class="btn btn-dark px-4 fw-bold"
+                                    id="add-to-checkout-btn">ADD</button>
                             </div>
-                            <div id="checkout-scan-feedback" class="small mt-2" style="height: 20px; font-weight: 500;"></div>
+                            <div id="checkout-scan-feedback" class="small mt-2" style="height: 20px; font-weight: 500;">
+                            </div>
                         </div>
 
                         <!-- Scanned Items List -->
                         <div class="d-flex justify-content-between align-items-center mb-2 px-1">
-                            <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Scanned Articles (<span id="checkout-count">0</span>)</label>
-                            <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold" id="clear-checkout-list" style="font-size: 0.7rem;">CLEAR LIST</button>
+                            <label class="form-label small fw-bold text-uppercase text-muted"
+                                style="font-size: 0.65rem;">Scanned Articles (<span
+                                    id="checkout-count">0</span>)</label>
+                            <button type="button"
+                                class="btn btn-link btn-sm text-danger p-0 text-decoration-none fw-bold"
+                                id="clear-checkout-list" style="font-size: 0.7rem;">CLEAR LIST</button>
                         </div>
-                        <div id="checkout-items-list" class="border rounded-4 bg-white" style="max-height: 180px; overflow-y: auto;">
+                        <div id="checkout-items-list" class="border rounded-4 bg-white"
+                            style="max-height: 180px; overflow-y: auto;">
                             <div class="text-muted text-center p-4 small" id="checkout-list-empty">
                                 <p class="mb-0 opacity-50">No items scanned for this batch yet.</p>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="submit" class="btn btn-green w-100 py-3 shadow-sm fw-bold" id="submit-checkout-btn" disabled style="border-radius: 14px; font-size: 1rem;">
+                        <button type="submit" class="btn btn-green w-100 py-3 shadow-sm fw-bold"
+                            id="submit-checkout-btn" disabled style="border-radius: 14px; font-size: 1rem;">
                             COMPLETE BATCH CHECKOUT
                         </button>
                     </div>
@@ -1141,22 +1450,36 @@
                 <form id="check-in-form">
                     <div class="modal-body p-5 text-center">
                         <div class="scanner-visual mb-4">
-                            <div class="rounded-pill bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="1.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <div class="rounded-pill bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 80px; height: 80px;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#28a745"
+                                    stroke-width="1.5">
+                                    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                                    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                                    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                                    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                                    <polyline points="9 11 12 14 22 4" />
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                </svg>
                             </div>
                             <h5 class="fw-bold">Ready to Scan</h5>
                         </div>
-                        
+
                         <div class="mb-4">
-                            <input type="text" id="check-in-barcode-input" class="form-control form-control-lg text-center fw-bold border-2" 
-                                   autofocus placeholder="00000000" style="height: 90px; font-size: 2.2rem; border-radius: 20px; border-color: #eee; background: #fafafa;">
-                            <p class="text-muted small mt-3 px-4">Place the scanner over the article's barcode to automatically process the return.</p>
+                            <input type="text" id="check-in-barcode-input"
+                                class="form-control form-control-lg text-center fw-bold border-2" autofocus
+                                placeholder="00000000"
+                                style="height: 90px; font-size: 2.2rem; border-radius: 20px; border-color: #eee; background: #fafafa;">
+                            <p class="text-muted small mt-3 px-4">Place the scanner over the article's barcode to
+                                automatically process the return.</p>
                         </div>
 
-                        <div id="check-in-feedback" class="p-3 rounded-4 mt-2 fw-bold" style="display: none; font-size: 0.9rem;"></div>
+                        <div id="check-in-feedback" class="p-3 rounded-4 mt-2 fw-bold"
+                            style="display: none; font-size: 0.9rem;"></div>
                     </div>
                     <div class="modal-footer border-0 pb-5 justify-content-center">
-                        <button type="button" class="btn btn-light px-5 py-2 text-muted fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                        <button type="button" class="btn btn-light px-5 py-2 text-muted fw-bold" data-bs-dismiss="modal"
+                            style="border-radius: 12px;">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -1172,8 +1495,7 @@
                         <div class="d-flex align-items-center justify-content-between w-100">
                             <div class="d-flex align-items-center gap-3">
                                 <h3 class="modal-title fw-bold" id="tnaModalLabel">TNA Plan</h3>
-                                <button class="btn btn-light-print" onclick="printTNAFromModal()"
-                                    title="Print TNA"
+                                <button class="btn btn-light-print" onclick="printTNAFromModal()" title="Print TNA"
                                     style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;">
                                     ⎙ Print TNA
                                 </button>
@@ -1224,21 +1546,36 @@
                 <div class="modal-body p-4">
                     <div class="mb-4">
                         <h6 class="fw-bold mb-2">1. Download Driver</h6>
-                        <p class="text-muted small mb-3">Select your operating system to download the Zebra Browser Print software.</p>
+                        <p class="text-muted small mb-3">Select your operating system to download the Zebra Browser
+                            Print software.</p>
                         <div class="d-grid gap-2">
-                            <a href="assets/zprint/zebra-browser-print-windows-v132489.exe.zip" class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3" style="border-radius: 12px;">
+                            <a href="assets/zprint/zebra-browser-print-windows-v132489.exe.zip"
+                                class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3"
+                                style="border-radius: 12px;">
                                 <div class="text-start">
                                     <div class="fw-bold">Windows v1.3.2</div>
                                     <div class="small opacity-50">.EXE Utility</div>
                                 </div>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
                             </a>
-                            <a href="assets/zprint/zebra-browser-print-mac-v132489.zip" class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3" style="border-radius: 12px;">
+                            <a href="assets/zprint/zebra-browser-print-mac-v132489.zip"
+                                class="btn btn-outline-dark d-flex align-items-center justify-content-between p-3"
+                                style="border-radius: 12px;">
                                 <div class="text-start">
                                     <div class="fw-bold">macOS v1.3.2</div>
                                     <div class="small opacity-50">.DMG Package</div>
                                 </div>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
                             </a>
                         </div>
                     </div>
@@ -1273,57 +1610,87 @@
                             <div class="col-lg-6 p-4 bg-white border-end">
                                 <div class="row g-2">
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Article No *</label>
-                                        <input type="text" name="article_no" class="form-control fw-bold" required placeholder="Enter Article No..." style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Article No *</label>
+                                        <input type="text" name="article_no" class="form-control fw-bold" required
+                                            placeholder="Enter Article No..." style="border-radius: 10px;">
                                     </div>
                                     <div class="col-12 col-md-6 opacity-50">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Barcode <span class="fw-normal text-lowercase">(Optional)</span></label>
-                                        <input type="text" name="barcode" class="form-control bg-light" placeholder="Internal / Advanced" style="border-radius: 10px; font-size: 0.8rem;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Barcode <span
+                                                class="fw-normal text-lowercase">(Optional)</span></label>
+                                        <input type="text" name="barcode" class="form-control bg-light"
+                                            placeholder="Internal / Advanced"
+                                            style="border-radius: 10px; font-size: 0.8rem;">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Content</label>
-                                        <input type="text" name="content" class="form-control" placeholder="Material..." style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Content</label>
+                                        <input type="text" name="content" class="form-control" placeholder="Material..."
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Count</label>
-                                        <input type="text" name="count" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Count</label>
+                                        <input type="text" name="count" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Density</label>
-                                        <input type="text" name="density" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Density</label>
+                                        <input type="text" name="density" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Width</label>
-                                        <input type="text" name="width" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Width</label>
+                                        <input type="text" name="width" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-md-6 col-6">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Weight (GSM)</label>
-                                        <input type="number" name="weight" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Weight (GSM)</label>
+                                        <input type="number" name="weight" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Item Name</label>
-                                        <input type="text" name="item" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Item Name</label>
+                                        <input type="text" name="item" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Finishing</label>
-                                        <input type="text" name="finish" class="form-control" style="border-radius: 10px;">
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Finishing</label>
+                                        <input type="text" name="finish" class="form-control"
+                                            style="border-radius: 10px;">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label small fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Remarks</label>
-                                        <textarea name="remark" class="form-control" rows="2" style="border-radius: 10px;"></textarea>
+                                        <label class="form-label small fw-bold text-uppercase text-muted"
+                                            style="font-size: 0.65rem;">Remarks</label>
+                                        <textarea name="remark" class="form-control" rows="2"
+                                            style="border-radius: 10px;"></textarea>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Right: Full Label Preview (Identical to Add Article) -->
-                            <div class="col-lg-6 p-4 bg-light d-flex flex-column" style="background: #fdfdfd !important;">
+                            <div class="col-lg-6 p-4 bg-light d-flex flex-column"
+                                style="background: #fdfdfd !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="m-0 fw-bold text-dark">Live Preview</h6>
-                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold" onclick="updateManualLabelPreview()" style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
+                                    <button type="button" class="btn btn-outline-success btn-sm py-1 px-2 fw-bold"
+                                        onclick="updateManualLabelPreview()"
+                                        style="font-size: 0.65rem; border-radius: 6px;">REFRESH</button>
                                 </div>
-                                <div id="manual-label-preview-container" class="bg-white border-2 rounded-4 shadow overflow-hidden d-flex align-items-center justify-content-center position-relative w-100 p-2" style="aspect-ratio: 4 / 2; background: #fff !important; border-color: #eee !important;">
-                                    <div id="manual-label-preview-spinner" class="spinner-border text-green spinner-border-sm" style="display: none; position: absolute; z-index: 2;"></div>
-                                    <img id="manual-label-preview-img" src="" style="width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; border-radius: 4px;">
+                                <div id="manual-label-preview-container"
+                                    class="bg-white border-2 rounded-4 shadow overflow-hidden d-flex align-items-center justify-content-center position-relative w-100 p-2"
+                                    style="aspect-ratio: 4 / 2; background: #fff !important; border-color: #eee !important;">
+                                    <div id="manual-label-preview-spinner"
+                                        class="spinner-border text-green spinner-border-sm"
+                                        style="display: none; position: absolute; z-index: 2;"></div>
+                                    <img id="manual-label-preview-img" src=""
+                                        style="width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; border-radius: 4px;">
                                     <div id="manual-label-preview-placeholder" class="text-center p-4 d-none">
                                         <div class="text-muted small mb-2">Configure fields to preview...</div>
                                         <div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>
@@ -1332,14 +1699,28 @@
                                 <p class="text-muted small text-center mt-3 mb-0" style="font-size: 0.65rem;">
                                     <i class="fas fa-info-circle me-1"></i> Preview renders via Labelary (203 DPI)
                                 </p>
-                                
+
                                 <div class="mt-auto pt-4 border-top d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-danger btn-sm px-3 shadow-none fw-bold d-flex align-items-center justify-content-center" onclick="clearManualLabelForm()" style="border-radius: 8px; height: 40px; font-size: 0.7rem; min-width: 90px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    <button type="button"
+                                        class="btn btn-outline-danger btn-sm px-3 shadow-none fw-bold d-flex align-items-center justify-content-center"
+                                        onclick="clearManualLabelForm()"
+                                        style="border-radius: 8px; height: 40px; font-size: 0.7rem; min-width: 90px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" class="me-1">
+                                            <path d="M18 6L6 18M6 6l12 12" />
+                                        </svg>
                                         CLEAR
                                     </button>
-                                    <button type="submit" class="btn btn-dark btn-sm flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center" style="border-radius: 8px; height: 40px; font-size: 0.75rem;">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                    <button type="submit"
+                                        class="btn btn-dark btn-sm flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center"
+                                        style="border-radius: 8px; height: 40px; font-size: 0.75rem;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" class="me-2">
+                                            <path d="M6 9V2h12v7" />
+                                            <path
+                                                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                            <rect x="6" y="14" width="12" height="8" />
+                                        </svg>
                                         PRINT STANDALONE LABEL
                                     </button>
                                 </div>
@@ -1351,12 +1732,21 @@
         </div>
     </div>
 
-    <script src="assets/js/admin/stock.js"></script>
+    <!-- Stock Manager Module -->
+    <script src="assets/js/admin/stock/constants.js" defer></script>
+    <script src="assets/js/admin/stock/globals.js" defer></script>
+    <script src="assets/js/admin/stock/utils.js" defer></script>
+    <script src="assets/js/admin/stock/data.js" defer></script>
+    <script src="assets/js/admin/stock/navigation.js" defer></script>
+    <script src="assets/js/admin/stock/ui.js" defer></script>
+    <script src="assets/js/admin/stock/modals.js" defer></script>
+    <script src="assets/js/admin/stock/camera.js" defer></script>
+    <script src="assets/js/admin/stock/barcode.js" defer></script>
+    <script src="assets/js/admin/stock/checkout.js" defer></script>
+    <script src="assets/js/admin/stock/batch.js" defer></script>
+    <script src="assets/js/admin/stock/printing.js" defer></script>
+    <script src="assets/js/admin/stock/stock-main.js" defer></script>
     <script src="assets/js/admin/label-printer.js" defer></script>
-    <!-- Stock Item Modal (Add/Edit) -->
-    <div class="modal fade" id="stockItemModal" tabindex="-1">
-        ... (already there)
-    </div>
 
     <!-- Stock Read-Only Detail Modal -->
     <div class="modal fade" id="stockDetailModal" tabindex="-1">

@@ -76,43 +76,69 @@
         return zpl;
     }
 
-    // Live Preview Logic
-    async function updateManualLabelPreview() {
+    // Live Preview Logic with Improved Debounce & Cache
+    let previewDebounceTimer;
+    let lastZplRendered = "";
+
+    async function updateManualLabelPreview(immediate = false) {
         const form = document.getElementById('label-printer-form');
-        const container = document.getElementById('manual-label-preview-container');
         const img = document.getElementById('manual-label-preview-img');
         const placeholder = document.getElementById('manual-label-preview-placeholder');
         const spinner = document.getElementById('manual-label-preview-spinner');
 
         if (!form || !img) return;
 
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-        const zpl = fillStandaloneTemplate(data);
+        // Clear existing timer
+        clearTimeout(previewDebounceTimer);
 
-        placeholder.style.display = 'none';
-        spinner.style.display = 'block';
-        img.style.display = 'none';
+        const runUpdate = async () => {
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const zpl = fillStandaloneTemplate(data);
 
-        try {
-            const labelaryUrl = `https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`;
-            const response = await fetch(labelaryUrl);
+            // CRITICAL: Only call API if content actually changed
+            if (zpl === lastZplRendered) return;
+            lastZplRendered = zpl;
 
-            if (response.ok) {
-                const blob = await response.blob();
-                img.src = URL.createObjectURL(blob);
-                img.onload = () => {
-                    spinner.style.display = 'none';
-                    img.style.display = 'block';
-                };
-            } else {
-                throw new Error("Labelary Error: " + response.status);
+            placeholder.style.display = 'none';
+            spinner.style.display = 'block';
+            img.style.display = 'none';
+
+            try {
+                const labelaryUrl = "https://api.labelary.com/v1/printers/8dpmm/labels/4.09x2/0/";
+                const encoder = new TextEncoder();
+                const bodyData = encoder.encode(zpl);
+
+                const response = await fetch(labelaryUrl, {
+                    method: "POST",
+                    body: bodyData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    img.src = URL.createObjectURL(blob);
+                    img.onload = () => {
+                        spinner.style.display = 'none';
+                        img.style.display = 'block';
+                    };
+                } else {
+                    throw new Error("Labelary Error: " + response.status);
+                }
+            } catch (err) {
+                console.error("Preview failed", err);
+                spinner.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerHTML = '<div class="text-danger small">Preview Error</div>';
+                // Reset cache on error so user can try again
+                lastZplRendered = "";
             }
-        } catch (err) {
-            console.error("Preview failed", err);
-            spinner.style.display = 'none';
-            placeholder.style.display = 'block';
-            placeholder.innerHTML = '<div class="text-danger small">Preview Error</div>';
+        };
+
+        if (immediate) {
+            runUpdate();
+        } else {
+            // Start new timer for debounced typing
+            previewDebounceTimer = setTimeout(runUpdate, 1500);
         }
     }
 
@@ -146,9 +172,22 @@
 
         // Auto-refresh and Save on field changes
         form.querySelectorAll('input, select, textarea').forEach(input => {
+            // While typing: long debounce
             input.addEventListener('input', () => {
                 saveManualLabelState();
                 updateManualLabelPreview();
+            });
+
+            // On finish (switching fields): immediate refresh
+            input.addEventListener('change', () => {
+                saveManualLabelState();
+                updateManualLabelPreview(true);
+            });
+
+            // Also trigger immediate on blur just in case change hasn't fired
+            input.addEventListener('blur', () => {
+                saveManualLabelState();
+                updateManualLabelPreview(true);
             });
         });
 
@@ -158,12 +197,13 @@
         // Load preview immediately when modal opens
         if (printerModal) {
             printerModal.addEventListener('shown.bs.modal', () => {
-                updateManualLabelPreview();
+                updateManualLabelPreview(true);
             });
 
-            // Removed automatic reset on close - replaced with manual clear button
+            // Handle visibility changes if user switches tabs and comes back
             printerModal.addEventListener('hidden.bs.modal', () => {
-                updateManualLabelPreview();
+                // Ensure state is clean for next open
+                lastZplRendered = "";
             });
         }
 
@@ -172,7 +212,7 @@
             if (confirm('Clear all fields? This will delete your current manual work.')) {
                 form.reset();
                 localStorage.removeItem('quick_label_data');
-                updateManualLabelPreview();
+                updateManualLabelPreview(true);
             }
         };
 
