@@ -16,8 +16,10 @@
     <meta property="og:url" content="https://www.greeninternationalindia.com/legal.html">
     <meta property="og:image" content="https://www.greeninternationalindia.com/assets/images/green-logo.png">
 
-    <link rel="shortcut icon" href="assets/green-logo-g.png" type="image/x-icon">
-    <link rel="apple-touch-icon" href="assets/images/green-logo.png">
+    <link rel="shortcut icon" href="assets/favicon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="assets/images/icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#28a745">
 
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,108 +31,8 @@
         as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" href="assets/mobirise/css/mbr-additional.css?v=ehfSVp" type="text/css">
 
-    <style>
-        /* Styling similar to existing index.html */
-        .nav-track-btn {
-            background: var(--primary-green, #28a745) !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 50px !important;
-            padding: 10px 28px !important;
-            font-weight: 700 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-track-btn:hover {
-            background: #218838 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            color: #fff !important;
-        }
-
-        .cid-uXjz86JSEW .navbar-nav .nav-item .nav-track-btn {
-            color: #ffffff !important;
-            text-decoration: none !important;
-        }
-
-        /* Document Specific Styles */
-        .legal-header {
-            background-color: #0d1a0d;
-            background-image: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(13, 26, 13, 1) 100%);
-            padding-top: 140px;
-            padding-bottom: 60px;
-        }
-
-        .nav-pills .nav-link {
-            color: #495057;
-            border-radius: 8px;
-            transition: all 0.2s ease-in-out;
-            font-weight: 500;
-            padding: 12px 20px;
-            border: 1px solid transparent;
-        }
-
-        .nav-pills .nav-link:hover {
-            background-color: rgba(40, 167, 69, 0.05);
-            color: #28a745;
-            border-color: rgba(40, 167, 69, 0.1);
-        }
-
-        .nav-pills .nav-link.active {
-            background-color: #28a745;
-            color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
-        }
-
-        .legal-content .tab-content {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
-            padding: 40px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
-        }
-
-        .legal-content h2 {
-            color: #1a1a1a;
-            font-weight: 700;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #f8f9fa;
-            padding-bottom: 15px;
-        }
-
-        .legal-content h3 {
-            color: #28a745;
-            font-size: 1.25rem;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .legal-content p,
-        .legal-content li {
-            color: #555;
-            line-height: 1.8;
-            font-size: 1rem;
-        }
-
-        .legal-content ul {
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .last-updated {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="assets/css/legal.css">
 
 </head>
 
@@ -436,36 +338,8 @@
     <script src="assets/dropdown/js/navbar-dropdown.js"></script>
     <script src="assets/theme/js/script.js"></script>
 
-    <script>
-        // Sticky navbar scroll effect matching index.html
-        window.addEventListener('scroll', function () {
-            const navbar = document.querySelector('.cid-uXjz86JSEW');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Ensure Mobirise styles
-        (function () {
-            function ensureAdditionalCss() {
-                var links = Array.prototype.slice.call(document.querySelectorAll('link[rel="stylesheet"]'));
-                var present = links.some(function (l) { return l.href && l.href.indexOf('mbr-additional.css') !== -1; });
-                if (!present) {
-                    var link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.href = 'assets/mobirise/css/mbr-additional.css?v=ehfSVp';
-                    document.head.appendChild(link);
-                }
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', ensureAdditionalCss);
-            } else {
-                ensureAdditionalCss();
-            }
-        })();
-    </script>
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/legal.js"></script>
 </body>
 
 </html>

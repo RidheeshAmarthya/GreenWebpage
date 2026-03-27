@@ -1,0 +1,63 @@
+/* Remove red focus outline from Contact form inputs (scoped) */
+#form03-a *:focus,
+#form03-a *:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+
+
+/* Video Fallback Style */
+#header17-3 {
+  background-color: #0d1a0d !important;
+  background-image: url('../images/video.png') !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+@media (max-width: 991px) {
+  #header17-3 {
+    background-attachment: scroll !important;
+  }
+}
+
+/* Smooth transition for when video starts playing */
+#header17-3 video {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+#header17-3 video.playing {
+  opacity: 1;
+}
+
+/* Certifications Gallery Styles */
+#gallery04-certifications {
+  padding-top: 3rem;
+  padding-bottom: 1rem;
+}
+
+#gallery04-certifications .mbr-section-title {
+  text-align: center;
+}
+
+#gallery04-certifications .mbr-section-head {
+  margin-bottom: 1rem !important;
+}
+
+#gallery04-certifications .scrollable-brands-container {
+  padding: 0.5rem 0;
+}
+
+#gallery04-certifications .brand-item img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+#gallery04-certifications .brand-item img:hover {
+  filter: none !important;
+  opacity: 1 !important;
+  transform: scale(1.05);
+}
