@@ -88,7 +88,7 @@ window.addEventListener('scroll', function () {
 
 // Ensure Mobirise additional styles (only for public theme pages)
 (function () {
-  if (window.location.pathname.includes('admin.html')) return;
+  if (window.location.pathname.match(/\/admin(\/|\.html|$)/)) return;
   
   function ensureAdditionalCss() {
     var links = Array.prototype.slice.call(document.querySelectorAll('link[rel="stylesheet"]'));
