@@ -718,6 +718,11 @@
                                 style="border-radius: 8px; font-size: 0.75rem;">PRINT</button>
                             <button class="btn btn-outline-danger btn-sm fw-bold px-3 py-1" onclick="batchDeleteStock()"
                                 style="border-radius: 8px; font-size: 0.75rem;">DELETE</button>
+                            <button class="btn btn-dark btn-sm fw-bold px-3 py-1" onclick="batchCheckOut()"
+                                style="border-radius: 8px; font-size: 0.75rem;">CHECK OUT</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold px-3 py-1"
+                                onclick="batchCheckIn()"
+                                style="border-radius: 8px; font-size: 0.75rem;">CHECK IN</button>
                             <button class="btn btn-light btn-sm text-muted fw-bold px-3 py-1"
                                 onclick="clearStockSelection()"
                                 style="border-radius: 8px; font-size: 0.75rem;">CANCEL</button>
@@ -1517,12 +1522,15 @@
                                 automatically process the return.</p>
                         </div>
 
+                        <div id="check-in-selection" class="mt-4" style="display: none;"></div>
                         <div id="check-in-feedback" class="p-3 rounded-4 mt-2 fw-bold"
                             style="display: none; font-size: 0.9rem;"></div>
                     </div>
-                    <div class="modal-footer border-0 pb-5 justify-content-center">
+                    <div class="modal-footer border-0 pb-5 justify-content-center gap-3">
                         <button type="button" class="btn btn-light px-5 py-2 text-muted fw-bold" data-bs-dismiss="modal"
                             style="border-radius: 12px;">Cancel</button>
+                        <button type="submit" class="btn btn-green px-5 py-2 fw-bold" id="submit-check-in-btn"
+                            style="border-radius: 12px;">CHECK IN ARTICLE</button>
                     </div>
                 </form>
             </div>
@@ -1564,7 +1572,29 @@
             </div>
         </div>
     </div>
-    <div id="print-section"></div>
+    <!-- Batch Check-In Modal -->
+    <div class="modal fade" id="batchCheckInModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark">Batch Return Selection</h5>
+                        <p class="text-muted small mb-0">Select units being returned</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" style="max-height: 400px; overflow-y: auto;">
+                    <div id="batch-check-in-list" class="d-flex flex-column gap-2">
+                        <!-- Dynamic list of active units -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-green w-100 fw-bold py-3" onclick="submitBatchCheckIn()"
+                        id="submit-batch-return-btn" style="border-radius: 12px;">Confirm Returns</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/common.js"></script>
     <script src="assets/js/admin/core.js"></script>
@@ -1790,6 +1820,7 @@
     <script src="assets/js/admin/stock/camera.js" defer></script>
     <script src="assets/js/admin/stock/barcode.js" defer></script>
     <script src="assets/js/admin/stock/checkout.js" defer></script>
+    <script src="assets/js/admin/stock/checkin.js" defer></script>
     <script src="assets/js/admin/stock/batch.js" defer></script>
     <script src="assets/js/admin/stock/printing.js" defer></script>
     <script src="assets/js/admin/stock/stock-main.js" defer></script>

@@ -58,8 +58,7 @@ function createStockCard(item) {
     card.style.background = '#fff';
     card.onclick = () => showStockDetail(item.id);
 
-    const statusBg = item.status === 'IN_STOCK' ? '#28a745' : '#ffc107';
-    const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
+    const stock = calculateStockAvailability(item);
 
     card.innerHTML = `
         <div class="position-relative overflow-hidden" style="height: 240px; background: #fdfdfd;">
@@ -71,19 +70,8 @@ function createStockCard(item) {
                        ${isSelected ? 'checked' : ''}>
             </div>
             <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
-                <div style="background: ${statusBg}; color: ${item.status === 'IN_STOCK' ? '#fff' : '#111'}; padding: 4px 10px; border-radius: 100px; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    ${statusText}
-                </div>
-            </div>
-            <div class="position-absolute bottom-0 start-0 w-100" style="height: 40%; background: linear-gradient(to top, rgba(0,0,0,0.3), transparent); pointer-events: none;"></div>
-            <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
-                <div style="background: rgba(255,255,255,0.9); color: #333; padding: 3px 8px; border-radius: 6px; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.5px; backdrop-filter: blur(4px);">
-                    ${item.type || 'FABRIC'}
-                </div>
-            </div>
-            <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;">
-                <div style="background: rgba(0,0,0,0.6); color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1);">
-                    ${item.quantity || '1'} <span style="font-size: 0.45rem; opacity: 0.8; margin-left: 1px;">QTY</span>
+                <div style="background: ${stock.available > 0 ? '#28a745' : '#ffc107'}; color: ${stock.available > 0 ? '#fff' : '#111'}; padding: 4px 10px; border-radius: 100px; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    ${!stock.isAvailable ? 'OUT OF STOCK' : (stock.available < stock.total ? stock.available + ' / ' + stock.total + ' IN STOCK' : stock.available + ' IN STOCK')}
                 </div>
             </div>
         </div>
@@ -148,9 +136,10 @@ function createStockRow(item) {
         if (!e.target.closest('button') && !e.target.closest('.stock-checkbox')) showStockDetail(item.id);
     };
 
-    const statusBg = item.status === 'IN_STOCK' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
-    const statusColor = item.status === 'IN_STOCK' ? '#28a745' : '#856404';
-    const statusText = item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK';
+    const stock = calculateStockAvailability(item);
+    const statusBg = stock.available > 0 ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
+    const statusColor = stock.available > 0 ? '#28a745' : '#856404';
+    const statusText = !stock.isAvailable ? 'OUT OF STOCK' : (stock.available < stock.total ? `${stock.available} / ${stock.total} IN STOCK` : `${stock.available} IN STOCK`);
 
     tr.innerHTML = `
         <td class="ps-4">
@@ -175,8 +164,8 @@ function createStockRow(item) {
         </td>
         <td class="small fw-bold text-dark opacity-75">${item.count || '-'}</td>
         <td class="small fw-bold text-dark opacity-75">${item.weight ? item.weight + ' GSM' : '-'}</td>
-        <td class="small fw-bold text-success">${item.quantity || '0'}</td>
-        <td class="small fw-bold text-primary">${item.checkouts ? item.checkouts.length : '0'}</td>
+        <td class="small fw-bold text-success">${stock.available} / ${stock.total}</td>
+        <td class="small fw-bold text-primary">${stock.active}</td>
         <td class="text-muted fw-bold text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.5px;">
             <div style="opacity: 0.4; font-size: 0.5rem; margin-bottom: 2px;">ADDED ON</div>
             ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '-'}

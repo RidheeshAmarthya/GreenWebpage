@@ -115,3 +115,20 @@ async function updateModalLabelPreview(item = null, containerPrefix = 'modal-lab
         if (previewSpinner) previewSpinner.style.display = 'none';
     }
 }
+
+/**
+ * Calculates quantitative stock availability
+ * @param {Object} item Stock item with 'checkouts' array
+ * @returns {total, active, available, isAvailable}
+ */
+function calculateStockAvailability(item) {
+    const totalQty = parseFloat(item.quantity) || 0;
+    const activeCheckouts = item.checkouts ? item.checkouts.filter(c => !c.returned_at).length : 0;
+    const availableQty = Math.max(0, totalQty - activeCheckouts);
+    return {
+        total: totalQty,
+        active: activeCheckouts,
+        available: availableQty,
+        isAvailable: availableQty > 0
+    };
+}

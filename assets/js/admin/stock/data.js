@@ -54,7 +54,7 @@ async function fetchStock() {
 
     // 2. Basic Structured Filters
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
-    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+    // (Status filter is now handled in JS for accurate quantity calculation)
 
     // 3. Sorting (Still handled by DB)
     query = query.order(column, { ascending: order === 'asc' });
@@ -68,18 +68,27 @@ async function fetchStock() {
     }
 
     // 4. Robust Numeric GSM Filtering in JavaScript
-    let filteredData = allMatches;
-    if (gsmMin || gsmMax) {
-        const minVal = gsmMin ? parseFloat(gsmMin) : -Infinity;
-        const maxVal = gsmMax ? parseFloat(gsmMax) : Infinity;
-
-        filteredData = allMatches.filter(item => {
+    filteredData = allMatches.filter(item => {
+        const stock = calculateStockAvailability(item);
+        
+        // GSM Filter
+        if (gsmMin || gsmMax) {
+            const minVal = gsmMin ? parseFloat(gsmMin) : -Infinity;
+            const maxVal = gsmMax ? parseFloat(gsmMax) : Infinity;
             if (!item.weight) return false;
             const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
             if (isNaN(itemVal)) return false;
-            return itemVal >= minVal && itemVal <= maxVal;
-        });
-    }
+            if (itemVal < minVal || itemVal > maxVal) return false;
+        }
+
+        // Availability (Status) Filter
+        if (statusFilter !== 'all') {
+            if (statusFilter === 'IN_STOCK' && stock.available === 0) return false;
+            if (statusFilter === 'OUT_OF_STOCK' && stock.available > 0) return false;
+        }
+
+        return true;
+    });
 
     const totalCount = filteredData.length;
 

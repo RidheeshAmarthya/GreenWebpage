@@ -137,6 +137,128 @@ async function batchPrintStockLabels() {
     });
 }
 
+async function batchCheckOut() {
+    if (selectedStockIds.length === 0) return;
+    
+    // 1. Clear current session
+    if (typeof clearCheckoutList === 'function') clearCheckoutList();
+    
+    // 2. Add each selected item that has availability
+    selectedStockIds.forEach(id => {
+        const item = stockItems.find(i => i.id === id);
+        if (item) {
+            const stock = calculateStockAvailability(item);
+            if (stock.available > 0) {
+                checkoutList.push({ item, requestedQty: 1 });
+            }
+        }
+    });
+
+    if (checkoutList.length === 0) {
+        alert("None of the selected items were available for checkout.");
+        return;
+    }
+
+    // 3. Update UI and Open Modal
+    if (typeof updateCheckoutUI === 'function') updateCheckoutUI();
+    const modalEl = document.getElementById('checkoutModal');
+    let modal = bootstrap.Modal.getInstance(modalEl);
+    if (!modal) modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+async function batchCheckIn() {
+    if (selectedStockIds.length === 0) return;
+    
+    // 1. Get barcodes for selected items
+    const barcodes = stockItems
+        .filter(i => selectedStockIds.includes(i.id))
+        .map(i => i.barcode);
+
+    if (barcodes.length === 0) return;
+
+    showLoading(true);
+    try {
+        // 2. Fetch ALL active checkouts for these barcodes
+        const { data: activeCheckouts, error } = await supabaseClient
+            .from('Stock_Checkouts')
+            .select('*')
+            .in('barcode', barcodes)
+            .is('returned_at', null)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (activeCheckouts.length === 0) {
+            alert("No active checkouts found for the selected articles.");
+            return;
+        }
+
+        // 3. Render the specific selection list inside the Modal
+        const listContainer = document.getElementById('batch-check-in-list');
+        if (listContainer) {
+            listContainer.innerHTML = activeCheckouts.map(checkout => {
+                const item = stockItems.find(si => si.barcode == checkout.barcode);
+                return `
+                    <label class="form-check p-3 border rounded-4 d-flex align-items-center justify-content-start bg-white shadow-sm mb-2" 
+                           style="transition: all 0.2s; cursor: pointer;" for="chk-${checkout.id}">
+                        <input class="form-check-input ms-0 me-3 stock-return-checkbox" type="checkbox" 
+                               value="${checkout.id}" id="chk-${checkout.id}">
+                        <div class="d-flex flex-column pe-none">
+                            <span class="fw-bold text-dark fs-6">${item ? item.article_no : 'Unknown'} &mdash; ${checkout.name}</span>
+                            <span class="text-muted small" style="font-size: 0.7rem;">${checkout.company} | ${new Date(checkout.created_at).toLocaleDateString('en-IN')}</span>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        // 4. Open Modal
+        const modalEl = document.getElementById('batchCheckInModal');
+        let modal = bootstrap.Modal.getInstance(modalEl);
+        if (!modal) modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+    } catch (err) {
+        alert("Fetch failed: " + err.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function submitBatchCheckIn() {
+    const checkboxes = document.querySelectorAll('.stock-return-checkbox:checked');
+    const idsToReturn = Array.from(checkboxes).map(cb => cb.value);
+
+    if (idsToReturn.length === 0) {
+        alert("Please select at least one unit to return.");
+        return;
+    }
+
+    showLoading(true);
+    try {
+        const { error } = await supabaseClient
+            .from('Stock_Checkouts')
+            .update({ returned_at: new Date().toISOString() })
+            .in('id', idsToReturn);
+
+        if (error) throw error;
+
+        const modalEl = document.getElementById('batchCheckInModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+
+        alert(`Successfully returned ${idsToReturn.length} units.`);
+        
+        clearStockSelection();
+        if (typeof fetchStock === 'function') fetchStock();
+    } catch (err) {
+        alert("Batch check-in failed: " + err.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
 // Global Select All Listener
 document.addEventListener('change', (e) => {
     if (e.target.id === 'stock-select-all') {

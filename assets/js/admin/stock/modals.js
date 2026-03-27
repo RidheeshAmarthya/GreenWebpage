@@ -4,30 +4,68 @@ async function showStockDetail(id) {
     const item = stockItems.find(i => i.id === id);
     if (!item) return;
 
+    const stock = calculateStockAvailability(item);
     let checkoutInfoHtml = '';
-    if (item.status !== 'IN_STOCK' && item.checkouts) {
-        const checkout = item.checkouts.find(c => !c.returned_at);
-        if (checkout) {
-            checkoutInfoHtml = `
-                <details class="mb-3 border rounded-3 overflow-hidden bg-white" style="border-color: #eee !important;">
-                    <summary class="p-2 px-3 d-flex align-items-center justify-content-between" style="list-style: none; cursor: pointer; outline: none; user-select: none;">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
-                            </div>
-                            <label class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.55rem; letter-spacing: 0.5px; cursor: pointer;">History</label>
+    
+    if (item.checkouts && item.checkouts.length > 0) {
+        // 1. Group Active Checkouts by Company
+        const activeMap = new Map();
+        const returnedCheckouts = item.checkouts.filter(c => !!c.returned_at).sort((a,b) => new Date(b.returned_at) - new Date(a.returned_at));
+        const activeList = item.checkouts.filter(c => !c.returned_at).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+        activeList.forEach(c => {
+            const companyKey = c.company || 'Unknown';
+            if (!activeMap.has(companyKey)) {
+                activeMap.set(companyKey, { count: 1, names: new Set([c.name]), date: c.created_at });
+            } else {
+                const group = activeMap.get(companyKey);
+                group.count++;
+                if (c.name) group.names.add(c.name);
+            }
+        });
+
+        const groupedActive = Array.from(activeMap.entries()).map(([company, data]) => ({
+            company,
+            count: data.count,
+            name: Array.from(data.names).join(', '),
+            created_at: data.date,
+            returned_at: null
+        }));
+
+        const finalDisplayList = [...groupedActive, ...returnedCheckouts];
+
+        checkoutInfoHtml = `
+            <details class="mb-3 border rounded-3 overflow-hidden bg-white" style="border-color: #eee !important;">
+                <summary class="p-2 px-3 d-flex align-items-center justify-content-between" style="list-style: none; cursor: pointer; outline: none; user-select: none;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
                         </div>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><polyline points="6 9 12 15 18 9"/></svg>
-                    </summary>
-                    <div class="px-3 pb-3 pt-0">
-                        <div class="d-flex align-items-center justify-content-between border-top pt-2 mt-1">
-                            <div class="text-dark small fw-bold" style="font-size: 0.7rem;">${checkout.name} @ ${checkout.company}</div>
-                            <div class="text-muted" style="font-size: 0.6rem;">${new Date(checkout.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
-                        </div>
+                        <label class="text-muted small fw-bold text-uppercase mb-0" style="font-size: 0.55rem; letter-spacing: 0.5px; cursor: pointer;">CHECKOUT HISTORY (${stock.active}/${item.checkouts.length})</label>
                     </div>
-                </details>
-            `;
-        }
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="px-3 pb-2 pt-0">
+                    ${finalDisplayList.map(checkout => `
+                        <div class="d-flex align-items-center justify-content-between border-top py-2" style="opacity: ${checkout.returned_at ? '0.4' : '1'}">
+                            <div>
+                                <div class="text-dark small fw-bold" style="font-size: 0.7rem; ${checkout.returned_at ? 'text-decoration: line-through;' : ''}">
+                                    ${checkout.company}${checkout.count > 1 ? ` (${checkout.count} UNITS)` : ''}
+                                    <span class="text-muted fw-normal"> &mdash; ${checkout.name}</span>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.55rem;">
+                                    ${checkout.returned_at ? `Returned: ${new Date(checkout.returned_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}` : `Out since: ${new Date(checkout.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
+                                </div>
+                            </div>
+                            ${checkout.returned_at ? 
+                                `<span class="badge bg-success-subtle text-success border border-success-subtle py-0 px-2" style="font-size: 0.5rem; border-radius: 4px; font-weight: 800;">RETURNED</span>` : 
+                                `<span class="badge bg-danger-subtle text-danger border border-danger-subtle py-0 px-2" style="font-size: 0.5rem; border-radius: 4px; font-weight: 800;">CHECKED OUT</span>`
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+            </details>
+        `;
     }
 
     const modalEl = document.getElementById('stockDetailModal');
@@ -87,11 +125,10 @@ async function showStockDetail(id) {
 
             <div class="col-lg-5 order-3 order-lg-1 d-flex flex-column p-4 border-lg-end" style="background: #f8f9fa;">
                 <div class="d-flex align-items-center gap-2 mb-3 pt-1">
-                    <span class="badge ${item.status === 'IN_STOCK' ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem;">
-                        ${item.status === 'IN_STOCK' ? 'IN STOCK' : 'OUT STOCK'}
+                    <span class="badge ${stock.available > 0 ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem;">
+                        ${!stock.isAvailable ? 'OUT OF STOCK' : (stock.available < stock.total ? `${stock.available} / ${stock.total} IN STOCK` : `${stock.available} IN STOCK`)}
                     </span>
                     <div class="badge bg-green text-white px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || '-'}</div>
-                    <div class="badge bg-light text-dark border px-2 py-1 fw-bold" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">QTY: ${item.quantity || '1'}</div>
                 </div>
                 ${checkoutInfoHtml}
                 <div class="bg-white rounded-4 border shadow-sm position-relative overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
