@@ -16,6 +16,7 @@ function fillZPLTemplate(item) {
     zpl = zpl.replace(/{density}/g, item.density || '');
     zpl = zpl.replace(/{width}/g, item.width || '');
     zpl = zpl.replace(/{weight}/g, item.weight || '');
+    zpl = zpl.replace(/{weight_unit}/g, item.weight_unit || 'GSM');
     zpl = zpl.replace(/{item}/g, item.item || '');
     zpl = zpl.replace(/{finish}/g, item.finish || '');
     zpl = zpl.replace(/{remark}/g, item.remark || '');

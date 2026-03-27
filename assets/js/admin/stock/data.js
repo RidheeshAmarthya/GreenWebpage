@@ -11,7 +11,8 @@ async function fetchStock() {
     const typeFilter = document.querySelector('#stock-type-filter')?.value || 'all';
     const statusFilter = document.querySelector('#stock-status-filter')?.value || 'all';
     const gsmMin = document.querySelector('#gsm-min-filter')?.value;
-    const gsmMax = document.querySelector('#gsm-max-filter')?.value;
+    const gsmMax = document.getElementById('gsm-max-filter')?.value;
+    const unitFilter = document.querySelector('#weight-unit-filter')?.value || 'All';
     const sortVal = document.querySelector('#stock-sort-select')?.value || 'created_at-desc';
     const [column, order] = sortVal.split('-');
 
@@ -71,14 +72,21 @@ async function fetchStock() {
     filteredData = allMatches.filter(item => {
         const stock = calculateStockAvailability(item);
         
-        // GSM Filter
-        if (gsmMin || gsmMax) {
+        // Weight (GSM/MM/OZ) Filter
+        if (gsmMin || gsmMax || unitFilter !== 'All') {
             const minVal = gsmMin ? parseFloat(gsmMin) : -Infinity;
             const maxVal = gsmMax ? parseFloat(gsmMax) : Infinity;
-            if (!item.weight) return false;
-            const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
-            if (isNaN(itemVal)) return false;
-            if (itemVal < minVal || itemVal > maxVal) return false;
+            
+            // Unit Matching
+            if (unitFilter !== 'All' && (item.weight_unit || 'GSM') !== unitFilter) return false;
+
+            // Range Matching
+            if (gsmMin || gsmMax) {
+                if (!item.weight) return false;
+                const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
+                if (isNaN(itemVal)) return false;
+                if (itemVal < minVal || itemVal > maxVal) return false;
+            }
         }
 
         // Availability (Status) Filter

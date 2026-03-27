@@ -88,6 +88,12 @@ function openStockModal(id = null) {
             const qtyField = form.querySelector('[name="quantity"]');
             if (qtyField) qtyField.value = "1.00";
         }
+        
+        const lastWeightUnit = localStorage.getItem('last_article_weight_unit');
+        if (lastWeightUnit) {
+            const wuField = form.querySelector('[name="weight_unit"]');
+            if (wuField) wuField.value = lastWeightUnit;
+        }
     }
 
     const el = (typeof getCamElements === 'function') ? getCamElements() : {};
@@ -110,6 +116,7 @@ function openStockModal(id = null) {
         form.querySelector('[name="density"]').value = item.density || '';
         form.querySelector('[name="width"]').value = item.width || '';
         form.querySelector('[name="weight"]').value = item.weight || '';
+        form.querySelector('[name="weight_unit"]').value = item.weight_unit || 'GSM';
         form.querySelector('[name="quantity"]').value = item.quantity || '';
         form.querySelector('[name="finish"]').value = item.finish || '';
         form.querySelector('[name="remark"]').value = item.remark || '';
@@ -205,6 +212,7 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
         // Persist specific fields for easy next-article entry
         if (stockData.type) localStorage.setItem('last_article_type', stockData.type);
         if (stockData.quantity) localStorage.setItem('last_article_quantity', stockData.quantity);
+        if (stockData.weight_unit) localStorage.setItem('last_article_weight_unit', stockData.weight_unit);
 
         if (stockItemModal) stockItemModal.hide();
         if (typeof fetchStock === 'function') fetchStock();
@@ -271,6 +279,8 @@ function clearStockFilters() {
     if (typeFilter) typeFilter.value = 'all';
     const statusFilter = document.getElementById('stock-status-filter');
     if (statusFilter) statusFilter.value = 'all';
+    const unitFilter = document.getElementById('weight-unit-filter');
+    if (unitFilter) unitFilter.value = 'All';
     const sortSelect = document.getElementById('stock-sort-select');
     if (sortSelect) sortSelect.value = 'created_at-desc';
 
@@ -287,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    ['stock-type-filter', 'stock-status-filter'].forEach(id => {
+    ['stock-type-filter', 'stock-status-filter', 'weight-unit-filter'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', () => {
             stockCurrentPage = 1;
             if (typeof applyStockFilter === 'function') applyStockFilter();

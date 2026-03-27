@@ -40,7 +40,7 @@
 ^FT145,173^A0N,28,28^FH\\^CI28^FD: {count}^FS^CI27
 ^FT145,208^A0N,28,28^FH\\^CI28^FD: {density}^FS^CI27
 ^FT145,243^A0N,28,28^FH\\^CI28^FD: {width}^FS^CI27
-^FT145,278^A0N,28,28^FH\\^CI28^FD: {weight} GSM^FS^CI27
+^FT145,278^A0N,28,28^FH\\^CI28^FD: {weight} {weight_unit}^FS^CI27
 ^FT145,313^A0N,28,28^FH\\^CI28^FD: {item}^FS^CI27
 ^FT145,348^A0N,28,28^FH\\^CI28^FD: {finish}^FS^CI27
 ^FT145,383^A0N,28,28^FH\\^CI28^FD: {remark}^FS^CI27
@@ -69,6 +69,7 @@
         zpl = zpl.replace(/{density}/g, data.density || '');
         zpl = zpl.replace(/{width}/g, data.width || '');
         zpl = zpl.replace(/{weight}/g, data.weight || '');
+        zpl = zpl.replace(/{weight_unit}/g, data.weight_unit || 'GSM');
         zpl = zpl.replace(/{item}/g, data.item || '');
         zpl = zpl.replace(/{finish}/g, data.finish || '');
         zpl = zpl.replace(/{remark}/g, data.remark || '');

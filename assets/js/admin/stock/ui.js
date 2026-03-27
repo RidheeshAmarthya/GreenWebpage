@@ -90,7 +90,7 @@ function createStockCard(item) {
                 <div class="d-flex flex-column gap-1">
                     <span class="text-muted fw-bold text-uppercase" style="font-size: 0.55rem; letter-spacing: 1px; opacity: 0.5;">Specification</span>
                     <div class="d-flex align-items-center gap-2 text-dark fw-bold" style="font-size: 0.85rem;">
-                        <span>${item.weight ? item.weight + ' GSM' : '-'}</span>
+                        <span>${item.weight ? item.weight + ' ' + (item.weight_unit || 'GSM') : '-'}</span>
                         <span style="width: 1px; height: 10px; background: #eee;"></span>
                         <span class="opacity-50" style="font-weight: 400;">${item.count || '-'}</span>
                     </div>
@@ -163,7 +163,7 @@ function createStockRow(item) {
             <span class="badge bg-light text-muted border px-2 py-1 fw-bold text-uppercase" style="border-radius: 6px; font-size: 0.55rem; letter-spacing: 0.5px;">${item.type || 'FABRIC'}</span>
         </td>
         <td class="small fw-bold text-dark opacity-75">${item.count || '-'}</td>
-        <td class="small fw-bold text-dark opacity-75">${item.weight ? item.weight + ' GSM' : '-'}</td>
+        <td class="small fw-bold text-dark opacity-75">${item.weight ? item.weight + ' ' + (item.weight_unit || 'GSM') : '-'}</td>
         <td class="small fw-bold text-success">${stock.available} / ${stock.total}</td>
         <td class="small fw-bold text-primary">${stock.active}</td>
         <td class="text-muted fw-bold text-uppercase" style="font-size: 0.62rem; letter-spacing: 0.5px;">

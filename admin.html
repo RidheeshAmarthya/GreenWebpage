@@ -514,7 +514,7 @@
                         <div class="d-flex align-items-center bg-light px-3 ms-auto-xl gsm-range-container"
                             style="height: 48px; border-radius: 12px;">
                             <span class="text-muted small fw-bold text-uppercase me-3"
-                                style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">GSM Range:</span>
+                                style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">Weight Range:</span>
                             <div class="d-flex align-items-center gap-2">
                                 <input type="number" id="gsm-min-filter" name="gsm_filter_min"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min"
@@ -523,6 +523,12 @@
                                 <input type="number" id="gsm-max-filter" name="gsm_filter_max"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max"
                                     style="font-size: 0.75rem;" autocomplete="off">
+                                <select id="weight-unit-filter" class="form-select gsm-input-box px-1 fw-bold border-0 bg-transparent ms-2" style="width: 70px; font-size: 0.7rem; box-shadow: none;">
+                                    <option value="All">All Unit</option>
+                                    <option value="GSM">GSM</option>
+                                    <option value="MM">MM</option>
+                                    <option value="OZ">OZ</option>
+                                </select>
                             </div>
                         </div>
 
@@ -1309,11 +1315,20 @@
 
                                     <div class="col-md-6 col-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1"
-                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight (GSM)</label>
-                                        <input type="number" step="0.01" name="weight" class="form-control"
-                                            placeholder="0.00"
-                                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                                            style="border-radius: 8px;">
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Weight</label>
+                                        <div class="input-group">
+                                            <input type="number" step="0.01" name="weight" class="form-control"
+                                                placeholder="0.00"
+                                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                                                style="border-radius: 8px 0 0 8px;">
+                                            <select name="weight_unit" class="form-select border-start-0" 
+                                                onchange="triggerLabelPreviewDebounce()"
+                                                style="max-width: 80px; border-radius: 0 8px 8px 0; font-size: 0.75rem; font-weight: 600;">
+                                                <option value="GSM">GSM</option>
+                                                <option value="MM">MM</option>
+                                                <option value="OZ">OZ</option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="col-12">
@@ -1722,9 +1737,17 @@
                                     </div>
                                     <div class="col-md-6 col-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted"
-                                            style="font-size: 0.65rem;">Weight (GSM)</label>
-                                        <input type="number" name="weight" class="form-control"
-                                            style="border-radius: 10px;">
+                                            style="font-size: 0.65rem;">Weight</label>
+                                        <div class="input-group">
+                                            <input type="number" name="weight" class="form-control"
+                                                placeholder="0.00" style="border-radius: 10px 0 0 10px;">
+                                            <select name="weight_unit" class="form-select border-start-0" 
+                                                style="max-width: 80px; border-radius: 0 100x 100x 0; font-size: 0.75rem; font-weight: 600;">
+                                                <option value="GSM">GSM</option>
+                                                <option value="MM">MM</option>
+                                                <option value="OZ">OZ</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted"
