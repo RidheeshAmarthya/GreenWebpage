@@ -41,6 +41,7 @@ function resetStockModalUI() {
 
     const form = document.getElementById('stock-item-form');
     if (form) form.reset();
+    
     if (el.imgDataField) el.imgDataField.value = '';
     if (el.fileInput) el.fileInput.value = '';
 
@@ -71,6 +72,23 @@ function openStockModal(id = null) {
     
     resetStockModalUI();
     if (typeof stopWebcam === 'function') stopWebcam();
+
+    // PERSISTENCE FOR NEW ARTICLES (Sticky Fields)
+    if (!id && form) {
+        const lastType = localStorage.getItem('last_article_type');
+        const lastQty = localStorage.getItem('last_article_quantity');
+        if (lastType) {
+            const typeField = form.querySelector('[name="type"]');
+            if (typeField) typeField.value = lastType;
+        }
+        if (lastQty) {
+            const qtyField = form.querySelector('[name="quantity"]');
+            if (qtyField) qtyField.value = lastQty;
+        } else {
+            const qtyField = form.querySelector('[name="quantity"]');
+            if (qtyField) qtyField.value = "1.00";
+        }
+    }
 
     const el = (typeof getCamElements === 'function') ? getCamElements() : {};
 
@@ -112,8 +130,6 @@ function openStockModal(id = null) {
         document.getElementById('stock-modal-submit-btn').textContent = "Save";
         document.getElementById('save-print-article-btn').textContent = "Save & Print";
         document.getElementById('stock-item-id').value = '';
-        const qtyInput = form.querySelector('[name="quantity"]');
-        if (qtyInput) qtyInput.value = '1';
         
         const barcodeInput = document.getElementById('add-stock-barcode');
         if (barcodeInput && typeof generateBarcode === 'function') barcodeInput.value = generateBarcode();
@@ -185,6 +201,11 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
         }
 
         if (error) throw error;
+
+        // Persist specific fields for easy next-article entry
+        if (stockData.type) localStorage.setItem('last_article_type', stockData.type);
+        if (stockData.quantity) localStorage.setItem('last_article_quantity', stockData.quantity);
+
         if (stockItemModal) stockItemModal.hide();
         if (typeof fetchStock === 'function') fetchStock();
     } catch (err) {
