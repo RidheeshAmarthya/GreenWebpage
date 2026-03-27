@@ -58,11 +58,11 @@
             <form id="login-form">
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" id="admin-email" class="form-control" required placeholder="admin@example.com">
+                    <input type="email" id="admin-email" class="form-control" required placeholder="admin@example.com" autocomplete="username">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" id="admin-password" class="form-control" required>
+                    <input type="password" id="admin-password" class="form-control" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-green w-100">Login</button>
             </form>
@@ -212,7 +212,7 @@
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md-5">
                             <input type="text" id="order-search" class="form-control"
-                                placeholder="Search Green Order ID..."
+                                placeholder="Search Green Order ID..." autocomplete="off"
                                 style="height: 50px; border-radius: 10px; border: 1px solid #ddd; padding-left: 20px;">
                         </div>
                         <div class="col-12 col-md-7">
@@ -447,7 +447,7 @@
                                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                     </svg>
                                 </span>
-                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder=""
+                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder="" autocomplete="off"
                                     style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
                             </div>
                         </div>
@@ -758,7 +758,7 @@
                             <label class="form-label">Green Order ID (Tracking Number)</label>
                             <div class="input-group">
                                 <input type="text" name="order_id" id="add-order-id" class="form-control" required
-                                    placeholder="e.g. GIN-001">
+                                    placeholder="e.g. GIN-001" autocomplete="off">
                                 <button class="btn btn-outline-success" type="button" id="regenerate-order-id"
                                     style="border-top-right-radius: 10px; border-bottom-right-radius: 10px;">Regenerate</button>
                             </div>
@@ -766,7 +766,7 @@
                         <div class="mb-3">
                             <label class="form-label">Company / Client Name</label>
                             <input type="text" name="company" class="form-control" maxlength="4"
-                                placeholder="e.g. TGT, IKEA">
+                                placeholder="e.g. TGT, IKEA" autocomplete="off">
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-sm-6 mb-3 mb-sm-0">
@@ -781,7 +781,7 @@
                         <div class="mb-3">
                             <label class="form-label">Commercial Status</label>
                             <input type="text" name="commercial" class="form-control" required
-                                placeholder="e.g. Pending">
+                                placeholder="e.g. Pending" autocomplete="off">
                         </div>
                         <hr>
                         <h6>TNA Plan</h6>
@@ -859,11 +859,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Green Order ID (Tracking Number)</label>
-                            <input type="text" name="order_id" id="edit-order-id" class="form-control" required>
+                            <input type="text" name="order_id" id="edit-order-id" class="form-control" required autocomplete="off">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Company / Client Name</label>
-                            <input type="text" name="company" id="edit-company" class="form-control" maxlength="4">
+                            <input type="text" name="company" id="edit-company" class="form-control" maxlength="4" autocomplete="off">
                         </div>
                         <div class="row mb-3">
                             <div class="col">
@@ -878,7 +878,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Commercial Status</label>
-                            <input type="text" name="commercial" id="edit-commercial" class="form-control" required>
+                            <input type="text" name="commercial" id="edit-commercial" class="form-control" required autocomplete="off">
                         </div>
                         <hr>
                         <h6>TNA Plan</h6>
@@ -1263,7 +1263,7 @@
                                     <div class="input-group mb-2 shadow-none" style="opacity: 0.8 !important;">
                                         <input type="number" name="barcode" id="add-stock-barcode"
                                             class="form-control form-control-sm border-end-0 bg-light"
-                                            placeholder="Barcode ID"
+                                            placeholder="Barcode ID" autocomplete="off"
                                             style="border-radius: 8px 0 0 8px; font-size: 0.75rem;">
                                         <button class="btn btn-outline-secondary btn-sm px-2" type="button"
                                             id="regenerate-stock-barcode"
@@ -1286,7 +1286,7 @@
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1"
                                             style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
                                         <input type="text" name="article_no" class="form-control fw-bold" required
-                                            placeholder="e.g. GR-9921" style="border-radius: 8px;">
+                                            placeholder="e.g. GR-9921" style="border-radius: 8px;" autocomplete="off">
                                     </div>
 
                                     <div class="col-12">
@@ -1439,14 +1439,14 @@
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
                                 <input type="text" name="name" id="checkout-name"
                                     class="form-control form-control-lg border-0 bg-light" required
-                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;">
+                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold text-uppercase text-muted"
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
                                 <input type="text" name="company" id="checkout-company"
                                     class="form-control form-control-lg border-0 bg-light" required
-                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;">
+                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
                             </div>
                         </div>
 
@@ -1467,7 +1467,7 @@
                             <h6 class="fw-bold mb-2">Scan Sample Barcode</h6>
                             <div class="input-group shadow-sm bg-white rounded-3 overflow-hidden">
                                 <input type="number" id="checkout-barcode-input"
-                                    class="form-control border-0 py-3 text-center fw-bold"
+                                    class="form-control border-0 py-3 text-center fw-bold" autocomplete="off"
                                     placeholder="Place cursor here & scan" style="font-size: 1.1rem; height: 60px;">
                                 <button type="button" class="btn btn-dark px-4 fw-bold"
                                     id="add-to-checkout-btn">ADD</button>
@@ -1536,7 +1536,7 @@
                             <input type="text" id="check-in-barcode-input"
                                 class="form-control form-control-lg text-center fw-bold border-2" autofocus
                                 placeholder="00000000"
-                                style="height: 90px; font-size: 2.2rem; border-radius: 20px; border-color: #eee; background: #fafafa;">
+                                style="height: 90px; font-size: 2.2rem; border-radius: 20px; border-color: #eee; background: #fafafa;" autocomplete="off">
                             <p class="text-muted small mt-3 px-4">Place the scanner over the article's barcode to
                                 automatically process the return.</p>
                         </div>
