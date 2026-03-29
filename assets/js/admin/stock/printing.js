@@ -182,7 +182,7 @@ async function generateBatchStockPDF() {
     const originalLoadingContent = loadingOverlay ? loadingOverlay.innerHTML : '';
 
     try {
-        const selectedItems = stockItems.filter(i => selectedStockIds.includes(i.id));
+        const selectedItems = await getSelectedItemsFullData();
         for (let i = 0; i < selectedItems.length; i++) {
             const item = selectedItems[i];
             if (loadingOverlay) {
@@ -196,6 +196,10 @@ async function generateBatchStockPDF() {
                 `;
             }
             try {
+                if (item.image_url && !item.resolved_url) {
+                    item.resolved_url = await getCachedSignedUrl(item.image_url);
+                }
+
                 const zpl = fillZPLTemplate(item);
                 const resp = await fetch(`https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`);
                 if (resp.ok) {

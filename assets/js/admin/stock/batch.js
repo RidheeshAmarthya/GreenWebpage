@@ -1,5 +1,29 @@
 // Stock Manager Batch Operations Logic
 
+async function getSelectedItemsFullData() {
+    if (selectedStockIds.length === 0) return [];
+    
+    // Check if we have all data locally (in stockItems or the full filteredData if it exists)
+    // stockItems only has the current page. filteredData (from data.js) is more complete but still only current filters.
+    // To be 100% safe and simple, let's fetch exactly what's selected from DB.
+    
+    const { data, error } = await supabaseClient
+        .from('Stock')
+        .select(`
+            *,
+            checkouts: Stock_Checkouts(name, company, created_at, returned_at)
+        `)
+        .in('id', selectedStockIds);
+
+    if (error) {
+        console.error("Failed to fetch selected items details:", error);
+        return [];
+    }
+
+    return data;
+}
+
+
 function toggleStockSelection(id) {
     const index = selectedStockIds.indexOf(id);
     const isSelectedNow = index === -1;
@@ -77,6 +101,21 @@ async function batchDeleteStock() {
 
     showLoading(true);
     try {
+        // Fetch full data to securely extract image URLs
+        const itemsToDestroy = await getSelectedItemsFullData();
+        const imageUrls = itemsToDestroy.map(i => i.image_url).filter(url => url != null && url !== "");
+
+        // Delete images from Storage first if they exist
+        if (imageUrls.length > 0) {
+            const { error: storageError } = await supabaseClient.storage.from('stock-images').remove(imageUrls);
+            if (storageError) console.error("Storage deletion error:", storageError);
+            
+            if (typeof stockImageCache !== 'undefined') {
+                imageUrls.forEach(url => delete stockImageCache[url]);
+                localStorage.setItem('stock_image_cache', JSON.stringify(stockImageCache));
+            }
+        }
+
         const { error } = await supabaseClient
             .from('Stock')
             .delete()
@@ -109,8 +148,12 @@ async function batchPrintStockLabels() {
             return;
         }
 
+        showLoading(true);
+        const items = await getSelectedItemsFullData();
+        showLoading(false);
+
         const promises = selectedStockIds.map(id => {
-            const item = stockItems.find(i => i.id === id);
+            const item = items.find(i => i.id === id);
             if (!item) return null;
 
             const zpl = fillZPLTemplate(item);
@@ -140,45 +183,51 @@ async function batchPrintStockLabels() {
 async function batchCheckOut() {
     if (selectedStockIds.length === 0) return;
     
-    // 1. Clear current session
-    if (typeof clearCheckoutList === 'function') clearCheckoutList();
-    
-    // 2. Add each selected item that has availability
-    selectedStockIds.forEach(id => {
-        const item = stockItems.find(i => i.id === id);
-        if (item) {
+    showLoading(true);
+    try {
+        const items = await getSelectedItemsFullData();
+
+        // 2. Add each selected item that has availability
+        items.forEach(item => {
             const stock = calculateStockAvailability(item);
             if (stock.available > 0) {
                 checkoutList.push({ item, requestedQty: 1 });
             }
+        });
+
+        if (checkoutList.length === 0) {
+            alert("None of the selected items were available for checkout.");
+            return;
         }
-    });
 
-    if (checkoutList.length === 0) {
-        alert("None of the selected items were available for checkout.");
-        return;
+        // 3. Update UI and Open Modal
+        if (typeof updateCheckoutUI === 'function') updateCheckoutUI();
+        const modalEl = document.getElementById('checkoutModal');
+        let modal = bootstrap.Modal.getInstance(modalEl);
+        if (!modal) modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    } catch (err) {
+        alert("Batch checkout failed: " + err.message);
+    } finally {
+        showLoading(false);
     }
-
-    // 3. Update UI and Open Modal
-    if (typeof updateCheckoutUI === 'function') updateCheckoutUI();
-    const modalEl = document.getElementById('checkoutModal');
-    let modal = bootstrap.Modal.getInstance(modalEl);
-    if (!modal) modal = new bootstrap.Modal(modalEl);
-    modal.show();
 }
 
 async function batchCheckIn() {
     if (selectedStockIds.length === 0) return;
     
-    // 1. Get barcodes for selected items
-    const barcodes = stockItems
-        .filter(i => selectedStockIds.includes(i.id))
-        .map(i => i.barcode);
-
-    if (barcodes.length === 0) return;
-
     showLoading(true);
     try {
+        const items = await getSelectedItemsFullData();
+        
+        // 1. Get barcodes for selected items
+        const barcodes = items.map(i => i.barcode).filter(b => b);
+
+        if (barcodes.length === 0) {
+            alert("None of the selected items have barcodes.");
+            return;
+        }
+
         // 2. Fetch ALL active checkouts for these barcodes
         const { data: activeCheckouts, error } = await supabaseClient
             .from('Stock_Checkouts')
@@ -198,7 +247,7 @@ async function batchCheckIn() {
         const listContainer = document.getElementById('batch-check-in-list');
         if (listContainer) {
             listContainer.innerHTML = activeCheckouts.map(checkout => {
-                const item = stockItems.find(si => si.barcode == checkout.barcode);
+                const item = items.find(si => si.barcode == checkout.barcode);
                 return `
                     <label class="form-check p-3 border rounded-4 d-flex align-items-center justify-content-start bg-white shadow-sm mb-2" 
                            style="transition: all 0.2s; cursor: pointer;" for="chk-${checkout.id}">

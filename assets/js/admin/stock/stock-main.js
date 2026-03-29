@@ -177,7 +177,9 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
             if (itemId) {
                 const oldItem = stockItems.find(i => i.id === itemId);
                 if (oldItem?.image_url) {
-                    await supabaseClient.storage.from('stock-images').remove([oldItem.image_url]);
+                    const { error: rErr } = await supabaseClient.storage.from('stock-images').remove([oldItem.image_url]);
+                    if (rErr) console.warn("Failed to delete stale replaced image:", rErr);
+                    
                     if (typeof stockImageCache !== 'undefined') delete stockImageCache[oldItem.image_url];
                 }
             }
@@ -245,7 +247,9 @@ async function deleteStockItem(id, articleNo) {
     try {
         const item = stockItems.find(i => i.id === id);
         if (item?.image_url) {
-            await supabaseClient.storage.from('stock-images').remove([item.image_url]);
+            const { error: dErr } = await supabaseClient.storage.from('stock-images').remove([item.image_url]);
+            if (dErr) console.error('Failed to delete image:', dErr);
+            
             if (typeof stockImageCache !== 'undefined') delete stockImageCache[item.image_url];
             localStorage.setItem('stock_image_cache', JSON.stringify(stockImageCache));
         }

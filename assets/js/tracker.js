@@ -1,5 +1,5 @@
-const API_URL = 'https://eyuynhchvxxthdseqvhx.supabase.co/rest/v1/rpc/get_order_details';
-const API_KEY = 'sb_publishable_vXpTof6au1ODkQFS-I8YxQ_IYE5S_a_';
+const API_URL = `${window.ENV.SUPABASE_URL}/rest/v1/rpc/get_order_details`;
+const API_KEY = window.ENV.SUPABASE_KEY;
 
 // Cache to minimize API calls
 const orderCache = new Map();
