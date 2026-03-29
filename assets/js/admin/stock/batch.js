@@ -101,6 +101,21 @@ async function batchDeleteStock() {
 
     showLoading(true);
     try {
+        // Fetch full data to securely extract image URLs
+        const itemsToDestroy = await getSelectedItemsFullData();
+        const imageUrls = itemsToDestroy.map(i => i.image_url).filter(url => url != null && url !== "");
+
+        // Delete images from Storage first if they exist
+        if (imageUrls.length > 0) {
+            const { error: storageError } = await supabaseClient.storage.from('stock-images').remove(imageUrls);
+            if (storageError) console.error("Storage deletion error:", storageError);
+            
+            if (typeof stockImageCache !== 'undefined') {
+                imageUrls.forEach(url => delete stockImageCache[url]);
+                localStorage.setItem('stock_image_cache', JSON.stringify(stockImageCache));
+            }
+        }
+
         const { error } = await supabaseClient
             .from('Stock')
             .delete()
