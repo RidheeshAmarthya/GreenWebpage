@@ -16,13 +16,10 @@ async function fetchStock() {
     const sortVal = document.querySelector('#stock-sort-select')?.value || 'created_at-desc';
     const [column, order] = sortVal.split('-');
 
-    // Build Supabase Query (Exclude GSM and Pagination from DB query to handle numeric logic in JS)
+    // Build Supabase Query using the optimized View
     let query = supabaseClient
-        .from('Stock')
-        .select(`
-            *,
-            checkouts: Stock_Checkouts(name, company, created_at, returned_at)
-        `);
+        .from('stock_availability_view')
+        .select('*', { count: 'exact' });
 
     // 1. Multi-keyword Intelligent Search
     const searchTerms = rawSearch.trim().toLowerCase().split(/\s+/).filter(k => k.length > 0);
@@ -55,55 +52,37 @@ async function fetchStock() {
 
     // 2. Basic Structured Filters
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
-    // (Status filter is now handled in JS for accurate quantity calculation)
+    if (statusFilter === 'IN_STOCK') query = query.gt('available', 0);
+    if (statusFilter === 'OUT_OF_STOCK') query = query.eq('available', 0);
 
-    // 3. Sorting (Still handled by DB)
+    // 3. Weight (GSM/MM/OZ) Filters using View's numeric column
+    if (gsmMin) {
+        const minVal = parseFloat(gsmMin);
+        if (!isNaN(minVal)) query = query.gte('weight_numeric', minVal);
+    }
+    if (gsmMax) {
+        const maxVal = parseFloat(gsmMax);
+        if (!isNaN(maxVal)) query = query.lte('weight_numeric', maxVal);
+    }
+    if (unitFilter !== 'All') {
+        query = query.eq('weight_unit', unitFilter);
+    }
+
+    // 4. Sorting
     query = query.order(column, { ascending: order === 'asc' });
 
-    const { data: allMatches, error } = await query;
+    // 5. Server-side Pagination
+    const from = (stockCurrentPage - 1) * stockItemsPerPage;
+    const to = from + stockItemsPerPage - 1;
+    query = query.range(from, to);
+
+    const { data: paginatedItems, error, count: totalCount } = await query;
 
     if (error) {
         showLoading(false);
         console.error(error);
         return;
     }
-
-    // 4. Robust Numeric GSM Filtering in JavaScript
-    filteredData = allMatches.filter(item => {
-        const stock = calculateStockAvailability(item);
-        
-        // Weight (GSM/MM/OZ) Filter
-        if (gsmMin || gsmMax || unitFilter !== 'All') {
-            const minVal = gsmMin ? parseFloat(gsmMin) : -Infinity;
-            const maxVal = gsmMax ? parseFloat(gsmMax) : Infinity;
-            
-            // Unit Matching
-            if (unitFilter !== 'All' && (item.weight_unit || 'GSM') !== unitFilter) return false;
-
-            // Range Matching
-            if (gsmMin || gsmMax) {
-                if (!item.weight) return false;
-                const itemVal = parseFloat(item.weight.toString().replace(/[^0-9.]/g, ''));
-                if (isNaN(itemVal)) return false;
-                if (itemVal < minVal || itemVal > maxVal) return false;
-            }
-        }
-
-        // Availability (Status) Filter
-        if (statusFilter !== 'all') {
-            if (statusFilter === 'IN_STOCK' && stock.available === 0) return false;
-            if (statusFilter === 'OUT_OF_STOCK' && stock.available > 0) return false;
-        }
-
-        return true;
-    });
-
-    const totalCount = filteredData.length;
-
-    // 5. Manual Pagination after JS Filtering
-    const from = (stockCurrentPage - 1) * stockItemsPerPage;
-    const to = from + stockItemsPerPage;
-    const paginatedItems = filteredData.slice(from, to);
 
     showLoading(false);
     stockItems = paginatedItems;
