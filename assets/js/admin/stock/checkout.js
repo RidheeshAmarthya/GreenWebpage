@@ -205,3 +205,17 @@ async function viewStockImage(path) {
         window.open(data.signedUrl, '_blank');
     }
 }
+
+// Auto-focus when modal opens
+document.getElementById('checkoutModal')?.addEventListener('shown.bs.modal', () => {
+    checkoutBarcodeInput?.focus();
+});
+
+// Focus warning visibility
+const checkoutScannerStatus = document.getElementById('checkout-scanner-status');
+checkoutBarcodeInput?.addEventListener('focus', () => { if (checkoutScannerStatus) checkoutScannerStatus.style.display = 'none'; });
+checkoutBarcodeInput?.addEventListener('blur', () => { 
+    if (checkoutScannerStatus && document.getElementById('checkoutModal')?.classList.contains('show')) {
+        checkoutScannerStatus.style.display = 'block';
+    }
+});
