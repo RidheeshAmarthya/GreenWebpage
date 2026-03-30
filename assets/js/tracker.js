@@ -153,7 +153,16 @@ function renderTNATimeline() {
     if (!currentOrderData) return;
     tnaTimeline.innerHTML = '';
 
-    TNA_FIELDS.forEach(field => {
+    const sortedTNA = [...TNA_FIELDS].sort((a, b) => {
+        const valA = currentOrderData[a.key];
+        const valB = currentOrderData[b.key];
+        if (!valA && !valB) return 0;
+        if (!valA) return 1;
+        if (!valB) return -1;
+        return new Date(valB) - new Date(valA);
+    });
+
+    sortedTNA.forEach(field => {
         const dateVal = currentOrderData[field.key];
         const item = document.createElement('div');
         item.className = 'timeline-item';
@@ -237,7 +246,16 @@ function printOrderReport(order) {
     const printSection = document.getElementById('print-section');
     printSection.innerHTML = '';
 
-    const tnaHtml = TNA_FIELDS.map(f => `
+    const sortedTNA = [...TNA_FIELDS].sort((a, b) => {
+        const valA = order[a.key];
+        const valB = order[b.key];
+        if (!valA && !valB) return 0;
+        if (!valA) return 1;
+        if (!valB) return -1;
+        return new Date(valB) - new Date(valA);
+    });
+
+    const tnaHtml = sortedTNA.map(f => `
         <tr>
             <td style="width: 60%;">${f.label}</td>
             <td>${formatDate(order[f.key])}</td>
@@ -445,7 +463,16 @@ async function printTNAFromModal() {
     const printSection = document.getElementById('print-section');
     printSection.innerHTML = '';
 
-    const tnaHtml = TNA_FIELDS.map(f => `
+    const sortedTNA = [...TNA_FIELDS].sort((a, b) => {
+        const valA = currentOrderData[a.key];
+        const valB = currentOrderData[b.key];
+        if (!valA && !valB) return 0;
+        if (!valA) return 1;
+        if (!valB) return -1;
+        return new Date(valB) - new Date(valA);
+    });
+
+    const tnaHtml = sortedTNA.map(f => `
         <tr>
             <td style="width: 60%;">${f.label}</td>
             <td>${formatDate(currentOrderData[f.key])}</td>

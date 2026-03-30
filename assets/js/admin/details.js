@@ -31,7 +31,16 @@ function renderTNATimeline() {
     const tnaTimeline = document.getElementById('tna-timeline');
     tnaTimeline.innerHTML = '';
 
-    TNA_FIELDS.forEach(field => {
+    const sortedTNA = [...TNA_FIELDS].sort((a, b) => {
+        const valA = selectedOrder[a.key];
+        const valB = selectedOrder[b.key];
+        if (!valA && !valB) return 0;
+        if (!valA) return 1;
+        if (!valB) return -1;
+        return new Date(valB) - new Date(valA);
+    });
+
+    sortedTNA.forEach(field => {
         const dateVal = selectedOrder[field.key];
         const item = document.createElement('div');
         item.className = 'timeline-item-match';
