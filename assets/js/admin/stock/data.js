@@ -98,3 +98,29 @@ function updateStockSort(value) {
     stockCurrentPage = 1;
     fetchStock();
 }
+
+/**
+ * Fetches a single stock item by its barcode directly from the database.
+ * This is used for check-in/check-out to find items that might not be on the current paginated page.
+ */
+async function fetchStockItemByBarcode(barcode) {
+    if (!barcode) return null;
+    
+    // First, check if it's already in the currently loaded stockItems
+    const localMatch = stockItems.find(i => String(i.barcode) === String(barcode));
+    if (localMatch) return localMatch;
+
+    // If not found locally, fetch from Supabase View
+    const { data, error } = await supabaseClient
+        .from('stock_availability_view')
+        .select('*')
+        .eq('barcode', barcode)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Error fetching item by barcode:", error);
+        return null;
+    }
+
+    return data;
+}

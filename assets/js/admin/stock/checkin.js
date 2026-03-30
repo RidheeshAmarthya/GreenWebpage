@@ -21,7 +21,7 @@ async function processCheckIn(barcode) {
 
     showLoading(true);
     try {
-        const item = stockItems.find(i => String(i.barcode) === String(barcode));
+        const item = await fetchStockItemByBarcode(barcode);
         if (!item) throw new Error("Barcode not found in database.");
 
         const stock = calculateStockAvailability(item);

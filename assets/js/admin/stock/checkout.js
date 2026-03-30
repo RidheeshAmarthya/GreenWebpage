@@ -46,9 +46,12 @@ function updateCheckoutUI() {
     }
 }
 
-function addToCheckoutList(barcode) {
+async function addToCheckoutList(barcode) {
     if (!barcode) return;
-    const item = stockItems.find(i => i.barcode.toString() === barcode.toString());
+    
+    // Use the robust fetch function that checks local AND Supabase
+    const item = await fetchStockItemByBarcode(barcode);
+    
     if (!item) {
         if (checkoutScanFeedback) {
             checkoutScanFeedback.textContent = "Barcode not found";
@@ -66,10 +69,14 @@ function addToCheckoutList(barcode) {
         return;
     }
 
-    const existing = checkoutList.find(e => e.item.id === item.id);
-    if (existing) {
+    const existingIndex = checkoutList.findIndex(e => e.item.id === item.id);
+    if (existingIndex !== -1) {
+        const existing = checkoutList[existingIndex];
         if (existing.requestedQty < stock.available) {
             existing.requestedQty++;
+            // Move to top
+            checkoutList.splice(existingIndex, 1);
+            checkoutList.unshift(existing);
         } else {
             if (checkoutScanFeedback) {
                 checkoutScanFeedback.textContent = `Max limits reached for "${item.article_no}"`;
@@ -78,7 +85,7 @@ function addToCheckoutList(barcode) {
             return;
         }
     } else {
-        checkoutList.push({ item, requestedQty: 1 });
+        checkoutList.unshift({ item, requestedQty: 1 });
     }
 
     updateCheckoutUI();
@@ -125,6 +132,10 @@ function removeFromCheckoutList(itemId) {
 
 function clearCheckoutList() {
     checkoutList = [];
+    if (checkoutScanFeedback) {
+        checkoutScanFeedback.textContent = '';
+        checkoutScanFeedback.className = '';
+    }
     updateCheckoutUI();
 }
 
