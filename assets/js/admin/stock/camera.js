@@ -87,6 +87,45 @@ function stopWebcam() {
     if (el.placeholder && !el.capturePreview?.src) el.placeholder.style.display = 'flex';
 }
 
+/**
+ * Robust image compression and resizing to hit a target file size (e.g., 50KB).
+ * Iteratively reduces quality, then resolution if quality alone isn't enough.
+ */
+async function compressAndResizeImage(canvas, format, maxSizeBytes = 48000) {
+    let quality = 0.8;
+    let dataUrl = canvas.toDataURL(format, quality);
+    
+    // 1. Try reducing quality first
+    while (quality > 0.1 && (dataUrl.length * 0.75) > maxSizeBytes) {
+        quality -= 0.1;
+        dataUrl = canvas.toDataURL(format, quality);
+    }
+    
+    // 2. If still too big, start reducing resolution iteratively
+    let scale = 0.9;
+    while ((dataUrl.length * 0.75) > maxSizeBytes && scale > 0.2) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = Math.floor(canvas.width * scale);
+        tempCanvas.height = Math.floor(canvas.height * scale);
+        tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        // Reset quality to 0.7 for the new resolution attempt
+        quality = 0.7;
+        dataUrl = tempCanvas.toDataURL(format, quality);
+        
+        // Fine-tune quality for this resolution
+        while (quality > 0.1 && (dataUrl.length * 0.75) > maxSizeBytes) {
+            quality -= 0.1;
+            dataUrl = tempCanvas.toDataURL(format, quality);
+        }
+        
+        scale -= 0.1;
+    }
+    
+    return dataUrl;
+}
+
 async function capturePhoto() {
     const el = getCamElements();
     if (!el.video || el.video.readyState < 2) return;
@@ -112,15 +151,10 @@ async function capturePhoto() {
     canvas.height = cropSize;
     ctx.drawImage(el.video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
 
-    let quality = 0.8;
-    let dataUrl = '';
     const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
-
-    while (quality > 0.1) {
-        dataUrl = canvas.toDataURL(format, quality);
-        if ((dataUrl.length * 0.75) < 50000) break;
-        quality -= 0.1;
-    }
+    
+    // Apply robust compression (Target < 50KB)
+    const dataUrl = await compressAndResizeImage(canvas, format, 48000);
 
     if (el.capturePreview) {
         el.capturePreview.src = dataUrl;
@@ -187,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
-            img.onload = () => {
+            img.onload = async () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const MAX_WIDTH = 800;
@@ -199,10 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-                let quality = 0.8;
-                let dataUrl = '';
+
                 const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
-                while (quality > 0.05) { dataUrl = canvas.toDataURL(format, quality); if ((dataUrl.length * 0.75) < 50000) break; quality -= 0.05; }
+                // Apply robust compression (Target < 50KB)
+                const dataUrl = await compressAndResizeImage(canvas, format, 48000);
                 
                 const elLatest = getCamElements();
                 if (elLatest.capturePreview) { elLatest.capturePreview.src = dataUrl; elLatest.capturePreview.style.display = 'block'; }
