@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ensure webcam stops when modal is closed
         stockItemModalElement.addEventListener('hidden.bs.modal', () => {
             if (typeof stopWebcam === 'function') stopWebcam();
+            if (typeof isOcrProcessing !== 'undefined') isOcrProcessing = false;
             resetStockModalUI();
         });
     }

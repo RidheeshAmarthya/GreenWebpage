@@ -310,6 +310,14 @@ async function captureForOCR() {
         // 5. Call AI
         const data = await geminiOCR.scanImage(dataUrl);
         
+        // 5.5 Safety Check: If user closed the modal while we were waiting, discard result
+        const modal = document.getElementById('stockItemModal');
+        if (!modal || !modal.classList.contains('show')) {
+            console.warn("AI result discarded: Modal hidden during processing");
+            isOcrProcessing = false;
+            return;
+        }
+
         // 6. Populate form fields
         geminiOCR.fillForm(data);
         
