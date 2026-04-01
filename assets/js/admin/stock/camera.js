@@ -202,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
         if (isInput) return;
 
+        // Ensure the modal is actually open and visible (not just in DOM)
+        const modal = document.getElementById('stockItemModal');
+        if (!modal || !modal.classList.contains('show')) return;
+
         if (!isCamActive) return;
 
         if (e.key === 'Enter') {
@@ -251,9 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     });
 });
+let isOcrProcessing = false;
 async function captureForOCR() {
+    if (isOcrProcessing) return;
+    isOcrProcessing = true;
+
     const el = getCamElements();
-    if (!el.video || el.video.readyState < 2) return;
+    if (!el.video || el.video.readyState < 2) {
+        console.warn("OCR ignored: Camera not actively streaming");
+        isOcrProcessing = false;
+        return;
+    }
 
     // 1. Capture high-quality frame
     const vWidth = el.video.videoWidth;
@@ -306,6 +318,7 @@ async function captureForOCR() {
         ocrBtn.innerHTML = '<i class="fas fa-check me-2"></i>AI SCAN COMPLETE!';
         
         // 8. Auto-reset to 'Ready' state (Start Camera button)
+        isOcrProcessing = false;
         setTimeout(() => {
             ocrBtn.disabled = false;
             ocrBtn.innerHTML = originalHtml;
@@ -325,6 +338,7 @@ async function captureForOCR() {
         }, 1200);
 
     } catch (err) {
+        isOcrProcessing = false;
         console.error("AI Scan failed:", err);
         ocrBtn.className = "btn btn-danger fw-bold py-3 w-100 shadow-sm";
         ocrBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>AI SCAN FAILED';
