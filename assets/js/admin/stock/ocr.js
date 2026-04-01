@@ -67,8 +67,14 @@ class GeminiOCR {
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error("High Demand: Gemini is currently busy. Please wait 10-20 seconds and try again.");
+                }
+                if (response.status === 503) {
+                    throw new Error("Gemini Service Unavailable: The AI model is briefly offline. Please try again in a minute.");
+                }
                 const errorData = await response.json();
-                const msg = errorData.error?.message || "Gemini API Connection Failed";
+                const msg = errorData.error?.message || `Error ${response.status}: Connection Failed`;
                 throw new Error(`AI Error: ${msg}`);
             }
 
@@ -124,12 +130,38 @@ class GeminiOCR {
         });
 
         // Visual feedback
+        this.showToast('AI Scan Complete! Form populated.', 'success');
+    }
+
+    /**
+     * Display a temporary toast notification in the bottom right corner
+     * @param {string} message - Text to display
+     * @param {string} type - 'success', 'danger', 'info', etc. (Bootstrap classes)
+     */
+    showToast(message, type = 'success') {
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
         const toast = document.createElement('div');
-        toast.className = 'position-fixed bottom-0 end-0 m-3 p-3 bg-dark text-white rounded-3 shadow-lg';
+        toast.className = `position-fixed bottom-0 end-0 m-3 p-3 bg-dark text-white rounded-3 shadow-lg border-start border-4 border-${type}`;
         toast.style.zIndex = '9999';
-        toast.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i>AI Scan Complete! Form populated.';
+        toast.style.minWidth = '300px';
+        toast.innerHTML = `<i class="fas ${icon} text-${type} me-2"></i>${message}`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        
+        // Add entry animation
+        toast.style.transform = 'translateY(20px)';
+        toast.style.opacity = '0';
+        toast.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+        });
+
+        setTimeout(() => {
+            toast.style.transform = 'translateY(20px)';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
     }
 }
 

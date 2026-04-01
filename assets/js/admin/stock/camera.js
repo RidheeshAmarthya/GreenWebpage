@@ -329,6 +329,13 @@ async function captureForOCR() {
         ocrBtn.className = "btn btn-danger fw-bold py-3 w-100 shadow-sm";
         ocrBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>AI SCAN FAILED';
         
+        // Show specific error to user
+        if (typeof geminiOCR !== 'undefined') {
+            geminiOCR.showToast(err.message, 'danger');
+        } else {
+            alert("AI Scan failed: " + err.message);
+        }
+
         if (el.captureActions) el.captureActions.style.display = 'block';
         
         setTimeout(() => {
@@ -337,6 +344,6 @@ async function captureForOCR() {
             ocrBtn.className = "btn btn-primary fw-bold py-3 w-100 mb-2";
             // Allow retake on failure
             if (el.retakeBtn) el.retakeBtn.style.display = 'block';
-        }, 2500);
+        }, 4000); // 4 Seconds to let user read toast before reset
     }
 }
