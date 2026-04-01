@@ -3,6 +3,14 @@ const SUPABASE_URL = window.ENV.SUPABASE_URL;
 const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// SILENT WARMUP: Pre-establishes TLS and CORS preflights to prevent 
+// "Load Failed" on the first user transaction in mobile Safari.
+setTimeout(() => {
+    supabaseClient.from('Stock').select('id', { count: 'exact', head: true }).limit(1).then(() => {
+        console.log("Supabase connection warmed up.");
+    }).catch(e => console.warn("Warmup failed:", e));
+}, 1000);
+
 // State Profile
 let user = null;
 let orders = [];

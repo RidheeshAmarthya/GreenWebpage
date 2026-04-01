@@ -157,9 +157,15 @@ document.addEventListener('input', (e) => {
 });
 
 // Save Stock
-document.getElementById('stock-item-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+async function saveStockItem(event) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('stock-item-form');
+    if (!form || !form.checkValidity()) {
+        form?.reportValidity();
+        return;
+    }
+
+    const formData = new FormData(form);
     const stockData = Object.fromEntries(formData.entries());
     const itemId = stockData.id;
     const imageData = stockData.image_data;
@@ -224,9 +230,14 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
     } finally {
         showLoading(false);
     }
-});
+}
 
-document.getElementById('save-print-article-btn')?.addEventListener('click', async () => {
+// Attach the save handler to the form's submit event (for keyboard Enter)
+// but also expose it for manual button clicks to bypass Safari's submit state machine
+document.getElementById('stock-item-form')?.addEventListener('submit', saveStockItem);
+
+document.getElementById('save-print-article-btn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
     const form = document.getElementById('stock-item-form');
     if (!form || !form.checkValidity()) {
         form?.reportValidity();
@@ -237,7 +248,8 @@ document.getElementById('save-print-article-btn')?.addEventListener('click', asy
     try {
         if (typeof printStockLabelFromData === 'function') {
             await printStockLabelFromData(itemData);
-            form.requestSubmit();
+            // Manually trigger the save instead of using requestSubmit() which fails on some Safari versions
+            saveStockItem();
         }
     } catch (err) { console.error(err); }
 });
