@@ -20,7 +20,9 @@ function renderStockItems(items, totalCount = 0) {
     const gridContainer = document.getElementById('stock-grid-view');
     const listBody = document.getElementById('stock-table-body');
     const emptyState = document.getElementById('stock-empty');
+    const selectAll = document.getElementById('stock-select-all');
 
+    if (selectAll) selectAll.checked = false;
     if (gridContainer) gridContainer.innerHTML = '';
     if (listBody) listBody.innerHTML = '';
 
@@ -65,7 +67,7 @@ function createStockCard(item) {
             <img src="${placeholderImg}" id="img-grid-${item.id}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.6s ease;">
             <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
                 <input type="checkbox" class="form-check-input stock-checkbox" 
-                       style="width: 22px; height: 22px; cursor: pointer; border-radius: 8px; border: 2.5px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: ${isSelected ? '#28a745' : 'rgba(255,255,255,0.7)'};"
+                       style="width: 22px; height: 22px; cursor: pointer; border-radius: 8px; border: 2.5px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
                        onclick="event.stopPropagation(); toggleStockSelection('${item.id}')"
                        ${isSelected ? 'checked' : ''}>
             </div>
@@ -105,7 +107,8 @@ function createStockCard(item) {
             .stock-card:hover { transform: translateY(-8px) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important; }
             .stock-card:hover img { transform: scale(1.05); }
             .stock-card.selected { border: 2.5px solid #28a745 !important; box-shadow: 0 10px 30px rgba(40,167,69,0.15) !important; padding: -2.5px; }
-            .stock-card.selected .stock-checkbox { background: #28a745 !important; }
+            .stock-card.selected .stock-checkbox { background-color: #28a745 !important; border-color: #28a745 !important; }
+            .stock-card .stock-checkbox:not(:checked) { background-color: rgba(255,255,255,0.7) !important; }
         </style>
     `;
 

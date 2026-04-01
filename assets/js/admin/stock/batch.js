@@ -316,10 +316,13 @@ document.addEventListener('change', (e) => {
 
         checkboxes.forEach(box => {
             box.checked = isChecked;
-            const articleId = box.dataset.id || (box.onclick?.toString().match(/'([^']+)'/)?.[1]);
-            // If dataset.id is not available, try to find the ID from the card it belongs to
-            const parentId = box.closest('.stock-card, .stock-row')?.dataset.id;
-            const finalId = articleId || parentId;
+            const parent = box.closest('.stock-card, .stock-row');
+            const finalId = box.dataset.id || parent?.dataset.id;
+            
+            if (parent) {
+                if (isChecked) parent.classList.add('selected');
+                else parent.classList.remove('selected');
+            }
 
             if (finalId) {
                 const index = selectedStockIds.indexOf(finalId);
