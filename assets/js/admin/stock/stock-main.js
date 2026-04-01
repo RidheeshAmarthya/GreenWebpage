@@ -157,7 +157,7 @@ document.addEventListener('input', (e) => {
 });
 
 // Save Stock
-async function saveStockItem(event) {
+async function saveStockItem(event, isRetry = false) {
     if (event) event.preventDefault();
     const form = document.getElementById('stock-item-form');
     if (!form || !form.checkValidity()) {
@@ -226,6 +226,13 @@ async function saveStockItem(event) {
         if (stockItemModal) stockItemModal.hide();
         if (typeof fetchStock === 'function') fetchStock();
     } catch (err) {
+        // AUTOMATIC RETRY FOR SAFARI "LOAD FAILED"
+        if (!isRetry && err.message && err.message.toLowerCase().includes('load failed')) {
+            console.warn("Safari Load Failed detected. Automatically retrying save...");
+            await new Promise(r => setTimeout(r, 300));
+            return saveStockItem(null, true);
+        }
+
         alert("Operation failed: " + err.message);
     } finally {
         showLoading(false);

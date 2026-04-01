@@ -280,15 +280,25 @@ async function captureForOCR() {
     // 2. STOP CAMERA IMMEDIATELY as requested
     stopWebcam();
 
+    // 2.5 Prepare image for both AI and the Article Form (Resize & Compress)
+    // We target < 50KB to keep the DB/Storage light
+    const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
+    const compressedDataUrl = await compressAndResizeImage(canvas, format, 48000);
+
     // 3. Show static preview while processing
     if (el.capturePreview) {
-        el.capturePreview.src = dataUrl;
+        el.capturePreview.src = compressedDataUrl;
         el.capturePreview.style.display = 'block';
-        // Hide the sources container (tabs/video/placeholder) so the preview isn't occluded
+        // Hide the sources container (tabs/video/placeholder)
         if (el.sourcesContent) el.sourcesContent.style.display = 'none';
         if (el.placeholder) el.placeholder.style.display = 'none';
         if (el.webcamOverlay) el.webcamOverlay.classList.add('d-none');
     }
+
+    // Set the hidden field so the user's scan picture is actually saved to the article
+    if (el.imgDataField) el.imgDataField.value = compressedDataUrl;
+    if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
+    if (el.startBtn) el.startBtn.style.display = 'none';
 
     // 4. Update Button State
     const ocrBtn = document.getElementById('scan-label-btn');
@@ -308,7 +318,7 @@ async function captureForOCR() {
         if (typeof geminiOCR === 'undefined') throw new Error("OCR Module not loaded");
 
         // 5. Call AI
-        const data = await geminiOCR.scanImage(dataUrl);
+        const data = await geminiOCR.scanImage(compressedDataUrl);
         
         // 5.5 Safety Check: If user closed the modal while we were waiting, discard result
         const modal = document.getElementById('stockItemModal');
