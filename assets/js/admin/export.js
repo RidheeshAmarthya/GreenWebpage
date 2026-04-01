@@ -187,7 +187,7 @@ document.getElementById('export-excel-btn')?.addEventListener('click', async () 
 });
 
 // Full Report Printing Logic
-async function printOrderReport(order) {
+async function printOrderReport(order, includeColors = true) {
     if (!order) return;
 
     showLoading(true);
@@ -196,15 +196,12 @@ async function printOrderReport(order) {
         .select('*, "Color-Logs" (*)')
         .eq('order_uuid', order.order_uuid)
         .order('color_name', { ascending: true });
-
+    
     if (error) {
         alert(error.message);
         showLoading(false);
         return;
     }
-
-    const printSection = document.getElementById('print-section');
-    printSection.innerHTML = '';
 
     const sortedTNA = [...TNA_FIELDS].sort((a, b) => {
         const valA = order[a.key];
@@ -234,30 +231,34 @@ async function printOrderReport(order) {
 
         return `
             <div class="print-page">
-                <div class="print-header">
-                    <div>
-                        <img src="assets/images/green-logo.png" style="height: 50px; width: auto; object-fit: contain; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
-                        <h2 style="margin:0; font-size: 1.2rem;">Tracking Summary - ${order.order_id}</h2>
+                <div class="print-header" style="display: block; padding-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                        <div style="text-align: right;">
+                            <h3 style="margin:0;">Green Order ID: ${order.order_id}</h3>
+                            <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                        </div>
                     </div>
+                    <h2 style="margin:0; color:#28a745;">Order Report</h2>
                 </div>
                 <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                     Color Variant: ${color.color_name}
+                    ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
                 </h4>
                 <table class="print-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 150px;">Date</th>
-                            <th>Note</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${logsHtml}
-                    </tbody>
+                    <thead><tr><th style="width: 150px;">Date</th><th>Note</th></tr></thead>
+                    <tbody>${logsHtml}</tbody>
                 </table>
                 <div class="print-contact">
                     <div class="contact-details">
                         <span>www.greeninternationalindia.com</span>
                         <span>sales@greeninternationalindia.com</span>
+                    </div>
+                    <div style="font-size: 0.70rem; color: #555; text-align: center; font-style: italic; margin-top: 5px;">
+                        <strong>Disclaimer:</strong> Dates and statuses are for reference only. For exact details, contact us.
+                    </div>
+                    <div class="footer-text">
+                        Green International Tracking - Confidential Color Variant Status Report
                     </div>
                 </div>
             </div>
@@ -287,7 +288,7 @@ async function printOrderReport(order) {
                 </div>
                 <div class="print-item">
                     <label>Commercial Status</label>
-                    <span>${order.commercial}</span>
+                    <span>${order.commercial || '---'}</span>
                 </div>
             </div>
             <div style="max-width: 600px; margin-bottom: 30px;">
@@ -299,10 +300,24 @@ async function printOrderReport(order) {
                     <tbody>${tnaHtml}</tbody>
                 </table>
             </div>
+            <div class="print-contact">
+                <div class="contact-details">
+                    <span>www.greeninternationalindia.com</span>
+                    <span>sales@greeninternationalindia.com</span>
+                </div>
+                <div style="font-size: 0.70rem; color: #555; text-align: center; font-style: italic; margin-top: 5px;">
+                    <strong>Disclaimer:</strong> Dates and statuses are for reference only. For exact details, contact us.
+                </div>
+                <div class="footer-text">
+                    Green International Tracking - Confidential Production Milestone Report
+                </div>
+            </div>
         </div>
-        ${colorsHtml}
+        ${includeColors ? colorsHtml : ''}
     `;
 
+    const printSection = document.getElementById('print-section');
+    if (!printSection) return;
     printSection.innerHTML = reportHtml;
     showLoading(false);
     setTimeout(() => { window.print(); }, 500);
@@ -314,6 +329,16 @@ function printOrderFromTable(orderId, event) {
     if (order) printOrderReport(order);
 }
 
+// Missing function for TNA Modal
+function printTNAFromModal() {
+    if (typeof selectedOrder === 'undefined' || !selectedOrder) {
+        console.warn("No active order to print TNA from");
+        return;
+    }
+    // Print only the TNA (Page 1), skip the color tracking summaries
+    printOrderReport(selectedOrder, false);
+}
+
 // Single Color Printing
 async function printSingleColor(colorUuid) {
     const color = currentColors.find(c => c.colors_uuid === colorUuid);
@@ -321,6 +346,7 @@ async function printSingleColor(colorUuid) {
 
     showLoading(true);
     const printSection = document.getElementById('print-section');
+    if (!printSection) return;
     printSection.innerHTML = '';
 
     const logsHtml = (color['Color-Logs'] || [])
@@ -334,20 +360,36 @@ async function printSingleColor(colorUuid) {
 
     const reportHtml = `
         <div class="print-page">
-            <div class="print-header">
-                <div>
-                    <img src="assets/images/green-logo.png" style="height: 50px; width: auto; object-fit: contain; margin-bottom: 5px; filter: brightness(0) saturate(100%);">
-                    <h2 style="margin:0; font-size: 1.2rem;">Tracking Summary - ${selectedOrder.order_id}</h2>
+            <div class="print-header" style="display: block; padding-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <img src="assets/images/green-logo.png" style="height: 60px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%);">
+                    <div style="text-align: right;">
+                        <h3 style="margin:0;">Green Order ID: ${selectedOrder.order_id}</h3>
+                        <p style="margin:0; color:#666; font-size: 0.8rem;">Generated: ${new Date().toLocaleDateString('en-IN')}</p>
+                    </div>
                 </div>
+                <h2 style="margin:0; color:#28a745;">Order Report</h2>
             </div>
             <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                 Color Variant: ${color.color_name}
-                ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
+                ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
             </h4>
             <table class="print-table">
                 <thead><tr><th>Date</th><th>Note</th></tr></thead>
                 <tbody>${logsHtml}</tbody>
             </table>
+            <div class="print-contact">
+                <div class="contact-details">
+                    <span>www.greeninternationalindia.com</span>
+                    <span>sales@greeninternationalindia.com</span>
+                </div>
+                <div style="font-size: 0.70rem; color: #555; text-align: center; font-style: italic; margin-top: 5px;">
+                    <strong>Disclaimer:</strong> Dates and statuses are for reference only. For exact details, contact us.
+                </div>
+                <div class="footer-text">
+                    Green International Tracking - Confidential Color Status Report
+                </div>
+            </div>
         </div>
     `;
 
