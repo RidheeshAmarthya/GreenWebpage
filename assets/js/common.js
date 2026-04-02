@@ -7,12 +7,11 @@ const TNA_FIELDS = [
     { key: 'po_received_date', label: 'PO Received' },
     { key: 'LD_S_HC_date', label: 'Labdip / Strike off / HL Approval' },
     { key: 'yarn_dyeing_start_date', label: 'Yarn Dyeing Start' },
-    { key: 'weave_knitting_start_date', label: 'Weave/Knitting Start' },
-    { key: 'weave_knitting_complete_date', label: 'Weave/Knitting Complete' },
+    { key: 'weave_knitting_start_date', label: 'Weaving / Knitting Start' },
     { key: 'dye_processing_start_date', label: 'Dyeing / Processing Start' },
     { key: 'FOB_ready_date', label: 'FOB Ready' },
     { key: 'FOB_approval_date', label: 'FOB Approval' },
-    { key: 'goods_ready', label: 'Goods Ready' }
+    { key: 'goods_ready', label: 'Estimated Goods Ready' }
 ];
 
 function formatDate(dateStr) {
