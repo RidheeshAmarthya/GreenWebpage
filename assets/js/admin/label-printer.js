@@ -192,6 +192,57 @@
             });
         });
 
+        // Article No Lookup Autopopulate for Standalone Printer
+        const standaloneArticleInput = form.querySelector('[name="article_no"]');
+        const manualStatusBadge = document.getElementById('manual-lookup-status');
+
+        if (standaloneArticleInput) {
+            standaloneArticleInput.addEventListener('blur', async (e) => {
+                const articleNo = e.target.value?.trim();
+                if (!articleNo) {
+                    if (manualStatusBadge) manualStatusBadge.style.display = 'none';
+                    return;
+                }
+
+                // fetchStockItemByArticleNo is expected to be available globally from data.js
+                if (typeof fetchStockItemByArticleNo !== 'function') return;
+                
+                // Show searching state
+                if (manualStatusBadge) {
+                    manualStatusBadge.textContent = "SEARCHING...";
+                    manualStatusBadge.className = "badge align-middle bg-light text-muted border";
+                    manualStatusBadge.style.display = "inline-block";
+                }
+
+                const matchedItem = await fetchStockItemByArticleNo(articleNo);
+                
+                if (matchedItem) {
+                    // Match found
+                    if (manualStatusBadge) {
+                        manualStatusBadge.textContent = "MATCH FOUND";
+                        manualStatusBadge.className = "badge align-middle bg-success-subtle text-success border border-success-subtle";
+                    }
+
+                    const fields = ['barcode', 'content', 'count', 'density', 'width', 'weight', 'weight_unit', 'item', 'finish', 'remark'];
+                    fields.forEach(field => {
+                        const input = form.querySelector(`[name="${field}"]`);
+                        if (input && matchedItem[field] !== undefined && matchedItem[field] !== null) {
+                            input.value = matchedItem[field];
+                        }
+                    });
+                    
+                    saveManualLabelState();
+                    updateManualLabelPreview(true);
+                } else {
+                    // Match not found
+                    if (manualStatusBadge) {
+                        manualStatusBadge.textContent = "NOT FOUND";
+                        manualStatusBadge.className = "badge align-middle bg-info-subtle text-info border border-info-subtle";
+                    }
+                }
+            });
+        }
+
         // Initial Load
         loadManualLabelState();
 
@@ -205,6 +256,11 @@
             printerModal.addEventListener('hidden.bs.modal', () => {
                 // Ensure state is clean for next open
                 lastZplRendered = "";
+                const manualStatusBadge = document.getElementById('manual-lookup-status');
+                if (manualStatusBadge) {
+                    manualStatusBadge.style.display = 'none';
+                    manualStatusBadge.textContent = '';
+                }
             });
         }
 
@@ -213,6 +269,10 @@
             if (confirm('Clear all fields? This will delete your current manual work.')) {
                 form.reset();
                 localStorage.removeItem('quick_label_data');
+                if (manualStatusBadge) {
+                    manualStatusBadge.style.display = 'none';
+                    manualStatusBadge.textContent = '';
+                }
                 updateManualLabelPreview(true);
             }
         };

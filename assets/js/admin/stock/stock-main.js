@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth < 768) {
         if (typeof toggleStockView === 'function') toggleStockView('grid');
     }
+
+    // Article No Lookup Autopopulate
+    const articleInput = document.querySelector('#stock-item-form [name="article_no"]');
+    if (articleInput) {
+        articleInput.addEventListener('blur', handleStockArticleLookup);
+    }
 });
 
 function resetStockModalUI() {
@@ -56,6 +62,13 @@ function resetStockModalUI() {
     if (placeholderEl) {
         placeholderEl.innerHTML = '<div class="text-muted small mb-2">Fetching live label...</div><div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>';
         placeholderEl.style.display = 'block';
+    }
+
+    // Reset lookup status badge
+    const statusBadge = document.getElementById('stock-lookup-status');
+    if (statusBadge) {
+        statusBadge.style.display = 'none';
+        statusBadge.textContent = '';
     }
 
     // Reset tabs to Camera
@@ -149,12 +162,89 @@ function openStockModal(id = null) {
     if (stockItemModal) stockItemModal.show();
 }
 
+async function handleStockArticleLookup(e) {
+    const articleNo = e.target.value?.trim();
+    if (!articleNo) return;
+
+    const statusBadge = document.getElementById('stock-lookup-status');
+    const form = document.getElementById('stock-item-form');
+    if (!form) return;
+
+    // Don't lookup if this is an existing article edit (ID present) AND article No matches current item
+    const itemId = document.getElementById('stock-item-id')?.value;
+    if (itemId) {
+        const currentItem = stockItems.find(i => i.id === itemId);
+        if (currentItem && currentItem.article_no === articleNo) return;
+    }
+
+    // Show searching state
+    if (statusBadge) {
+        statusBadge.textContent = "SEARCHING...";
+        statusBadge.className = "badge align-middle bg-light text-muted border";
+        statusBadge.style.display = "inline-block";
+    }
+
+    const matchedItem = await fetchStockItemByArticleNo(articleNo);
+
+    if (matchedItem) {
+        // Found a match!
+        if (statusBadge) {
+            statusBadge.textContent = "MATCH FOUND";
+            statusBadge.className = "badge align-middle bg-success-subtle text-success border border-success-subtle";
+        }
+
+        // Autopopulate fields if found
+        const fields = ['content', 'count', 'density', 'width', 'weight', 'weight_unit', 'item', 'finish', 'remark', 'type'];
+        fields.forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (input && matchedItem[field] !== undefined && matchedItem[field] !== null) {
+                input.value = matchedItem[field];
+            }
+        });
+
+        if (typeof triggerLabelPreviewDebounce === 'function') {
+            triggerLabelPreviewDebounce();
+        }
+    } else {
+        // No match found
+        if (statusBadge) {
+            statusBadge.textContent = "NEW ARTICLE";
+            statusBadge.className = "badge align-middle bg-info-subtle text-info border border-info-subtle";
+        }
+    }
+}
+
 // Attach live preview updates to form inputs
 document.addEventListener('input', (e) => {
     if (e.target.closest('#stock-item-form') && typeof triggerLabelPreviewDebounce === 'function') {
         triggerLabelPreviewDebounce();
     }
 });
+
+function clearStockItemForm() {
+    if (!confirm('Clear all fields? This will delete your current work in this form.')) return;
+    
+    // Use the existing reset helper
+    resetStockModalUI();
+    
+    // If we're in "Add New" mode (no item ID), regenerate a fresh barcode
+    const itemId = document.getElementById('stock-item-id')?.value;
+    if (!itemId) {
+        const barcodeInput = document.getElementById('add-stock-barcode');
+        if (barcodeInput && typeof generateBarcode === 'function') {
+            barcodeInput.value = generateBarcode();
+            if (typeof updateAddBarcodeVisualization === 'function') updateAddBarcodeVisualization();
+        }
+    }
+
+    // Trigger a fresh label preview update to clear the "Fetching..." state
+    if (typeof updateModalLabelPreview === 'function') {
+        updateModalLabelPreview();
+    }
+}
+
+// Expose to window for HTML onclick
+window.clearStockItemForm = clearStockItemForm;
 
 // Save Stock
 async function saveStockItem(event, isRetry = false) {

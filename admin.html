@@ -1307,7 +1307,9 @@
                                 <div class="row g-2">
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1"
-                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *
+                                            <span id="stock-lookup-status" class="badge align-middle" style="font-size: 0.55rem; display: none; margin-left: 5px; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px;"></span>
+                                        </label>
                                         <input type="text" name="article_no" class="form-control fw-bold" required
                                             placeholder="e.g. GR-9921" style="border-radius: 8px;" autocomplete="off">
                                     </div>
@@ -1427,6 +1429,8 @@
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-light px-4 fw-bold text-muted border"
                                     data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                                <button type="button" class="btn btn-outline-danger px-4 fw-bold"
+                                    onclick="clearStockItemForm()" style="border-radius: 12px;">Clear</button>
                                 <button type="button" class="btn btn-outline-success px-4 fw-bold"
                                     id="footer-capture-photo-btn" style="border-radius: 12px; display: none;">TAKE
                                     PHOTO</button>
@@ -1730,7 +1734,9 @@
                                 <div class="row g-2">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted"
-                                            style="font-size: 0.65rem;">Article No *</label>
+                                            style="font-size: 0.65rem;">Article No *
+                                            <span id="manual-lookup-status" class="badge align-middle" style="font-size: 0.55rem; display: none; margin-left: 5px; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px;"></span>
+                                        </label>
                                         <input type="text" name="article_no" class="form-control fw-bold" required
                                             placeholder="Enter Article No..." style="border-radius: 10px;">
                                     </div>

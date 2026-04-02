@@ -124,3 +124,24 @@ async function fetchStockItemByBarcode(barcode) {
 
     return data;
 }
+async function fetchStockItemByArticleNo(articleNo) {
+    if (!articleNo) return null;
+    
+    // Check locally first (though unlikely to have all matches in current page)
+    const localMatch = stockItems.find(i => String(i.article_no).toLowerCase() === String(articleNo).toLowerCase().trim());
+    if (localMatch) return localMatch;
+
+    const { data, error } = await supabaseClient
+        .from('stock_availability_view')
+        .select('*')
+        .eq('article_no', articleNo.trim())
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+    if (error) {
+        console.error("Error fetching item by article no:", error);
+        return null;
+    }
+
+    return (data && data.length > 0) ? data[0] : null;
+}
