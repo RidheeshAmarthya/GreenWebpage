@@ -1,9 +1,24 @@
 // Stock Manager Printing & PDF Functions
 
-async function printStockLabel(id) {
+async function printStockLabel(id, btn = null) {
     const item = stockItems.find(i => i.id === id);
     if (!item) return;
-    return await printStockLabelFromData(item);
+
+    let originalHtml = '';
+    if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>PRINTING...`;
+    }
+
+    try {
+        await printStockLabelFromData(item);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
 }
 
 async function printStockLabelFromData(item) {
