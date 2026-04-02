@@ -15,7 +15,9 @@ function fillZPLTemplate(item) {
     zpl = zpl.replace(/{count}/g, item.count || '');
     zpl = zpl.replace(/{density}/g, item.density || '');
     zpl = zpl.replace(/{width}/g, item.width || '');
-    zpl = zpl.replace(/{weight}/g, item.weight || '');
+    
+    const weightValue = (item.weight && String(item.weight).trim() !== "") ? item.weight : "      "; 
+    zpl = zpl.replace(/{weight}/g, weightValue);
     zpl = zpl.replace(/{weight_unit}/g, item.weight_unit || 'GSM');
     zpl = zpl.replace(/{item}/g, item.item || '');
     zpl = zpl.replace(/{finish}/g, item.finish || '');

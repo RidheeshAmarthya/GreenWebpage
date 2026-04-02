@@ -68,7 +68,9 @@
         zpl = zpl.replace(/{count}/g, data.count || '');
         zpl = zpl.replace(/{density}/g, data.density || '');
         zpl = zpl.replace(/{width}/g, data.width || '');
-        zpl = zpl.replace(/{weight}/g, data.weight || '');
+        
+        const weightValue = (data.weight && String(data.weight).trim() !== "") ? data.weight : "      "; 
+        zpl = zpl.replace(/{weight}/g, weightValue);
         zpl = zpl.replace(/{weight_unit}/g, data.weight_unit || 'GSM');
         zpl = zpl.replace(/{item}/g, data.item || '');
         zpl = zpl.replace(/{finish}/g, data.finish || '');
