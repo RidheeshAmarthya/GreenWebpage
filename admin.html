@@ -249,7 +249,7 @@
                                         PI Date <span id="sort-pi_date" class="sort-icon">⇅</span>
                                     </th>
                                     <th class="sortable-header" onclick="handleSort('delivery_date')">
-                                        Est. Bulk Delivery <span id="sort-delivery_date" class="sort-icon">⇅</span>
+                                        Estimated Goods Ready <span id="sort-delivery_date" class="sort-icon">⇅</span>
                                     </th>
                                     <th class="sortable-header" onclick="handleSort('commercial')">
                                         Commercial Status <span id="sort-commercial" class="sort-icon">⇅</span>
@@ -327,7 +327,7 @@
                             <span id="detail-pi-date"></span>
                         </div>
                         <div class="info-item">
-                            <label>Estimated Bulk Delivery</label>
+                            <label>Estimated Goods Ready</label>
                             <span id="detail-delivery-date"
                                 style="color: var(--primary-green); font-weight: 800;"></span>
                         </div>
@@ -774,7 +774,7 @@
                                 <input type="date" name="pi_date" class="form-control" required>
                             </div>
                             <div class="col-12 col-sm-6">
-                                <label class="form-label">Estimated Bulk Delivery</label>
+                                <label class="form-label">Estimated Goods Ready</label>
                                 <input type="date" name="delivery_date" class="form-control" required>
                             </div>
                         </div>
@@ -784,57 +784,72 @@
                                 placeholder="e.g. Pending" autocomplete="off">
                         </div>
                         <hr>
+                        <hr>
                         <h6>TNA Plan</h6>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Labdip / Strike off / HL Approval</label>
-                                <input type="date" name="LD_S_HC_date" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">Order Confirmation</label>
+                                <label class="form-label small">1. Order Confirmation</label>
                                 <input type="date" name="order_confirm_date" class="form-control form-control-sm">
                             </div>
-                        </div>
-                        <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Yarn Inhouse</label>
-                                <input type="date" name="yarn_inhouse_date" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">Weaving Start</label>
-                                <input type="date" name="weave_start_date" class="form-control form-control-sm">
+                                <label class="form-label small">2. Quantity Received</label>
+                                <input type="date" name="quantity_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Weaving Complete</label>
-                                <input type="date" name="weave_complete_date" class="form-control form-control-sm">
+                                <label class="form-label small">3. PI Date</label>
+                                <input type="date" name="pi_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc Start</label>
-                                <input type="date" name="dye_processing_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">4. Signed PI Received</label>
+                                <input type="date" name="signed_pi_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc End</label>
-                                <input type="date" name="dye_processing_end_date" class="form-control form-control-sm">
+                                <label class="form-label small">5. PO Received</label>
+                                <input type="date" name="po_received_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">FOB Ready</label>
+                                <label class="form-label small">6. Labdip/Strike off/HL</label>
+                                <input type="date" name="LD_S_HC_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">7. Yarn Dyeing Start</label>
+                                <input type="date" name="yarn_dyeing_start_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">8. Weave/Knitting Start</label>
+                                <input type="date" name="weave_knitting_start_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">9. Weave/Knitting Complete</label>
+                                <input type="date" name="weave_knitting_complete_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">10. Dye Processing Start</label>
+                                <input type="date" name="dye_processing_start_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">11. FOB Ready</label>
                                 <input type="date" name="FOB_ready_date" class="form-control form-control-sm">
                             </div>
-                        </div>
-                        <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">FOB Approval</label>
+                                <label class="form-label small">12. FOB Approved</label>
                                 <input type="date" name="FOB_approval_date" class="form-control form-control-sm">
                             </div>
-                            <div class="col-6">
-                                <label class="form-label small">Insp/Finishing Complete</label>
-                                <input type="date" name="inspection_finishing_complete_date"
-                                    class="form-control form-control-sm">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label small font-weight-bold">13. Estimated Goods Ready</label>
+                                <input type="date" name="goods_ready" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -865,81 +880,77 @@
                             <label class="form-label">Company / Client Name</label>
                             <input type="text" name="company" id="edit-company" class="form-control" maxlength="4" autocomplete="off">
                         </div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label class="form-label">PI Date</label>
-                                <input type="date" name="pi_date" id="edit-pi-date" class="form-control" required>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Estimated Bulk Delivery</label>
-                                <input type="date" name="delivery_date" id="edit-delivery-date" class="form-control"
-                                    required>
-                            </div>
-                        </div>
                         <div class="mb-3">
                             <label class="form-label">Commercial Status</label>
                             <input type="text" name="commercial" id="edit-commercial" class="form-control" required autocomplete="off">
                         </div>
                         <hr>
+                        <hr>
                         <h6>TNA Plan</h6>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Labdip / Strike off / HL Approval</label>
-                                <input type="date" name="LD_S_HC_date" id="edit-LD_S_HC_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">1. Order Confirmation</label>
+                                <input type="date" name="order_confirm_date" id="edit-order_confirm_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Order Confirmation</label>
-                                <input type="date" name="order_confirm_date" id="edit-order_confirm_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">2. Quantity Received</label>
+                                <input type="date" name="quantity_received_date" id="edit-quantity_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Yarn Inhouse</label>
-                                <input type="date" name="yarn_inhouse_date" id="edit-yarn_inhouse_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">3. PI Date</label>
+                                <input type="date" name="pi_date" id="edit-pi_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Weaving Start</label>
-                                <input type="date" name="weave_start_date" id="edit-weave_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">4. Signed PI Received</label>
+                                <input type="date" name="signed_pi_received_date" id="edit-signed_pi_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Weaving Complete</label>
-                                <input type="date" name="weave_complete_date" id="edit-weave_complete_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">5. PO Received</label>
+                                <input type="date" name="po_received_date" id="edit-po_received_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc Start</label>
-                                <input type="date" name="dye_processing_start_date" id="edit-dye_processing_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">6. Labdip/Strike off/HL</label>
+                                <input type="date" name="LD_S_HC_date" id="edit-LD_S_HC_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc End</label>
-                                <input type="date" name="dye_processing_end_date" id="edit-dye_processing_end_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">7. Yarn Dyeing Start</label>
+                                <input type="date" name="yarn_dyeing_start_date" id="edit-yarn_dyeing_start_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">FOB Ready</label>
-                                <input type="date" name="FOB_ready_date" id="edit-FOB_ready_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">8. Weave/Knitting Start</label>
+                                <input type="date" name="weave_knitting_start_date" id="edit-weave_knitting_start_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">FOB Approval</label>
-                                <input type="date" name="FOB_approval_date" id="edit-FOB_approval_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">9. Weave/Knitting Complete</label>
+                                <input type="date" name="weave_knitting_complete_date" id="edit-weave_knitting_complete_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Insp/Finishing Complete</label>
-                                <input type="date" name="inspection_finishing_complete_date"
-                                    id="edit-inspection_finishing_complete_date" class="form-control form-control-sm">
+                                <label class="form-label small">10. Dye Processing Start</label>
+                                <input type="date" name="dye_processing_start_date" id="edit-dye_processing_start_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">11. FOB Ready</label>
+                                <input type="date" name="FOB_ready_date" id="edit-FOB_ready_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">12. FOB Approved</label>
+                                <input type="date" name="FOB_approval_date" id="edit-FOB_approval_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label small font-weight-bold">13. Estimated Goods Ready</label>
+                                <input type="date" name="goods_ready" id="edit-goods_ready" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -968,7 +979,7 @@
                                 placeholder="e.g. Olive Green">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Estimated Bulk Delivery</label>
+                            <label class="form-label">Estimated Goods Ready</label>
                             <input type="date" name="tentativeBulkReadyDate" class="form-control">
                         </div>
                     </div>
@@ -1058,7 +1069,7 @@
                             <input type="text" id="edit-color-name" name="color_name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Estimated Bulk Delivery</label>
+                            <label class="form-label">Estimated Goods Ready</label>
                             <input type="date" id="edit-color-date" name="tentativeBulkReadyDate" class="form-control">
                         </div>
                     </div>

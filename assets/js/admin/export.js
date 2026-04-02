@@ -45,7 +45,7 @@ document.getElementById('export-latest-btn')?.addEventListener('click', async ()
                     <td><strong>${order.order_id}</strong></td>
                     <td>${order.company || 'N/A'}</td>
                     <td class="text-nowrap">${formatDate(order.pi_date)}</td>
-                    <td class="text-nowrap">${formatDate(order.delivery_date)}</td>
+                    <td class="text-nowrap">${formatDate(order.goods_ready)}</td>
                     <td>${color ? color.color_name : 'N/A'}</td>
                     <td class="text-nowrap">${latestDate}</td>
                     <td>${linkifyTracking(latestNote)}</td>
@@ -86,7 +86,7 @@ document.getElementById('export-latest-btn')?.addEventListener('click', async ()
                         <th class="col-id">Order ID</th>
                         <th class="col-co">Company</th>
                         <th class="col-pi">PI Date</th>
-                        <th class="col-del">Est. Bulk Deliv.</th>
+                        <th class="col-del">Goods Ready</th>
                         <th class="col-clr">Color Variant</th>
                         <th class="col-date">Latest Date</th>
                         <th class="col-update">Latest Update</th>
@@ -132,24 +132,17 @@ document.getElementById('export-excel-btn')?.addEventListener('click', async () 
 
                 const row = {
                     'Green Order ID': order.order_id,
-                    'PI Date': formatDate(order.pi_date),
-                    'Estimated Bulk Delivery': formatDate(order.delivery_date),
+                    'Company': order.company || 'N/A',
                     'Commercial Status': order.commercial || '---',
                     'Color Variant': color.color_name,
-                    [`Est. Bulk Delivery ${color.color_name}`]: formatDate(color.tentativeBulkReadyDate),
+                    [`Est. Goods Ready ${color.color_name}`]: formatDate(color.tentativeBulkReadyDate),
                     'Latest Update': sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].note : 'No updates'
                 };
 
-                row['Labdip Approval'] = formatDate(order.LD_S_HC_date);
-                row['Order Confirmation'] = formatDate(order.order_confirm_date);
-                row['Yarn Inhouse'] = formatDate(order.yarn_inhouse_date);
-                row['Weaving Start'] = formatDate(order.weave_start_date);
-                row['Weaving Complete'] = formatDate(order.weave_complete_date);
-                row['Dyeing Start'] = formatDate(order.dye_processing_start_date);
-                row['Dyeing Complete'] = formatDate(order.dye_processing_end_date);
-                row['FOB Ready'] = formatDate(order.FOB_ready_date);
-                row['FOB Approval'] = formatDate(order.FOB_approval_date);
-                row['Finishing Complete'] = formatDate(order.inspection_finishing_complete_date);
+                // Add TNA Milestones dynamically
+                TNA_FIELDS.forEach(f => {
+                    row[f.label] = formatDate(order[f.key]);
+                });
 
                 sortedLogs.forEach((log, index) => {
                     row[`Step ${index + 1} Date`] = formatDate(log.date);
@@ -159,24 +152,19 @@ document.getElementById('export-excel-btn')?.addEventListener('click', async () 
                 exportData.push(row);
             });
         } else {
-            exportData.push({
+            const row = {
                 'Green Order ID': order.order_id,
-                'PI Date': formatDate(order.pi_date),
-                'Delivery Date': formatDate(order.delivery_date),
+                'Company': order.company || 'N/A',
                 'Commercial Status': order.commercial || '---',
                 'Color Variant': 'N/A',
-                'Latest Update': 'No colors added',
-                'Labdip Approval': formatDate(order.LD_S_HC_date),
-                'Order Confirmation': formatDate(order.order_confirm_date),
-                'Yarn Inhouse': formatDate(order.yarn_inhouse_date),
-                'Weaving Start': formatDate(order.weave_start_date),
-                'Weaving Complete': formatDate(order.weave_complete_date),
-                'Dyeing Start': formatDate(order.dye_processing_start_date),
-                'Dyeing Complete': formatDate(order.dye_processing_end_date),
-                'FOB Ready': formatDate(order.FOB_ready_date),
-                'FOB Approval': formatDate(order.FOB_approval_date),
-                'Finishing Complete': formatDate(order.inspection_finishing_complete_date)
+                'Latest Update': 'No colors added'
+            };
+
+            // Add TNA Milestones dynamically
+            TNA_FIELDS.forEach(f => {
+                row[f.label] = formatDate(order[f.key]);
             });
+            exportData.push(row);
         }
     });
 
@@ -243,7 +231,7 @@ async function printOrderReport(order, includeColors = true) {
                 </div>
                 <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                     Color Variant: ${color.color_name}
-                    ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
+                    ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Goods Ready ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
                 </h4>
                 <table class="print-table">
                     <thead><tr><th style="width: 150px;">Date</th><th>Note</th></tr></thead>
@@ -283,8 +271,8 @@ async function printOrderReport(order, includeColors = true) {
                     <span>${formatDate(order.pi_date)}</span>
                 </div>
                 <div class="print-item">
-                    <label>Estimated Bulk Delivery</label>
-                    <span>${formatDate(order.delivery_date)}</span>
+                    <label>Estimated Goods Ready</label>
+                    <span>${formatDate(order.goods_ready)}</span>
                 </div>
                 <div class="print-item">
                     <label>Commercial Status</label>
@@ -372,7 +360,7 @@ async function printSingleColor(colorUuid) {
             </div>
             <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                 Color Variant: ${color.color_name}
-                ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
+                ${color.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Goods Ready ${color.color_name}: ${formatDate(color.tentativeBulkReadyDate)}</span>` : ''}
             </h4>
             <table class="print-table">
                 <thead><tr><th>Date</th><th>Note</th></tr></thead>

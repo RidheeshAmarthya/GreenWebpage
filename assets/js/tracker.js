@@ -85,7 +85,7 @@ function displayOrder(data) {
 
     document.getElementById('disp-order-id').textContent = `Green Order ID: ${data.order_id}`;
     document.getElementById('disp-pi-date').textContent = formatDate(data.pi_date);
-    document.getElementById('disp-delivery-date').textContent = formatDate(data.delivery_date);
+    document.getElementById('disp-delivery-date').textContent = formatDate(data.goods_ready);
     document.getElementById('disp-commercial').textContent = data.commercial;
 
     // Setup color selector
@@ -141,7 +141,7 @@ function renderTimeline(colorIndex) {
     const bulkDateDisp = document.getElementById('disp-bulk-ready-date');
     
     if (colorObj.tentativeBulkReadyDate) {
-        document.getElementById('bulk-ready-label').textContent = `Est. Bulk Delivery ${colorObj.color}`;
+        document.getElementById('bulk-ready-label').textContent = `Est. Goods Ready ${colorObj.color}`;
         bulkDateDisp.textContent = formatDate(colorObj.tentativeBulkReadyDate);
         bulkReadyInline.style.display = 'inline-flex';
     } else {
@@ -164,6 +164,8 @@ function renderTNATimeline() {
 
     sortedTNA.forEach(field => {
         const dateVal = currentOrderData[field.key];
+        if (!dateVal) return; // Skip milestones without dates
+
         const item = document.createElement('div');
         item.className = 'timeline-item';
         item.innerHTML = `
@@ -291,7 +293,7 @@ function printOrderReport(order) {
                 </div>
                 <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                     Color Variant: ${colorObj.color}
-                    ${colorObj.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${colorObj.color}: ${formatDate(colorObj.tentativeBulkReadyDate)}</span>` : ''}
+                    ${colorObj.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Goods Ready ${colorObj.color}: ${formatDate(colorObj.tentativeBulkReadyDate)}</span>` : ''}
                 </h4>
                 <table class="print-table">
                     <thead>
@@ -339,8 +341,8 @@ function printOrderReport(order) {
                     <span>${formatDate(order.pi_date)}</span>
                 </div>
                 <div class="print-item">
-                    <label>Estimated Bulk Delivery</label>
-                    <span>${formatDate(order.delivery_date)}</span>
+                    <label>Goods Ready (Est. Delivery)</label>
+                    <span>${formatDate(order.goods_ready)}</span>
                 </div>
                 <div class="print-item">
                     <label>Commercial Status</label>
@@ -423,7 +425,7 @@ async function printSingleColor() {
             </div>
             <h4 style="background: #f8f9fa; padding: 10px; border-left: 5px solid #28a745; margin-top: 10px;">
                 Color Variant: ${colorObj.color}
-                ${colorObj.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Bulk Delivery ${colorObj.color}: ${formatDate(colorObj.tentativeBulkReadyDate)}</span>` : ''}
+                ${colorObj.tentativeBulkReadyDate ? `<span style="float: right; font-size: 0.8rem; color: #155724;">Est. Goods Ready ${colorObj.color}: ${formatDate(colorObj.tentativeBulkReadyDate)}</span>` : ''}
             </h4>
             <table class="print-table">
                 <thead>
@@ -497,8 +499,8 @@ async function printTNAFromModal() {
                     <span>${formatDate(currentOrderData.pi_date)}</span>
                 </div>
                 <div class="print-item">
-                    <label>Estimated Bulk Delivery</label>
-                    <span>${formatDate(currentOrderData.delivery_date)}</span>
+                    <label>Goods Ready (Est. Delivery)</label>
+                    <span>${formatDate(currentOrderData.goods_ready)}</span>
                 </div>
                 <div class="print-item">
                     <label>Commercial Status</label>

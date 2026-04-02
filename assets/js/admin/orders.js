@@ -118,7 +118,7 @@ function renderOrdersTable(dataToRender) {
             <td class="ps-4"><strong>${order.order_id}</strong></td>
             <td>${order.company || '<span class="text-muted small">N/A</span>'}</td>
             <td>${formatDate(order.pi_date)}</td>
-            <td>${formatDate(order.delivery_date)}</td>
+            <td>${formatDate(order.goods_ready)}</td>
             <td>${order.commercial}</td>
             <td class="text-end pe-4 text-nowrap">
                 <button class="btn btn-sm btn-outline-dark me-2" onclick="printOrderFromTable('${order.order_id}', event)">Print Full Report</button>

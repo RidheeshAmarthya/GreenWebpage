@@ -10,7 +10,7 @@ async function showOrderDetail(order, push = true) {
     document.getElementById('detail-order-id').textContent = `Green Order ID: ${order.order_id}`;
     document.getElementById('detail-company').textContent = order.company || 'N/A';
     document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
-    document.getElementById('detail-delivery-date').textContent = formatDate(order.delivery_date);
+    document.getElementById('detail-delivery-date').textContent = formatDate(order.goods_ready);
     document.getElementById('detail-commercial').textContent = order.commercial;
 
     fetchColors(order.order_uuid);
@@ -42,6 +42,8 @@ function renderTNATimeline() {
 
     sortedTNA.forEach(field => {
         const dateVal = selectedOrder[field.key];
+        if (!dateVal) return; // Hide milestones without dates
+
         const item = document.createElement('div');
         item.className = 'timeline-item-match';
         item.innerHTML = `
@@ -69,8 +71,6 @@ document.getElementById('edit-order-btn') ? (document.getElementById('edit-order
 
     document.getElementById('edit-order-id').value = selectedOrder.order_id;
     document.getElementById('edit-company').value = selectedOrder.company || '';
-    document.getElementById('edit-pi-date').value = selectedOrder.pi_date;
-    document.getElementById('edit-delivery-date').value = selectedOrder.delivery_date;
     document.getElementById('edit-commercial').value = selectedOrder.commercial;
 
     TNA_FIELDS.forEach(field => {
@@ -133,7 +133,7 @@ function renderColors(colors) {
                     <h5 class="mb-0 fw-bold">${color.color_name}</h5>
                     ${color.tentativeBulkReadyDate ? `
                     <div style="background: #e8f5e9; padding: 0 15px; height: 50px; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;">
-                        <div class="text-muted" style="font-size: 0.65rem; text-transform: uppercase; line-height: 1.2; letter-spacing: 0.5px; opacity: 0.8;">Est. Bulk Delivery ${color.color_name}</div>
+                        <div class="text-muted" style="font-size: 0.65rem; text-transform: uppercase; line-height: 1.2; letter-spacing: 0.5px; opacity: 0.8;">Est. Goods Ready ${color.color_name}</div>
                         <span class="text-success fw-bold" style="font-size: 0.95rem; line-height: 1.2;">${formatDate(color.tentativeBulkReadyDate)}</span>
                     </div>` : ''}
                 </div>

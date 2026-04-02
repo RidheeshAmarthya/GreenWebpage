@@ -1,15 +1,18 @@
 // Shared Assets for Green International
 const TNA_FIELDS = [
-    { key: 'LD_S_HC_date', label: 'Labdip / Strike off / HL Approval' },
     { key: 'order_confirm_date', label: 'Order Confirmation' },
-    { key: 'yarn_inhouse_date', label: 'Yarn Inhouse' },
-    { key: 'weave_start_date', label: 'Weaving Start' },
-    { key: 'weave_complete_date', label: 'Weaving Complete' },
+    { key: 'quantity_received_date', label: 'Quantity Received' },
+    { key: 'pi_date', label: 'PI Date' },
+    { key: 'signed_pi_received_date', label: 'Signed PI Received' },
+    { key: 'po_received_date', label: 'PO Received' },
+    { key: 'LD_S_HC_date', label: 'Labdip / Strike off / HL Approval' },
+    { key: 'yarn_dyeing_start_date', label: 'Yarn Dyeing Start' },
+    { key: 'weave_knitting_start_date', label: 'Weave/Knitting Start' },
+    { key: 'weave_knitting_complete_date', label: 'Weave/Knitting Complete' },
     { key: 'dye_processing_start_date', label: 'Dyeing / Processing Start' },
-    { key: 'dye_processing_end_date', label: 'Dyeing / Processing Complete' },
     { key: 'FOB_ready_date', label: 'FOB Ready' },
     { key: 'FOB_approval_date', label: 'FOB Approval' },
-    { key: 'inspection_finishing_complete_date', label: 'Inspection / Finishing Complete' }
+    { key: 'goods_ready', label: 'Goods Ready' }
 ];
 
 function formatDate(dateStr) {
