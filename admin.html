@@ -209,10 +209,18 @@
                         </button>
                     </div>
 
+                    <!-- Anti-Autofill Honeypot (Catches Chrome's email injection) -->
+                    <div style="position: absolute; left: -10000px; top: -10000px; height: 0; width: 0; overflow: hidden;">
+                        <input type="text" name="chrome_autofill_trash_email" tabindex="-1">
+                        <input type="password" name="chrome_autofill_trash_password" tabindex="-1">
+                    </div>
+
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md-5">
-                            <input type="text" id="order-search" name="order_id_search_query" class="form-control"
-                                placeholder="Search Green Order ID..." autocomplete="one-time-code" role="searchbox"
+                            <input type="text" id="order-search" name="order_search_unique_v3" class="form-control"
+                                placeholder="Search Green Order ID..." 
+                                autocomplete="off" 
+                                role="searchbox"
                                 style="height: 50px; border-radius: 10px; border: 1px solid #ddd; padding-left: 20px;">
                         </div>
                         <div class="col-12 col-md-7">
