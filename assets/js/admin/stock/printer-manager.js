@@ -143,10 +143,19 @@ const PrinterManager = {
     },
 
     async sendJob(zpl) {
+        // PRE-FLIGHT CHECK: Ensure we are actually connected before trying
+        if (typeof BrowserPrint === 'undefined' || this.status === 'error') {
+            this.updateStatus('error', 'App Not Running');
+            throw new Error("Zebra Browser Print Service is not running on your computer. Please open the Zebra app and try again.");
+        }
+        if (this.status === 'offline') {
+            throw new Error("No Zebra printer detected. Please check that the USB cable is connected and the printer is powered on.");
+        }
+
         // ATOMIC LOCK: Prevent overlapping commands
         if (this.isProcessing) {
             console.warn("PrinterManager: Busy processing a previous request.");
-            return;
+            throw new Error("Printer is currently busy processing another job. Please wait a second.");
         }
 
         try {
