@@ -254,26 +254,14 @@
         });
     });
 
-    // Helper to interface with Zebra Browser Print
+    // Simplified to use the robust PrinterManager service
     async function sendToZebraPrinter(zpl) {
-        return new Promise((resolve, reject) => {
-            if (typeof BrowserPrint === 'undefined') {
-                return reject(new Error("Zebra Browser Print driver library not found. Please ensure the JS files are correctly included in the page."));
-            }
-
-            BrowserPrint.getDefaultDevice("printer", (device) => {
-                if (!device) {
-                    return reject(new Error("No Zebra printer found. Please ensure the Zebra Browser Print desktop application is running and the printer is connected."));
-                }
-
-                device.send(zpl, (success) => {
-                    resolve(success);
-                }, (error) => {
-                    reject(new Error("Printing failed: " + error));
-                });
-            }, (error) => {
-                reject(new Error("Could not get default device: " + error + ". Please check if Zebra Browser Print is running."));
-            });
-        });
+        try {
+            await PrinterManager.sendJob(zpl);
+            console.log("Standalone label printed successfully");
+        } catch (error) {
+            console.error("Print Error:", error);
+            throw error; // Re-throw to be caught by the form submit handler
+        }
     }
 })();

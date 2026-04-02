@@ -89,6 +89,22 @@
                                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                     </button>
+                    <style>
+                        #printer-status-box { background: transparent; border: none; box-shadow: none; }
+                        @media (min-width: 992px) {
+                            #printer-status-box { 
+                                background-color: #f8f9fa !important; 
+                                border: 1px solid #dee2e6 !important; 
+                                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+                            }
+                        }
+                    </style>
+                    <!-- Printer Status Indicator -->
+                    <div id="printer-status-box" class="d-flex align-items-center me-2 me-md-3 px-1 px-lg-3 py-1 rounded-pill" style="transition: all 0.3s ease;">
+                        <span id="printer-status-dot" class="rounded-circle me-0 me-lg-2" role="status" style="width: 8px; height: 8px; display: none;"></span>
+                        <span id="printer-status-text" class="small fw-bold text-muted d-none d-lg-inline" style="font-size: 0.65rem; letter-spacing: 0.5px;">CONNECTING...</span>
+                    </div>
+
                     <span id="user-display" class="me-2 text-muted text-truncate d-none d-md-block"
                         style="max-width: 150px; font-size: 0.75rem;"></span>
                     <button id="logout-btn" class="btn btn-outline-danger btn-sm py-1 px-3 fw-bold shadow-sm"
@@ -1860,6 +1876,7 @@
     <script src="assets/js/admin/stock/checkout.js" defer></script>
     <script src="assets/js/admin/stock/checkin.js" defer></script>
     <script src="assets/js/admin/stock/batch.js" defer></script>
+    <script src="assets/js/admin/stock/printer-manager.js" defer></script>
     <script src="assets/js/admin/stock/printing.js" defer></script>
     <script src="assets/js/admin/stock/stock-main.js" defer></script>
     <script src="assets/js/admin/label-printer.js" defer></script>

@@ -6,42 +6,22 @@ async function printStockLabel(id) {
     return await printStockLabelFromData(item);
 }
 
-function printStockLabelFromData(item) {
-    return new Promise((resolve, reject) => {
-        if (!item) {
-            alert("No data available for printing.");
-            return reject("No item data");
-        }
+async function printStockLabelFromData(item) {
+    if (!item) {
+        alert("No data available for printing.");
+        return;
+    }
 
-        const zpl = fillZPLTemplate(item);
+    const zpl = fillZPLTemplate(item);
 
-        if (typeof BrowserPrint === 'undefined') {
-            const errorMsg = "Zebra BrowserPrint library not loaded.";
-            alert(errorMsg);
-            return reject(errorMsg);
-        }
-
-        BrowserPrint.getDefaultDevice("printer", function (device) {
-            if (device && device.name) {
-                device.send(zpl, function () {
-                    console.log("Printed successfully to: " + device.name);
-                    resolve();
-                }, function (error) {
-                    const errorMsg = "Printer Offline or Error: " + error;
-                    alert(errorMsg);
-                    reject(errorMsg);
-                });
-            } else {
-                const errorMsg = "No Active Zebra Printer Found.";
-                alert(errorMsg);
-                reject(errorMsg);
-            }
-        }, function (error) {
-            const errorMsg = "BrowserPrint Connection Failed: " + error;
-            alert(errorMsg);
-            reject(errorMsg);
-        });
-    });
+    try {
+        await PrinterManager.sendJob(zpl);
+        console.log("Printed successfully via PrinterManager");
+    } catch (error) {
+        console.error("Printing failed:", error);
+        // The PrinterManager UI already shows the offline/error state in the navbar
+        alert("Printing Failed: " + error.message);
+    }
 }
 
 function previewStockLabel(id) {
