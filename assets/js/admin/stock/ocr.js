@@ -2,10 +2,6 @@
 // Handles interaction with Google Generative AI for label scanning
 
 class GeminiOCR {
-    constructor() {
-        // Model is now dynamic from AdminSettings
-    }
-
     /**
      * Sends a base64 image to Gemini-1.5-Flash for structured OCR extraction.
      * @param {string} base64Image - Complete base64 data URL
@@ -43,6 +39,40 @@ class GeminiOCR {
             1. Return ONLY pure JSON. No markdown blocks, no preamble, no explanations.
             2. If a field is not visible, use an empty string "".
             3. Prioritize Accuracy. If an 'Article No' is partially visible, try to infer it based on context.
+
+            ADDITIONAL INDUSTRIAL RULES:
+            1. GIE QUALITY TABLE:
+               GIE001: 100% COTTON AND COTTON SPANDEX
+               GIE002: COTTON POLY, POLY COTTON, COTTON POLY SPANDEX
+               GIE003: COTTON NYLON AND ALL NYLON BLENDS
+               GIE004: 100% POLYESTER AND POLYESTER SPANDEX
+               GIE005: VELVETTE
+               GIE006: LINEN AND LINEN BLENDS
+               GIE007: RAYON AND RAYON BLENDS, VISCOSE, BAMBOO
+               GIE008: POLY RAYON AND POLY RAYON SPANDEX
+               GIE009: SILK AND SILK BLENDS
+               GIE010: COTTON RAYON AND COTTON MODAL
+               GIE011: TENCEL AND TENCEL BLENDS
+               GIE012: KNITTS
+               GIE013: DENIMS
+               GIE014: CORDUROY
+               GIE015: COATED FABRICS
+               GIE016: MULTI BLENDS
+               GIE017: BOUCKLE AND BONDED FABRICS
+               GIE018: WOOL BLENDS
+               GIE019: MOLESKEIN
+               GIE020: BURN OUT FABRICS
+               GIE021: LACE AND EMBROIDERY
+
+            2. ARTICLE NUMBER FORMATTING:
+               - First, determine the GIE code from the table above based on composition.
+               - Second, extract the label's article number (standardize 'WS NO:123' to 'WS-123').
+               - Third, combine them into: [GIE-CODE]-[ARTICLE-NUMBER]. 
+               - Example: A 100% Cotton label with 'WS NO:2014' becomes 'GIE001-WS-2014'.
+
+            3. TRANSLATION: If any text is in Chinese, translate to English (e.g., 涤纶 -> Polyester, 棉 -> Cotton).
+
+            4. WEIGHT: If weight is 0, return an empty string "". Never return 0.
         `;
 
         const payload = {
@@ -120,6 +150,8 @@ class GeminiOCR {
                         // Extract just the numbers (e.g., "120 GSM" -> "120")
                         const match = String(value).match(/\d+(\.\d+)?/);
                         value = match ? match[0] : "";
+                        // Final safety check for 0
+                        if (value === "0" || value === 0) value = "";
                     }
 
                     input.value = value;
@@ -130,7 +162,7 @@ class GeminiOCR {
         });
 
         // Visual feedback
-        this.showToast('AI Scan Complete! Form populated.', 'success');
+        this.showToast('AI Scan Complete! Quality Mapped.', 'success');
     }
 
     /**
