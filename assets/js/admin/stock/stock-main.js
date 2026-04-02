@@ -245,20 +245,37 @@ document.getElementById('stock-item-form')?.addEventListener('submit', saveStock
 
 document.getElementById('save-print-article-btn')?.addEventListener('click', async (e) => {
     e.preventDefault();
+    const btn = e.currentTarget;
+    const originalText = btn.innerHTML;
     const form = document.getElementById('stock-item-form');
+
     if (!form || !form.checkValidity()) {
         form?.reportValidity();
         return;
     }
+
     const formData = new FormData(form);
     const itemData = Object.fromEntries(formData.entries());
+
     try {
         if (typeof printStockLabelFromData === 'function') {
+            // Update UI to show printing attempt
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>PRINTING...`;
+
             await printStockLabelFromData(itemData);
-            // Manually trigger the save instead of using requestSubmit() which fails on some Safari versions
+            
+            // Print succeeded! Proceed to save
             saveStockItem();
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Save & Print aborted due to print failure:", err);
+        // We do NOT call saveStockItem() here because the print failed.
+    } finally {
+        // Reset UI
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
 });
 
 async function deleteStockItem(id, articleNo) {

@@ -19,8 +19,8 @@ async function printStockLabelFromData(item) {
         console.log("Printed successfully via PrinterManager");
     } catch (error) {
         console.error("Printing failed:", error);
-        // The PrinterManager UI already shows the offline/error state in the navbar
         alert("Printing Failed: " + error.message);
+        throw error; // Re-throw so the caller knows to stop (e.g., Save & Print)
     }
 }
 
