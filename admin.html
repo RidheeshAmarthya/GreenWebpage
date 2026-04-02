@@ -447,7 +447,7 @@
                                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                     </svg>
                                 </span>
-                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder="" autocomplete="off"
+                                <input type="text" id="stock-search" name="stock_search_query_field" class="form-control border-start-0" placeholder="" autocomplete="one-time-code" role="searchbox"
                                     style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
                             </div>
                         </div>
@@ -520,13 +520,13 @@
                             <span class="text-muted small fw-bold text-uppercase me-3"
                                 style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">Weight Range:</span>
                             <div class="d-flex align-items-center gap-2">
-                                <input type="number" id="gsm-min-filter" name="gsm_filter_min"
+                                <input type="number" id="gsm-min-filter" name="weight_range_filter_min_gsm_field"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min"
-                                    style="font-size: 0.75rem;" autocomplete="off">
+                                    style="font-size: 0.75rem;" autocomplete="one-time-code">
                                 <span class="text-muted small op-50">to</span>
-                                <input type="number" id="gsm-max-filter" name="gsm_filter_max"
+                                <input type="number" id="gsm-max-filter" name="weight_range_filter_max_gsm_field"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max"
-                                    style="font-size: 0.75rem;" autocomplete="off">
+                                    style="font-size: 0.75rem;" autocomplete="one-time-code">
                                 <select id="weight-unit-filter" class="form-select gsm-input-box px-1 fw-bold border-0 bg-transparent ms-2" style="width: 70px; font-size: 0.7rem; box-shadow: none;">
                                     <option value="All">All Unit</option>
                                     <option value="GSM">GSM</option>
@@ -1262,7 +1262,7 @@
                                     <div class="input-group mb-2 shadow-none" style="opacity: 0.8 !important;">
                                         <input type="number" name="barcode" id="add-stock-barcode"
                                             class="form-control form-control-sm border-end-0 bg-light"
-                                            placeholder="Barcode ID" autocomplete="off"
+                                            placeholder="Barcode ID" autocomplete="one-time-code"
                                             style="border-radius: 8px 0 0 8px; font-size: 0.75rem;">
                                         <button class="btn btn-outline-secondary btn-sm px-2" type="button"
                                             id="regenerate-stock-barcode"
@@ -1439,14 +1439,14 @@
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
                                 <input type="text" name="name" id="checkout-name"
                                     class="form-control form-control-lg border-0 bg-light" required
-                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
+                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="one-time-code">
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold text-uppercase text-muted"
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
                                 <input type="text" name="company" id="checkout-company"
                                     class="form-control form-control-lg border-0 bg-light" required maxlength="4"
-                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
+                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="one-time-code">
                             </div>
                         </div>
 
