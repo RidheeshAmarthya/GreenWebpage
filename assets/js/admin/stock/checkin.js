@@ -21,7 +21,7 @@ async function processCheckIn(barcode) {
 
     showLoading(true);
     try {
-        const item = stockItems.find(i => String(i.barcode) === String(barcode));
+        const item = await fetchStockItemByBarcode(barcode);
         if (!item) throw new Error("Barcode not found in database.");
 
         const stock = calculateStockAvailability(item);
@@ -163,3 +163,17 @@ function showCheckInFeedback(msg, type) {
 
 checkInForm?.addEventListener('submit', (e) => { e.preventDefault(); processCheckIn(checkInBarcodeInput?.value); });
 checkInBarcodeInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); processCheckIn(checkInBarcodeInput.value); } });
+
+// Auto-focus when modal opens
+document.getElementById('checkInModal')?.addEventListener('shown.bs.modal', () => {
+    checkInBarcodeInput?.focus();
+});
+
+// Focus warning visibility
+const checkInScannerStatus = document.getElementById('check-in-scanner-status');
+checkInBarcodeInput?.addEventListener('focus', () => { if (checkInScannerStatus) checkInScannerStatus.style.display = 'none'; });
+checkInBarcodeInput?.addEventListener('blur', () => { 
+    if (checkInScannerStatus && document.getElementById('checkInModal')?.classList.contains('show')) {
+        checkInScannerStatus.style.display = 'inline-block';
+    }
+});

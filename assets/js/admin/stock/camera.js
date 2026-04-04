@@ -87,6 +87,45 @@ function stopWebcam() {
     if (el.placeholder && !el.capturePreview?.src) el.placeholder.style.display = 'flex';
 }
 
+/**
+ * Robust image compression and resizing to hit a target file size (e.g., 50KB).
+ * Iteratively reduces quality, then resolution if quality alone isn't enough.
+ */
+async function compressAndResizeImage(canvas, format, maxSizeBytes = 48000) {
+    let quality = 0.8;
+    let dataUrl = canvas.toDataURL(format, quality);
+    
+    // 1. Try reducing quality first
+    while (quality > 0.1 && (dataUrl.length * 0.75) > maxSizeBytes) {
+        quality -= 0.1;
+        dataUrl = canvas.toDataURL(format, quality);
+    }
+    
+    // 2. If still too big, start reducing resolution iteratively
+    let scale = 0.9;
+    while ((dataUrl.length * 0.75) > maxSizeBytes && scale > 0.2) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = Math.floor(canvas.width * scale);
+        tempCanvas.height = Math.floor(canvas.height * scale);
+        tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        // Reset quality to 0.7 for the new resolution attempt
+        quality = 0.7;
+        dataUrl = tempCanvas.toDataURL(format, quality);
+        
+        // Fine-tune quality for this resolution
+        while (quality > 0.1 && (dataUrl.length * 0.75) > maxSizeBytes) {
+            quality -= 0.1;
+            dataUrl = tempCanvas.toDataURL(format, quality);
+        }
+        
+        scale -= 0.1;
+    }
+    
+    return dataUrl;
+}
+
 async function capturePhoto() {
     const el = getCamElements();
     if (!el.video || el.video.readyState < 2) return;
@@ -112,15 +151,10 @@ async function capturePhoto() {
     canvas.height = cropSize;
     ctx.drawImage(el.video, startX, startY, cropSize, cropSize, 0, 0, cropSize, cropSize);
 
-    let quality = 0.8;
-    let dataUrl = '';
     const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
-
-    while (quality > 0.1) {
-        dataUrl = canvas.toDataURL(format, quality);
-        if ((dataUrl.length * 0.75) < 50000) break;
-        quality -= 0.1;
-    }
+    
+    // Apply robust compression (Target < 50KB)
+    const dataUrl = await compressAndResizeImage(canvas, format, 48000);
 
     if (el.capturePreview) {
         el.capturePreview.src = dataUrl;
@@ -168,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName);
         if (isInput) return;
 
+        // Ensure the modal is actually open and visible (not just in DOM)
+        const modal = document.getElementById('stockItemModal');
+        if (!modal || !modal.classList.contains('show')) return;
+
         if (!isCamActive) return;
 
         if (e.key === 'Enter') {
@@ -187,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
-            img.onload = () => {
+            img.onload = async () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const MAX_WIDTH = 800;
@@ -199,10 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-                let quality = 0.8;
-                let dataUrl = '';
+
                 const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
-                while (quality > 0.05) { dataUrl = canvas.toDataURL(format, quality); if ((dataUrl.length * 0.75) < 50000) break; quality -= 0.05; }
+                // Apply robust compression (Target < 50KB)
+                const dataUrl = await compressAndResizeImage(canvas, format, 48000);
                 
                 const elLatest = getCamElements();
                 if (elLatest.capturePreview) { elLatest.capturePreview.src = dataUrl; elLatest.capturePreview.style.display = 'block'; }
@@ -217,9 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     });
 });
+let isOcrProcessing = false;
 async function captureForOCR() {
+    if (isOcrProcessing) return;
+    isOcrProcessing = true;
+
     const el = getCamElements();
-    if (!el.video || el.video.readyState < 2) return;
+    if (!el.video || el.video.readyState < 2) {
+        console.warn("OCR ignored: Camera not actively streaming");
+        isOcrProcessing = false;
+        return;
+    }
 
     // 1. Capture high-quality frame
     const vWidth = el.video.videoWidth;
@@ -234,15 +280,25 @@ async function captureForOCR() {
     // 2. STOP CAMERA IMMEDIATELY as requested
     stopWebcam();
 
+    // 2.5 Prepare image for both AI and the Article Form (Resize & Compress)
+    // We target < 50KB to keep the DB/Storage light
+    const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
+    const compressedDataUrl = await compressAndResizeImage(canvas, format, 48000);
+
     // 3. Show static preview while processing
     if (el.capturePreview) {
-        el.capturePreview.src = dataUrl;
+        el.capturePreview.src = compressedDataUrl;
         el.capturePreview.style.display = 'block';
-        // Hide the sources container (tabs/video/placeholder) so the preview isn't occluded
+        // Hide the sources container (tabs/video/placeholder)
         if (el.sourcesContent) el.sourcesContent.style.display = 'none';
         if (el.placeholder) el.placeholder.style.display = 'none';
         if (el.webcamOverlay) el.webcamOverlay.classList.add('d-none');
     }
+
+    // Set the hidden field so the user's scan picture is actually saved to the article
+    if (el.imgDataField) el.imgDataField.value = compressedDataUrl;
+    if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
+    if (el.startBtn) el.startBtn.style.display = 'none';
 
     // 4. Update Button State
     const ocrBtn = document.getElementById('scan-label-btn');
@@ -262,8 +318,16 @@ async function captureForOCR() {
         if (typeof geminiOCR === 'undefined') throw new Error("OCR Module not loaded");
 
         // 5. Call AI
-        const data = await geminiOCR.scanImage(dataUrl);
+        const data = await geminiOCR.scanImage(compressedDataUrl);
         
+        // 5.5 Safety Check: If user closed the modal while we were waiting, discard result
+        const modal = document.getElementById('stockItemModal');
+        if (!modal || !modal.classList.contains('show')) {
+            console.warn("AI result discarded: Modal hidden during processing");
+            isOcrProcessing = false;
+            return;
+        }
+
         // 6. Populate form fields
         geminiOCR.fillForm(data);
         
@@ -272,6 +336,7 @@ async function captureForOCR() {
         ocrBtn.innerHTML = '<i class="fas fa-check me-2"></i>AI SCAN COMPLETE!';
         
         // 8. Auto-reset to 'Ready' state (Start Camera button)
+        isOcrProcessing = false;
         setTimeout(() => {
             ocrBtn.disabled = false;
             ocrBtn.innerHTML = originalHtml;
@@ -291,10 +356,18 @@ async function captureForOCR() {
         }, 1200);
 
     } catch (err) {
+        isOcrProcessing = false;
         console.error("AI Scan failed:", err);
         ocrBtn.className = "btn btn-danger fw-bold py-3 w-100 shadow-sm";
         ocrBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>AI SCAN FAILED';
         
+        // Show specific error to user
+        if (typeof geminiOCR !== 'undefined') {
+            geminiOCR.showToast(err.message, 'danger');
+        } else {
+            alert("AI Scan failed: " + err.message);
+        }
+
         if (el.captureActions) el.captureActions.style.display = 'block';
         
         setTimeout(() => {
@@ -303,6 +376,6 @@ async function captureForOCR() {
             ocrBtn.className = "btn btn-primary fw-bold py-3 w-100 mb-2";
             // Allow retake on failure
             if (el.retakeBtn) el.retakeBtn.style.display = 'block';
-        }, 2500);
+        }, 4000); // 4 Seconds to let user read toast before reset
     }
 }

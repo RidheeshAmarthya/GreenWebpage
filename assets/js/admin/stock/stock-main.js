@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ensure webcam stops when modal is closed
         stockItemModalElement.addEventListener('hidden.bs.modal', () => {
             if (typeof stopWebcam === 'function') stopWebcam();
+            if (typeof isOcrProcessing !== 'undefined') isOcrProcessing = false;
             resetStockModalUI();
         });
     }
@@ -18,6 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialization on Page Load
     if (window.innerWidth < 768) {
         if (typeof toggleStockView === 'function') toggleStockView('grid');
+    }
+
+    // Article No Lookup Autopopulate
+    const articleInput = document.querySelector('#stock-item-form [name="article_no"]');
+    if (articleInput) {
+        articleInput.addEventListener('blur', handleStockArticleLookup);
     }
 });
 
@@ -55,6 +62,13 @@ function resetStockModalUI() {
     if (placeholderEl) {
         placeholderEl.innerHTML = '<div class="text-muted small mb-2">Fetching live label...</div><div class="spinner-grow spinner-grow-sm text-green opacity-50"></div>';
         placeholderEl.style.display = 'block';
+    }
+
+    // Reset lookup status badge
+    const statusBadge = document.getElementById('stock-lookup-status');
+    if (statusBadge) {
+        statusBadge.style.display = 'none';
+        statusBadge.textContent = '';
     }
 
     // Reset tabs to Camera
@@ -148,6 +162,58 @@ function openStockModal(id = null) {
     if (stockItemModal) stockItemModal.show();
 }
 
+async function handleStockArticleLookup(e) {
+    const articleNo = e.target.value?.trim();
+    if (!articleNo) return;
+
+    const statusBadge = document.getElementById('stock-lookup-status');
+    const form = document.getElementById('stock-item-form');
+    if (!form) return;
+
+    // Don't lookup if this is an existing article edit (ID present) AND article No matches current item
+    const itemId = document.getElementById('stock-item-id')?.value;
+    if (itemId) {
+        const currentItem = stockItems.find(i => i.id === itemId);
+        if (currentItem && currentItem.article_no === articleNo) return;
+    }
+
+    // Show searching state
+    if (statusBadge) {
+        statusBadge.textContent = "SEARCHING...";
+        statusBadge.className = "badge align-middle bg-light text-muted border";
+        statusBadge.style.display = "inline-block";
+    }
+
+    const matchedItem = await fetchStockItemByArticleNo(articleNo);
+
+    if (matchedItem) {
+        // Found a match!
+        if (statusBadge) {
+            statusBadge.textContent = "MATCH FOUND";
+            statusBadge.className = "badge align-middle bg-success-subtle text-success border border-success-subtle";
+        }
+
+        // Autopopulate fields if found
+        const fields = ['content', 'count', 'density', 'width', 'weight', 'weight_unit', 'item', 'finish', 'remark', 'type'];
+        fields.forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (input && matchedItem[field] !== undefined && matchedItem[field] !== null) {
+                input.value = matchedItem[field];
+            }
+        });
+
+        if (typeof triggerLabelPreviewDebounce === 'function') {
+            triggerLabelPreviewDebounce();
+        }
+    } else {
+        // No match found
+        if (statusBadge) {
+            statusBadge.textContent = "NEW ARTICLE";
+            statusBadge.className = "badge align-middle bg-info-subtle text-info border border-info-subtle";
+        }
+    }
+}
+
 // Attach live preview updates to form inputs
 document.addEventListener('input', (e) => {
     if (e.target.closest('#stock-item-form') && typeof triggerLabelPreviewDebounce === 'function') {
@@ -155,10 +221,41 @@ document.addEventListener('input', (e) => {
     }
 });
 
+function clearStockItemForm() {
+    if (!confirm('Clear all fields? This will delete your current work in this form.')) return;
+    
+    // Use the existing reset helper
+    resetStockModalUI();
+    
+    // If we're in "Add New" mode (no item ID), regenerate a fresh barcode
+    const itemId = document.getElementById('stock-item-id')?.value;
+    if (!itemId) {
+        const barcodeInput = document.getElementById('add-stock-barcode');
+        if (barcodeInput && typeof generateBarcode === 'function') {
+            barcodeInput.value = generateBarcode();
+            if (typeof updateAddBarcodeVisualization === 'function') updateAddBarcodeVisualization();
+        }
+    }
+
+    // Trigger a fresh label preview update to clear the "Fetching..." state
+    if (typeof updateModalLabelPreview === 'function') {
+        updateModalLabelPreview();
+    }
+}
+
+// Expose to window for HTML onclick
+window.clearStockItemForm = clearStockItemForm;
+
 // Save Stock
-document.getElementById('stock-item-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+async function saveStockItem(event, isRetry = false) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('stock-item-form');
+    if (!form || !form.checkValidity()) {
+        form?.reportValidity();
+        return;
+    }
+
+    const formData = new FormData(form);
     const stockData = Object.fromEntries(formData.entries());
     const itemId = stockData.id;
     const imageData = stockData.image_data;
@@ -219,26 +316,56 @@ document.getElementById('stock-item-form')?.addEventListener('submit', async (e)
         if (stockItemModal) stockItemModal.hide();
         if (typeof fetchStock === 'function') fetchStock();
     } catch (err) {
+        // AUTOMATIC RETRY FOR SAFARI "LOAD FAILED"
+        if (!isRetry && err.message && err.message.toLowerCase().includes('load failed')) {
+            console.warn("Safari Load Failed detected. Automatically retrying save...");
+            await new Promise(r => setTimeout(r, 300));
+            return saveStockItem(null, true);
+        }
+
         alert("Operation failed: " + err.message);
     } finally {
         showLoading(false);
     }
-});
+}
 
-document.getElementById('save-print-article-btn')?.addEventListener('click', async () => {
+// Attach the save handler to the form's submit event (for keyboard Enter)
+// but also expose it for manual button clicks to bypass Safari's submit state machine
+document.getElementById('stock-item-form')?.addEventListener('submit', saveStockItem);
+
+document.getElementById('save-print-article-btn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const btn = e.currentTarget;
+    const originalText = btn.innerHTML;
     const form = document.getElementById('stock-item-form');
+
     if (!form || !form.checkValidity()) {
         form?.reportValidity();
         return;
     }
+
     const formData = new FormData(form);
     const itemData = Object.fromEntries(formData.entries());
+
     try {
         if (typeof printStockLabelFromData === 'function') {
+            // Update UI to show printing attempt
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>PRINTING...`;
+
             await printStockLabelFromData(itemData);
-            form.requestSubmit();
+            
+            // Print succeeded! Proceed to save
+            saveStockItem();
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Save & Print aborted due to print failure:", err);
+        // We do NOT call saveStockItem() here because the print failed.
+    } finally {
+        // Reset UI
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
 });
 
 async function deleteStockItem(id, articleNo) {

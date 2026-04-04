@@ -1,47 +1,42 @@
 // Stock Manager Printing & PDF Functions
 
-async function printStockLabel(id) {
+async function printStockLabel(id, btn = null) {
     const item = stockItems.find(i => i.id === id);
     if (!item) return;
-    return await printStockLabelFromData(item);
+
+    let originalHtml = '';
+    if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>PRINTING...`;
+    }
+
+    try {
+        await printStockLabelFromData(item);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
 }
 
-function printStockLabelFromData(item) {
-    return new Promise((resolve, reject) => {
-        if (!item) {
-            alert("No data available for printing.");
-            return reject("No item data");
-        }
+async function printStockLabelFromData(item) {
+    if (!item) {
+        alert("No data available for printing.");
+        return;
+    }
 
-        const zpl = fillZPLTemplate(item);
+    const zpl = fillZPLTemplate(item);
 
-        if (typeof BrowserPrint === 'undefined') {
-            const errorMsg = "Zebra BrowserPrint library not loaded.";
-            alert(errorMsg);
-            return reject(errorMsg);
-        }
-
-        BrowserPrint.getDefaultDevice("printer", function (device) {
-            if (device && device.name) {
-                device.send(zpl, function () {
-                    console.log("Printed successfully to: " + device.name);
-                    resolve();
-                }, function (error) {
-                    const errorMsg = "Printer Offline or Error: " + error;
-                    alert(errorMsg);
-                    reject(errorMsg);
-                });
-            } else {
-                const errorMsg = "No Active Zebra Printer Found.";
-                alert(errorMsg);
-                reject(errorMsg);
-            }
-        }, function (error) {
-            const errorMsg = "BrowserPrint Connection Failed: " + error;
-            alert(errorMsg);
-            reject(errorMsg);
-        });
-    });
+    try {
+        await PrinterManager.sendJob(zpl);
+        console.log("Printed successfully via PrinterManager");
+    } catch (error) {
+        console.error("Printing failed:", error);
+        alert("Printing Failed: " + error.message);
+        throw error; // Re-throw so the caller knows to stop (e.g., Save & Print)
+    }
 }
 
 function previewStockLabel(id) {

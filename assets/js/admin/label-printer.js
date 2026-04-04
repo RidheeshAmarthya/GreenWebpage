@@ -68,7 +68,9 @@
         zpl = zpl.replace(/{count}/g, data.count || '');
         zpl = zpl.replace(/{density}/g, data.density || '');
         zpl = zpl.replace(/{width}/g, data.width || '');
-        zpl = zpl.replace(/{weight}/g, data.weight || '');
+        
+        const weightValue = (data.weight && String(data.weight).trim() !== "") ? data.weight : "      "; 
+        zpl = zpl.replace(/{weight}/g, weightValue);
         zpl = zpl.replace(/{weight_unit}/g, data.weight_unit || 'GSM');
         zpl = zpl.replace(/{item}/g, data.item || '');
         zpl = zpl.replace(/{finish}/g, data.finish || '');
@@ -192,6 +194,57 @@
             });
         });
 
+        // Article No Lookup Autopopulate for Standalone Printer
+        const standaloneArticleInput = form.querySelector('[name="article_no"]');
+        const manualStatusBadge = document.getElementById('manual-lookup-status');
+
+        if (standaloneArticleInput) {
+            standaloneArticleInput.addEventListener('blur', async (e) => {
+                const articleNo = e.target.value?.trim();
+                if (!articleNo) {
+                    if (manualStatusBadge) manualStatusBadge.style.display = 'none';
+                    return;
+                }
+
+                // fetchStockItemByArticleNo is expected to be available globally from data.js
+                if (typeof fetchStockItemByArticleNo !== 'function') return;
+                
+                // Show searching state
+                if (manualStatusBadge) {
+                    manualStatusBadge.textContent = "SEARCHING...";
+                    manualStatusBadge.className = "badge align-middle bg-light text-muted border";
+                    manualStatusBadge.style.display = "inline-block";
+                }
+
+                const matchedItem = await fetchStockItemByArticleNo(articleNo);
+                
+                if (matchedItem) {
+                    // Match found
+                    if (manualStatusBadge) {
+                        manualStatusBadge.textContent = "MATCH FOUND";
+                        manualStatusBadge.className = "badge align-middle bg-success-subtle text-success border border-success-subtle";
+                    }
+
+                    const fields = ['barcode', 'content', 'count', 'density', 'width', 'weight', 'weight_unit', 'item', 'finish', 'remark'];
+                    fields.forEach(field => {
+                        const input = form.querySelector(`[name="${field}"]`);
+                        if (input && matchedItem[field] !== undefined && matchedItem[field] !== null) {
+                            input.value = matchedItem[field];
+                        }
+                    });
+                    
+                    saveManualLabelState();
+                    updateManualLabelPreview(true);
+                } else {
+                    // Match not found
+                    if (manualStatusBadge) {
+                        manualStatusBadge.textContent = "NOT FOUND";
+                        manualStatusBadge.className = "badge align-middle bg-info-subtle text-info border border-info-subtle";
+                    }
+                }
+            });
+        }
+
         // Initial Load
         loadManualLabelState();
 
@@ -205,6 +258,11 @@
             printerModal.addEventListener('hidden.bs.modal', () => {
                 // Ensure state is clean for next open
                 lastZplRendered = "";
+                const manualStatusBadge = document.getElementById('manual-lookup-status');
+                if (manualStatusBadge) {
+                    manualStatusBadge.style.display = 'none';
+                    manualStatusBadge.textContent = '';
+                }
             });
         }
 
@@ -213,6 +271,10 @@
             if (confirm('Clear all fields? This will delete your current manual work.')) {
                 form.reset();
                 localStorage.removeItem('quick_label_data');
+                if (manualStatusBadge) {
+                    manualStatusBadge.style.display = 'none';
+                    manualStatusBadge.textContent = '';
+                }
                 updateManualLabelPreview(true);
             }
         };
@@ -254,26 +316,14 @@
         });
     });
 
-    // Helper to interface with Zebra Browser Print
+    // Simplified to use the robust PrinterManager service
     async function sendToZebraPrinter(zpl) {
-        return new Promise((resolve, reject) => {
-            if (typeof BrowserPrint === 'undefined') {
-                return reject(new Error("Zebra Browser Print driver library not found. Please ensure the JS files are correctly included in the page."));
-            }
-
-            BrowserPrint.getDefaultDevice("printer", (device) => {
-                if (!device) {
-                    return reject(new Error("No Zebra printer found. Please ensure the Zebra Browser Print desktop application is running and the printer is connected."));
-                }
-
-                device.send(zpl, (success) => {
-                    resolve(success);
-                }, (error) => {
-                    reject(new Error("Printing failed: " + error));
-                });
-            }, (error) => {
-                reject(new Error("Could not get default device: " + error + ". Please check if Zebra Browser Print is running."));
-            });
-        });
+        try {
+            await PrinterManager.sendJob(zpl);
+            console.log("Standalone label printed successfully");
+        } catch (error) {
+            console.error("Print Error:", error);
+            throw error; // Re-throw to be caught by the form submit handler
+        }
     }
 })();

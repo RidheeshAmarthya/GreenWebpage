@@ -89,6 +89,22 @@
                                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                     </button>
+                    <style>
+                        #printer-status-box { background: transparent; border: none; box-shadow: none; }
+                        @media (min-width: 992px) {
+                            #printer-status-box { 
+                                background-color: #f8f9fa !important; 
+                                border: 1px solid #dee2e6 !important; 
+                                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+                            }
+                        }
+                    </style>
+                    <!-- Printer Status Indicator -->
+                    <div id="printer-status-box" class="d-flex align-items-center me-2 me-md-3 px-1 px-lg-3 py-1 rounded-pill" style="transition: all 0.3s ease;">
+                        <span id="printer-status-dot" class="rounded-circle me-0 me-lg-2" role="status" style="width: 8px; height: 8px; display: none;"></span>
+                        <span id="printer-status-text" class="small fw-bold text-muted d-none d-lg-inline" style="font-size: 0.65rem; letter-spacing: 0.5px;">CONNECTING...</span>
+                    </div>
+
                     <span id="user-display" class="me-2 text-muted text-truncate d-none d-md-block"
                         style="max-width: 150px; font-size: 0.75rem;"></span>
                     <button id="logout-btn" class="btn btn-outline-danger btn-sm py-1 px-3 fw-bold shadow-sm"
@@ -209,10 +225,18 @@
                         </button>
                     </div>
 
+                    <!-- Anti-Autofill Honeypot (Catches Chrome's email injection) -->
+                    <div style="position: absolute; left: -10000px; top: -10000px; height: 0; width: 0; overflow: hidden;">
+                        <input type="text" name="chrome_autofill_trash_email" tabindex="-1">
+                        <input type="password" name="chrome_autofill_trash_password" tabindex="-1">
+                    </div>
+
                     <div class="row g-3 align-items-center">
                         <div class="col-12 col-md-5">
-                            <input type="text" id="order-search" class="form-control"
-                                placeholder="Search Green Order ID..." autocomplete="off"
+                            <input type="text" id="order-search" name="order_search_unique_v3" class="form-control"
+                                placeholder="Search Green Order ID..." 
+                                autocomplete="off" 
+                                role="searchbox"
                                 style="height: 50px; border-radius: 10px; border: 1px solid #ddd; padding-left: 20px;">
                         </div>
                         <div class="col-12 col-md-7">
@@ -249,7 +273,7 @@
                                         PI Date <span id="sort-pi_date" class="sort-icon">⇅</span>
                                     </th>
                                     <th class="sortable-header" onclick="handleSort('delivery_date')">
-                                        Est. Bulk Delivery <span id="sort-delivery_date" class="sort-icon">⇅</span>
+                                        Estimated Goods Ready <span id="sort-delivery_date" class="sort-icon">⇅</span>
                                     </th>
                                     <th class="sortable-header" onclick="handleSort('commercial')">
                                         Commercial Status <span id="sort-commercial" class="sort-icon">⇅</span>
@@ -287,27 +311,27 @@
                                 contact us.
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button id="admin-share-btn" class="btn btn-share-box fw-bold"
-                                style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; background: #e8f5e9; color: #155724; border: none; transition: all 0.3s ease;">
+                        <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-md-0">
+                            <button id="admin-share-btn" class="btn btn-share-box fw-bold px-3 px-sm-4"
+                                style="height: 50px; border-radius: 10px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; background: #e8f5e9; color: #155724; border: none; transition: all 0.3s ease;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                                     <polyline points="16 6 12 2 8 6" />
                                     <line x1="12" y1="2" x2="12" y2="15" />
                                 </svg>
-                                Share Link
+                                <span>Share Link</span>
                             </button>
-                            <button id="print-order-btn" class="btn btn-light-print fw-bold"
-                                style="height: 50px; padding: 0 20px; border-radius: 10px; font-size: 0.85rem;">
+                            <button id="print-order-btn" class="btn btn-light-print fw-bold px-3 px-sm-4"
+                                style="height: 50px; border-radius: 10px; font-size: 0.8rem;">
                                 Print Full Report
                             </button>
-                            <button id="edit-order-btn" class="btn btn-green fw-bold"
-                                style="height: 50px; padding: 0 20px; border-radius: 8px; font-size: 0.85rem;">
+                            <button id="edit-order-btn" class="btn btn-green fw-bold px-3 px-sm-4"
+                                style="height: 50px; border-radius: 10px; font-size: 0.8rem;">
                                 Edit Order
                             </button>
-                            <button id="detail-delete-order-btn" class="btn btn-outline-danger fw-bold"
-                                style="height: 50px; padding: 0 20px; border-radius: 8px; font-size: 0.85rem;">
+                            <button id="detail-delete-order-btn" class="btn btn-outline-danger fw-bold px-3 px-sm-4"
+                                style="height: 50px; border-radius: 10px; font-size: 0.8rem;">
                                 Delete Order
                             </button>
                         </div>
@@ -327,7 +351,7 @@
                             <span id="detail-pi-date"></span>
                         </div>
                         <div class="info-item">
-                            <label>Estimated Bulk Delivery</label>
+                            <label>Estimated Goods Ready</label>
                             <span id="detail-delivery-date"
                                 style="color: var(--primary-green); font-weight: 800;"></span>
                         </div>
@@ -447,7 +471,7 @@
                                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                     </svg>
                                 </span>
-                                <input type="text" id="stock-search" class="form-control border-start-0" placeholder="" autocomplete="off"
+                                <input type="text" id="stock-search" name="stock_search_query_field" class="form-control border-start-0" placeholder="" autocomplete="one-time-code" role="searchbox"
                                     style="border-radius: 0 12px 12px 0; height: 48px; font-size: 0.85rem; border-color: #eee; border-left: none !important;">
                             </div>
                         </div>
@@ -520,13 +544,13 @@
                             <span class="text-muted small fw-bold text-uppercase me-3"
                                 style="font-size: 0.6rem; letter-spacing: 0.5px; opacity: 0.7;">Weight Range:</span>
                             <div class="d-flex align-items-center gap-2">
-                                <input type="number" id="gsm-min-filter" name="gsm_filter_min"
+                                <input type="number" id="gsm-min-filter" name="weight_range_filter_min_gsm_field"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Min"
-                                    style="font-size: 0.75rem;" autocomplete="off">
+                                    style="font-size: 0.75rem;" autocomplete="one-time-code">
                                 <span class="text-muted small op-50">to</span>
-                                <input type="number" id="gsm-max-filter" name="gsm_filter_max"
+                                <input type="number" id="gsm-max-filter" name="weight_range_filter_max_gsm_field"
                                     class="form-control gsm-input-box p-0 text-center fw-bold" placeholder="Max"
-                                    style="font-size: 0.75rem;" autocomplete="off">
+                                    style="font-size: 0.75rem;" autocomplete="one-time-code">
                                 <select id="weight-unit-filter" class="form-select gsm-input-box px-1 fw-bold border-0 bg-transparent ms-2" style="width: 70px; font-size: 0.7rem; box-shadow: none;">
                                     <option value="All">All Unit</option>
                                     <option value="GSM">GSM</option>
@@ -774,7 +798,7 @@
                                 <input type="date" name="pi_date" class="form-control" required>
                             </div>
                             <div class="col-12 col-sm-6">
-                                <label class="form-label">Estimated Bulk Delivery</label>
+                                <label class="form-label">Estimated Goods Ready</label>
                                 <input type="date" name="delivery_date" class="form-control" required>
                             </div>
                         </div>
@@ -784,57 +808,66 @@
                                 placeholder="e.g. Pending" autocomplete="off">
                         </div>
                         <hr>
+                        <hr>
                         <h6>TNA Plan</h6>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Labdip / Strike off / HL Approval</label>
-                                <input type="date" name="LD_S_HC_date" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">Order Confirmation</label>
+                                <label class="form-label small">1. Order Confirmation</label>
                                 <input type="date" name="order_confirm_date" class="form-control form-control-sm">
                             </div>
-                        </div>
-                        <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Yarn Inhouse</label>
-                                <input type="date" name="yarn_inhouse_date" class="form-control form-control-sm">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">Weaving Start</label>
-                                <input type="date" name="weave_start_date" class="form-control form-control-sm">
+                                <label class="form-label small">2. Quantity Received</label>
+                                <input type="date" name="quantity_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Weaving Complete</label>
-                                <input type="date" name="weave_complete_date" class="form-control form-control-sm">
+                                <label class="form-label small">3. PI Date</label>
+                                <input type="date" name="pi_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc Start</label>
-                                <input type="date" name="dye_processing_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">4. Signed PI Received</label>
+                                <input type="date" name="signed_pi_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc End</label>
-                                <input type="date" name="dye_processing_end_date" class="form-control form-control-sm">
+                                <label class="form-label small">5. PO Received</label>
+                                <input type="date" name="po_received_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">FOB Ready</label>
+                                <label class="form-label small">6. Labdip / Strike off / HL Approval</label>
+                                <input type="date" name="LD_S_HC_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">7. Yarn Dyeing Start</label>
+                                <input type="date" name="yarn_dyeing_start_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">8. Weaving / Knitting Start</label>
+                                <input type="date" name="weave_knitting_start_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">9. Dyeing / Processing Start</label>
+                                <input type="date" name="dye_processing_start_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">10. FOB Ready</label>
                                 <input type="date" name="FOB_ready_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">FOB Approval</label>
+                                <label class="form-label small">11. FOB Approval</label>
                                 <input type="date" name="FOB_approval_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Insp/Finishing Complete</label>
-                                <input type="date" name="inspection_finishing_complete_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small font-weight-bold">12. Estimated Goods Ready</label>
+                                <input type="date" name="goods_ready" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -865,81 +898,71 @@
                             <label class="form-label">Company / Client Name</label>
                             <input type="text" name="company" id="edit-company" class="form-control" maxlength="4" autocomplete="off">
                         </div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label class="form-label">PI Date</label>
-                                <input type="date" name="pi_date" id="edit-pi-date" class="form-control" required>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Estimated Bulk Delivery</label>
-                                <input type="date" name="delivery_date" id="edit-delivery-date" class="form-control"
-                                    required>
-                            </div>
-                        </div>
                         <div class="mb-3">
                             <label class="form-label">Commercial Status</label>
                             <input type="text" name="commercial" id="edit-commercial" class="form-control" required autocomplete="off">
                         </div>
                         <hr>
+                        <hr>
                         <h6>TNA Plan</h6>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Labdip / Strike off / HL Approval</label>
-                                <input type="date" name="LD_S_HC_date" id="edit-LD_S_HC_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">1. Order Confirmation</label>
+                                <input type="date" name="order_confirm_date" id="edit-order_confirm_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Order Confirmation</label>
-                                <input type="date" name="order_confirm_date" id="edit-order_confirm_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">2. Quantity Received</label>
+                                <input type="date" name="quantity_received_date" id="edit-quantity_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Yarn Inhouse</label>
-                                <input type="date" name="yarn_inhouse_date" id="edit-yarn_inhouse_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">3. PI Date</label>
+                                <input type="date" name="pi_date" id="edit-pi_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Weaving Start</label>
-                                <input type="date" name="weave_start_date" id="edit-weave_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">4. Signed PI Received</label>
+                                <input type="date" name="signed_pi_received_date" id="edit-signed_pi_received_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Weaving Complete</label>
-                                <input type="date" name="weave_complete_date" id="edit-weave_complete_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">5. PO Received</label>
+                                <input type="date" name="po_received_date" id="edit-po_received_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc Start</label>
-                                <input type="date" name="dye_processing_start_date" id="edit-dye_processing_start_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">6. Labdip / Strike off / HL Approval</label>
+                                <input type="date" name="LD_S_HC_date" id="edit-LD_S_HC_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">Dyeing/Proc End</label>
-                                <input type="date" name="dye_processing_end_date" id="edit-dye_processing_end_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">7. Yarn Dyeing Start</label>
+                                <input type="date" name="yarn_dyeing_start_date" id="edit-yarn_dyeing_start_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">FOB Ready</label>
-                                <input type="date" name="FOB_ready_date" id="edit-FOB_ready_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">8. Weaving / Knitting Start</label>
+                                <input type="date" name="weave_knitting_start_date" id="edit-weave_knitting_start_date" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label small">FOB Approval</label>
-                                <input type="date" name="FOB_approval_date" id="edit-FOB_approval_date"
-                                    class="form-control form-control-sm">
+                                <label class="form-label small">9. Dyeing / Processing Start</label>
+                                <input type="date" name="dye_processing_start_date" id="edit-dye_processing_start_date" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Insp/Finishing Complete</label>
-                                <input type="date" name="inspection_finishing_complete_date"
-                                    id="edit-inspection_finishing_complete_date" class="form-control form-control-sm">
+                                <label class="form-label small">10. FOB Ready</label>
+                                <input type="date" name="FOB_ready_date" id="edit-FOB_ready_date" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label small">11. FOB Approval</label>
+                                <input type="date" name="FOB_approval_date" id="edit-FOB_approval_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small font-weight-bold">12. Estimated Goods Ready</label>
+                                <input type="date" name="goods_ready" id="edit-goods_ready" class="form-control form-control-sm">
                             </div>
                         </div>
                     </div>
@@ -968,7 +991,7 @@
                                 placeholder="e.g. Olive Green">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Estimated Bulk Delivery</label>
+                            <label class="form-label">Estimated Goods Ready</label>
                             <input type="date" name="tentativeBulkReadyDate" class="form-control">
                         </div>
                     </div>
@@ -1058,7 +1081,7 @@
                             <input type="text" id="edit-color-name" name="color_name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Estimated Bulk Delivery</label>
+                            <label class="form-label">Estimated Goods Ready</label>
                             <input type="date" id="edit-color-date" name="tentativeBulkReadyDate" class="form-control">
                         </div>
                     </div>
@@ -1263,7 +1286,7 @@
                                     <div class="input-group mb-2 shadow-none" style="opacity: 0.8 !important;">
                                         <input type="number" name="barcode" id="add-stock-barcode"
                                             class="form-control form-control-sm border-end-0 bg-light"
-                                            placeholder="Barcode ID" autocomplete="off"
+                                            placeholder="Barcode ID" autocomplete="one-time-code"
                                             style="border-radius: 8px 0 0 8px; font-size: 0.75rem;">
                                         <button class="btn btn-outline-secondary btn-sm px-2" type="button"
                                             id="regenerate-stock-barcode"
@@ -1284,7 +1307,9 @@
                                 <div class="row g-2">
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1"
-                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *</label>
+                                            style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *
+                                            <span id="stock-lookup-status" class="badge align-middle" style="font-size: 0.55rem; display: none; margin-left: 5px; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px;"></span>
+                                        </label>
                                         <input type="text" name="article_no" class="form-control fw-bold" required
                                             placeholder="e.g. GR-9921" style="border-radius: 8px;" autocomplete="off">
                                     </div>
@@ -1404,12 +1429,15 @@
                             <div class="d-flex justify-content-end gap-2">
                                 <button type="button" class="btn btn-light px-4 fw-bold text-muted border"
                                     data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
+                                <button type="button" class="btn btn-outline-danger px-4 fw-bold"
+                                    onclick="clearStockItemForm()" style="border-radius: 12px;">Clear</button>
                                 <button type="button" class="btn btn-outline-success px-4 fw-bold"
                                     id="footer-capture-photo-btn" style="border-radius: 12px; display: none;">TAKE
                                     PHOTO</button>
                                 <button type="button" class="btn btn-outline-dark px-4 fw-bold"
                                     id="save-print-article-btn" style="border-radius: 12px;">Save & Print</button>
-                                <button type="submit" class="btn btn-green px-5 fw-bold" id="stock-modal-submit-btn"
+                                <button type="button" class="btn btn-green px-5 fw-bold" id="stock-modal-submit-btn"
+                                    onclick="saveStockItem(event)"
                                     style="border-radius: 12px;">Save</button>
                             </div>
                         </div>
@@ -1439,14 +1467,14 @@
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Recipient Name *</label>
                                 <input type="text" name="name" id="checkout-name"
                                     class="form-control form-control-lg border-0 bg-light" required
-                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
+                                    placeholder="Full Name" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="one-time-code">
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold text-uppercase text-muted"
                                     style="letter-spacing: 0.5px; font-size: 0.65rem;">Company / Office *</label>
                                 <input type="text" name="company" id="checkout-company"
                                     class="form-control form-control-lg border-0 bg-light" required maxlength="4"
-                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
+                                    placeholder="Destination" style="border-radius: 12px; font-size: 0.9rem;" autocomplete="one-time-code">
                             </div>
                         </div>
 
@@ -1465,6 +1493,7 @@
                                 </svg>
                             </div>
                             <h6 class="fw-bold mb-2">Scan Sample Barcode</h6>
+                            <div id="checkout-scanner-status" class="badge bg-danger mb-3 p-2 w-100" style="display: none; border-radius: 8px; font-size: 0.7rem; letter-spacing: 0.5px;">⚠️ SCANNER INACTIVE - CLICK TO FOCUS</div>
                             <div class="input-group shadow-sm bg-white rounded-3 overflow-hidden">
                                 <input type="number" id="checkout-barcode-input"
                                     class="form-control border-0 py-3 text-center fw-bold" autocomplete="off"
@@ -1530,6 +1559,7 @@
                                 </svg>
                             </div>
                             <h5 class="fw-bold">Ready to Scan</h5>
+                            <div id="check-in-scanner-status" class="badge bg-danger mb-3 p-2" style="display: none; border-radius: 8px; font-size: 0.7rem; letter-spacing: 0.5px;">⚠️ SCANNER INACTIVE - CLICK TO FOCUS</div>
                         </div>
 
                         <div class="mb-4">
@@ -1704,7 +1734,9 @@
                                 <div class="row g-2">
                                     <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold text-uppercase text-muted"
-                                            style="font-size: 0.65rem;">Article No *</label>
+                                            style="font-size: 0.65rem;">Article No *
+                                            <span id="manual-lookup-status" class="badge align-middle" style="font-size: 0.55rem; display: none; margin-left: 5px; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px;"></span>
+                                        </label>
                                         <input type="text" name="article_no" class="form-control fw-bold" required
                                             placeholder="Enter Article No..." style="border-radius: 10px;">
                                     </div>
@@ -1850,6 +1882,7 @@
     <script src="assets/js/admin/stock/checkout.js" defer></script>
     <script src="assets/js/admin/stock/checkin.js" defer></script>
     <script src="assets/js/admin/stock/batch.js" defer></script>
+    <script src="assets/js/admin/stock/printer-manager.js" defer></script>
     <script src="assets/js/admin/stock/printing.js" defer></script>
     <script src="assets/js/admin/stock/stock-main.js" defer></script>
     <script src="assets/js/admin/label-printer.js" defer></script>
@@ -1918,6 +1951,8 @@
             </div>
         </div>
     </div>
+    <!-- Print Section -->
+    <div id="print-section"></div>
 </body>
 
 </html>

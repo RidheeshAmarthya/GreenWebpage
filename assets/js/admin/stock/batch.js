@@ -149,31 +149,43 @@ async function batchPrintStockLabels() {
         }
 
         showLoading(true);
-        const items = await getSelectedItemsFullData();
+        let items = await getSelectedItemsFullData();
+        
+        // Final Robust Sort: Matches visual list exactly 
+        // Handles case-sensitivity and null values for 100% confidence
+        items.sort((a, b) => {
+            const valA = String(a.article_no || "").toLowerCase();
+            const valB = String(b.article_no || "").toLowerCase();
+            return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
         showLoading(false);
 
-        const promises = selectedStockIds.map(id => {
-            const item = items.find(i => i.id === id);
-            if (!item) return null;
+        let successCount = 0;
+        let failed = [];
 
+        // PRINT QUEUE: Strictly sequential to guarantee physical ordering
+        for (const item of items) {
             const zpl = fillZPLTemplate(item);
-            return new Promise((resolve) => {
+            const result = await new Promise((resolve) => {
                 device.send(zpl,
                     () => resolve({ success: true }),
                     (err) => resolve({ success: false, article: item.article_no, error: err })
                 );
             });
-        });
 
-        const validPromises = promises.filter(p => p !== null);
-        const results = await Promise.all(validPromises);
+            if (result.success) successCount++;
+            else failed.push(result);
+            
+            // Tiny 100ms gap between jobs to let the printer spooler breathe
+            await new Promise(r => setTimeout(r, 100));
+        }
 
-        const failed = results.filter(r => !r.success);
         if (failed.length > 0) {
             const errorReport = failed.map(f => `• ${f.article}: ${f.error}`).join('\n');
-            alert(`Batch Results:\n✅ Sent: ${results.length - failed.length}\n❌ Failed: ${failed.length}\n\nErrors:\n${errorReport}`);
+            alert(`Batch Results:\n✅ Sent: ${successCount}\n❌ Failed: ${failed.length}\n\nErrors:\n${errorReport}`);
         } else {
-            alert(`Successfully sent ${results.length} labels to ${device.name}.`);
+            alert(`Successfully sent ${successCount} labels to ${device.name}.`);
         }
     }, function (error) {
         alert("Zebra Connection Failed: " + error);
@@ -316,10 +328,13 @@ document.addEventListener('change', (e) => {
 
         checkboxes.forEach(box => {
             box.checked = isChecked;
-            const articleId = box.dataset.id || (box.onclick?.toString().match(/'([^']+)'/)?.[1]);
-            // If dataset.id is not available, try to find the ID from the card it belongs to
-            const parentId = box.closest('.stock-card, .stock-row')?.dataset.id;
-            const finalId = articleId || parentId;
+            const parent = box.closest('.stock-card, .stock-row');
+            const finalId = box.dataset.id || parent?.dataset.id;
+            
+            if (parent) {
+                if (isChecked) parent.classList.add('selected');
+                else parent.classList.remove('selected');
+            }
 
             if (finalId) {
                 const index = selectedStockIds.indexOf(finalId);
