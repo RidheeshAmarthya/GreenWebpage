@@ -78,7 +78,27 @@
                     <img src="assets/images/green-logo.png" style="height: 38px;" class="d-none d-sm-block">
                     <img src="assets/images/green-logo.png" style="height: 34px;" class="d-block d-sm-none">
                 </a>
+
+                <style>
+                    #printer-status-box { background: transparent; border: none; box-shadow: none; }
+                    @media (min-width: 992px) {
+                        #printer-status-box { 
+                            background-color: #f8f9fa !important; 
+                            border: 1px solid #dee2e6 !important; 
+                            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+                        }
+                    }
+                </style>
+                <!-- Printer Status Indicator -->
+                <div id="printer-status-box" class="d-flex align-items-center me-auto ms-2 ms-md-4 px-1 px-lg-3 py-1 rounded-pill" style="transition: all 0.3s ease;">
+                    <span id="printer-status-dot" class="rounded-circle me-0 me-lg-2" role="status" style="width: 8px; height: 8px; display: none;"></span>
+                    <span id="printer-status-text" class="small fw-bold text-muted d-none d-lg-inline" style="font-size: 0.65rem; letter-spacing: 0.5px;">CONNECTING...</span>
+                </div>
+
                 <div class="d-flex align-items-center flex-nowrap">
+                    <span id="user-display" class="me-3 text-muted text-truncate d-none d-md-block"
+                        style="max-width: 150px; font-size: 0.75rem;"></span>
+                    
                     <!-- Settings Trigger -->
                     <button class="btn btn-link text-muted p-0 me-3 shadow-none opacity-75 hover-opacity-100"
                         data-bs-toggle="modal" data-bs-target="#adminSettingsModal" title="Dashboard Settings">
@@ -89,24 +109,7 @@
                                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                     </button>
-                    <style>
-                        #printer-status-box { background: transparent; border: none; box-shadow: none; }
-                        @media (min-width: 992px) {
-                            #printer-status-box { 
-                                background-color: #f8f9fa !important; 
-                                border: 1px solid #dee2e6 !important; 
-                                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
-                            }
-                        }
-                    </style>
-                    <!-- Printer Status Indicator -->
-                    <div id="printer-status-box" class="d-flex align-items-center me-2 me-md-3 px-1 px-lg-3 py-1 rounded-pill" style="transition: all 0.3s ease;">
-                        <span id="printer-status-dot" class="rounded-circle me-0 me-lg-2" role="status" style="width: 8px; height: 8px; display: none;"></span>
-                        <span id="printer-status-text" class="small fw-bold text-muted d-none d-lg-inline" style="font-size: 0.65rem; letter-spacing: 0.5px;">CONNECTING...</span>
-                    </div>
 
-                    <span id="user-display" class="me-2 text-muted text-truncate d-none d-md-block"
-                        style="max-width: 150px; font-size: 0.75rem;"></span>
                     <button id="logout-btn" class="btn btn-outline-danger btn-sm py-1 px-3 fw-bold shadow-sm"
                         style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 8px;">LOGOUT</button>
                 </div>
@@ -1304,7 +1307,7 @@
                                 <button type="button" class="btn-close detail-modal-close"
                                     data-bs-dismiss="modal"></button>
                                 <input type="hidden" name="id" id="stock-item-id">
-                                <div class="row g-2">
+                                <div class="row g-2 mt-4 mt-lg-0 pt-lg-3">
                                     <div class="col-12">
                                         <label class="form-label small fw-bold text-uppercase text-muted mb-1"
                                             style="letter-spacing: 0.5px; font-size: 0.65rem;">Article Number *
