@@ -105,10 +105,21 @@ const PrinterManager = {
         if (this.isProcessing) return;
 
         BrowserPrint.getLocalDevices((devices) => {
-            const zebraPrinters = (devices || []).filter(d => 
+            let zebraPrinters = (devices || []).filter(d => 
                 d.deviceType === 'printer' && 
                 (d.name.toLowerCase().includes('zebra') || d.name.toLowerCase().includes('zd'))
             );
+
+            // FALLBACK FOR WINDOWS: If no 'zebra/zd' named printer is found, but there IS a printer
+            // (Windows sometimes identifies them by weird serial numbers/UIDs)
+            if (zebraPrinters.length === 0) {
+                zebraPrinters = (devices || []).filter(d => 
+                    d.deviceType === 'printer' && 
+                    !d.name.toLowerCase().includes('pdf') && 
+                    !d.name.toLowerCase().includes('microsoft') &&
+                    !d.name.toLowerCase().includes('onenote')
+                );
+            }
 
             if (zebraPrinters.length > 0) {
                 // We found hardware!
@@ -232,10 +243,23 @@ const PrinterManager = {
     autoDiscover() {
         if (typeof BrowserPrint === 'undefined') return;
         BrowserPrint.getLocalDevices((devices) => {
-            const printer = (devices || []).find(d => 
+            const zebraPrinters = (devices || []).filter(d => 
                 d.deviceType === 'printer' && 
                 (d.name.toLowerCase().includes('zebra') || d.name.toLowerCase().includes('zd'))
             );
+
+            let printer = zebraPrinters.length > 0 ? zebraPrinters[0] : null;
+
+            // FALLBACK FOR WINDOWS weird names
+            if (!printer) {
+                printer = (devices || []).find(d => 
+                    d.deviceType === 'printer' && 
+                    !d.name.toLowerCase().includes('pdf') && 
+                    !d.name.toLowerCase().includes('microsoft') &&
+                    !d.name.toLowerCase().includes('onenote')
+                );
+            }
+
             if (printer) {
                 this.device = printer;
                 this.updateStatus('online', `Detected: ${printer.name}`);
