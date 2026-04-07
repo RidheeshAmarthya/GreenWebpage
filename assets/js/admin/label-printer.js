@@ -108,7 +108,7 @@
             img.style.display = 'none';
 
             try {
-                const labelaryUrl = "https://api.labelary.com/v1/printers/8dpmm/labels/4.09x2/0/";
+                const labelaryUrl = "https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/";
                 const encoder = new TextEncoder();
                 const bodyData = encoder.encode(zpl);
 
@@ -128,10 +128,19 @@
                     throw new Error("Labelary Error: " + response.status);
                 }
             } catch (err) {
-                console.error("Preview failed", err);
+                console.error("Preview failed", err, "ZPL Source:", zpl);
                 spinner.style.display = 'none';
                 placeholder.style.display = 'block';
-                placeholder.innerHTML = '<div class="text-danger small">Preview Error</div>';
+                placeholder.innerHTML = `
+                    <div class="text-danger small fw-bold">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mb-1"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <br>API Error<br><span class="text-decoration-underline text-primary" style="cursor: pointer;">RETRY</span>
+                    </div>`;
+                placeholder.onclick = () => {
+                    lastZplRendered = "";
+                    updateManualLabelPreview(true);
+                };
+                
                 // Reset cache on error so user can try again
                 lastZplRendered = "";
             }
