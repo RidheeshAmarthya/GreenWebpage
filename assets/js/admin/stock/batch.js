@@ -137,26 +137,34 @@ async function batchDeleteStock() {
 async function batchPrintStockLabels() {
     if (selectedStockIds.length === 0) return;
 
-    if (typeof BrowserPrint === 'undefined') {
-        alert("Zebra BrowserPrint library not loaded.");
-        return;
-    }
-
-    BrowserPrint.getDefaultDevice("printer", async function (device) {
-        if (!device || !device.name) {
-            alert("No Active Zebra Printer Found.");
-            return;
-        }
-
-        showLoading(true);
+    showLoading(true);
+    try {
         let items = await getSelectedItemsFullData();
-        
-        // Final Robust Sort: Matches visual list exactly 
-        // Handles case-sensitivity and null values for 100% confidence
+
+        // 1. Get current UI Sort to guarantee physical matching
+        const sortSelect = document.getElementById('stock-sort-select');
+        const sortVal = sortSelect ? sortSelect.value : 'created_at-desc';
+        const [column, direction] = sortVal.split('-');
+        const isAsc = direction === 'asc';
+
+        // 2. Apply dynamic sort to matches visual list exactly
         items.sort((a, b) => {
-            const valA = String(a.article_no || "").toLowerCase();
-            const valB = String(b.article_no || "").toLowerCase();
-            return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+            let valA = a[column];
+            let valB = b[column];
+
+            // Case-insensitive strings
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            
+            // Numeric handling (GSM/Weight)
+            if (column === 'weight') {
+                valA = parseFloat(valA) || 0;
+                valB = parseFloat(valB) || 0;
+            }
+
+            if (valA < valB) return isAsc ? -1 : 1;
+            if (valA > valB) return isAsc ? 1 : -1;
+            return 0;
         });
 
         showLoading(false);
@@ -165,19 +173,20 @@ async function batchPrintStockLabels() {
         let failed = [];
 
         // PRINT QUEUE: Strictly sequential to guarantee physical ordering
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const zpl = fillZPLTemplate(item);
-            const result = await new Promise((resolve) => {
-                device.send(zpl,
-                    () => resolve({ success: true }),
-                    (err) => resolve({ success: false, article: item.article_no, error: err })
-                );
-            });
 
-            if (result.success) successCount++;
-            else failed.push(result);
-            
-            // Tiny 100ms gap between jobs to let the printer spooler breathe
+            try {
+                // Use PrinterManager for stability and debug support
+                await PrinterManager.sendJob(zpl);
+                successCount++;
+            } catch (err) {
+                console.error(`[Batch Print] Job ${i + 1}/${items.length} failed: ${item.article_no}`, err);
+                failed.push({ article: item.article_no, error: err.message || err });
+            }
+
+            // Tiny 100ms gap between jobs
             await new Promise(r => setTimeout(r, 100));
         }
 
@@ -185,11 +194,12 @@ async function batchPrintStockLabels() {
             const errorReport = failed.map(f => `• ${f.article}: ${f.error}`).join('\n');
             alert(`Batch Results:\n✅ Sent: ${successCount}\n❌ Failed: ${failed.length}\n\nErrors:\n${errorReport}`);
         } else {
-            alert(`Successfully sent ${successCount} labels to ${device.name}.`);
+            alert(`Successfully sent ${successCount} labels to printer.`);
         }
-    }, function (error) {
-        alert("Zebra Connection Failed: " + error);
-    });
+    } catch (err) {
+        showLoading(false);
+        alert("Batch Print Initialization Failed: " + err.message);
+    }
 }
 
 async function batchCheckOut() {

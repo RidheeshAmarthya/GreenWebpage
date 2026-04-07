@@ -10,9 +10,16 @@ const PrinterManager = {
     isProcessing: false, // Atomic lock for ALL hardware commands
     idleTimeout: null,
     isIdle: false,
+    isDebug: false, // DEBUG MODE: Logs to console instead of sending to hardware
     
     init() {
         console.log("PrinterManager V2: Initializing (Eco-Friendly)...");
+        
+        // Load initial debug state from settings
+        if (typeof AdminSettings !== 'undefined') {
+            this.isDebug = AdminSettings.get('printer_debug_mode');
+        }
+
         this.setupListeners();
         this.startHeartbeat();
         this.checkConnection(true);
@@ -49,6 +56,15 @@ const PrinterManager = {
         window.addEventListener('mousemove', resetIdle);
         window.addEventListener('keydown', resetIdle);
         resetIdle();
+
+        // 3. Settings Listener: Catch toggle changes from the modal
+        window.addEventListener('settingsUpdated', (e) => {
+            if (e.detail.key === 'printer_debug_mode') {
+                this.isDebug = e.detail.value;
+                console.log(`PrinterManager: Debug Mode ${this.isDebug ? 'Enabled' : 'Disabled'}`);
+                this.checkConnection(true);
+            }
+        });
     },
 
     startHeartbeat() {
@@ -75,6 +91,11 @@ const PrinterManager = {
      * Never sends ZPL/Writes to the printer head during heartbeat.
      */
     async checkConnection(isInitial = false) {
+        if (this.isDebug) {
+            this.updateStatus('online', 'DEBUG MODE ACTIVE');
+            return;
+        }
+
         if (typeof BrowserPrint === 'undefined') {
             this.updateStatus('error', 'App Not Running');
             return;
@@ -119,6 +140,12 @@ const PrinterManager = {
      * ACTIVE HANDSHAKE: Only called Just-In-Time when a print is requested.
      */
     async ensureReady() {
+        if (this.isDebug) {
+            console.log("PrinterManager [DEBUG]: Ensuring printer is ready...");
+            this.updateStatus('ready', 'DEBUG READY');
+            return true;
+        }
+
         if (!this.device) {
             // Force a proactive scan if we're currently offline
             await new Promise(resolve => {
@@ -143,6 +170,22 @@ const PrinterManager = {
     },
 
     async sendJob(zpl) {
+        if (this.isDebug) {
+            this.isProcessing = true;
+            try {
+                // Extract article info from ZPL. It follows the pattern ^FD: {article_no}^FS
+                const articleMatch = zpl.match(/\^FD: (.*?)\^FS/);
+                const article = articleMatch ? articleMatch[1].replace(/^:\s*/, '') : "Unknown";
+                console.log(`PRINTING: ${article}`);
+                
+                this.updateStatus('ready', 'Debug Success');
+                setTimeout(() => { if (!this.isProcessing) this.checkConnection(); }, 1000);
+                return true;
+            } finally {
+                this.isProcessing = false;
+            }
+        }
+
         // PRE-FLIGHT CHECK: Ensure we are actually connected before trying
         if (typeof BrowserPrint === 'undefined' || this.status === 'error') {
             this.updateStatus('error', 'App Not Running');
@@ -234,9 +277,15 @@ const PrinterManager = {
                 dot.style.width = '8px';
                 dot.style.height = '8px';
                 dot.style.animation = 'none';
-                text.innerText = status === 'ready' ? 'PRINTER READY' : 'PRINTER ONLINE';
-                text.classList.add('text-success');
-                if (box) box.style.borderColor = '#28a745';
+                if (this.isDebug) {
+                    text.innerText = 'DEBUG MODE';
+                    text.classList.add('text-primary');
+                    if (box) box.style.borderColor = '#007bff';
+                } else {
+                    text.innerText = status === 'ready' ? 'PRINTER READY' : 'PRINTER ONLINE';
+                    text.classList.add('text-success');
+                    if (box) box.style.borderColor = '#28a745';
+                }
                 break;
             case 'offline': // HARDWARE DISCONNECT RED
                 dot.style.display = 'inline-block';
