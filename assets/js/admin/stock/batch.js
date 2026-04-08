@@ -196,6 +196,9 @@ async function batchPrintStockLabels() {
         } else {
             alert(`Successfully sent ${successCount} labels to printer.`);
         }
+
+        // Prevent confusion: clear selection after a bulk print run finishes.
+        clearStockSelection();
     } catch (err) {
         showLoading(false);
         alert("Batch Print Initialization Failed: " + err.message);
