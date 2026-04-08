@@ -3,10 +3,10 @@
 
 const AdminSettings = {
     storageKey: 'green_admin_settings',
-    
+
     defaults: {
         gemini_api_key: '',
-        gemini_model_name: 'gemini-flash-latest',
+        gemini_model_name: 'gemini-3.1-flash-lite-preview',
         printer_debug_mode: false // Default to false
     },
 
@@ -43,26 +43,26 @@ function saveAdminSettings() {
     const keyField = document.getElementById('gemini-api-key-field');
     const modelField = document.getElementById('gemini-model-name-field');
     const debugField = document.getElementById('printer-debug-mode-field');
-    
+
     const key = keyField ? keyField.value.trim() : '';
     const model = modelField ? modelField.value.trim() : AdminSettings.defaults.gemini_model_name;
     const isDebug = debugField ? debugField.checked : AdminSettings.defaults.printer_debug_mode;
-    
+
     AdminSettings.set('gemini_api_key', key);
     AdminSettings.set('gemini_model_name', model || AdminSettings.defaults.gemini_model_name);
     AdminSettings.set('printer_debug_mode', isDebug);
-    
-    window.dispatchEvent(new CustomEvent('settingsUpdated', { 
-        detail: { key: 'printer_debug_mode', value: isDebug } 
+
+    window.dispatchEvent(new CustomEvent('settingsUpdated', {
+        detail: { key: 'printer_debug_mode', value: isDebug }
     }));
-    
+
     // Close modal using Bootstrap instance
     const modalEl = document.getElementById('adminSettingsModal');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) {
         modal.hide();
     }
-    
+
     // Simple UI feedback
     console.log("Settings updated.");
 }
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const keyField = document.getElementById('gemini-api-key-field');
             const modelField = document.getElementById('gemini-model-name-field');
             const debugField = document.getElementById('printer-debug-mode-field');
-            
+
             if (keyField) keyField.value = AdminSettings.get('gemini_api_key');
             if (modelField) modelField.value = AdminSettings.get('gemini_model_name');
             if (debugField) debugField.checked = AdminSettings.get('printer_debug_mode');

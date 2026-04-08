@@ -8,7 +8,7 @@ class GeminiOCR {
      */
     async scanImage(base64Image) {
         const apiKey = AdminSettings.get('gemini_api_key');
-        
+
         if (!apiKey) {
             alert("Please enter your Gemini API Key in the Settings menu (gear icon) to use the AI Scan feature.");
             throw new Error("Missing Gemini API Key");
@@ -17,9 +17,9 @@ class GeminiOCR {
         // Clean base64 data (Gemini expects pure data, not data URL prefix)
         const base64Data = base64Image.split(',')[1] || base64Image;
 
-        const model = AdminSettings.get('gemini_model_name') || 'gemini-flash-latest';
+        const model = AdminSettings.get('gemini_model_name') || 'gemini-3.1-flash-lite-preview';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        
+
         const promptText = `
             You are a specialized OCR agent for Green International textile warehouse.
             Carefully analyze this fabric label image and extract all visible technical details.
@@ -110,7 +110,7 @@ class GeminiOCR {
 
             const result = await response.json();
             const textResponse = result.candidates[0].content.parts[0].text;
-            
+
             // Robust cleaning of the text response to find raw JSON
             const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
             if (!jsonMatch) {
@@ -138,13 +138,13 @@ class GeminiOCR {
 
         // Iterate through common fields and fill if present
         const fields = ['article_no', 'content', 'count', 'density', 'width', 'weight', 'item', 'finish', 'remark'];
-        
+
         fields.forEach(field => {
             if (data[field] !== undefined) {
                 const input = form.querySelector(`[name="${field}"]`);
                 if (input) {
                     let value = data[field];
-                    
+
                     // Sanitize numeric fields (like weight/GSM)
                     if (field === 'weight' && value) {
                         // Extract just the numbers (e.g., "120 GSM" -> "120")
@@ -178,12 +178,12 @@ class GeminiOCR {
         toast.style.minWidth = '300px';
         toast.innerHTML = `<i class="fas ${icon} text-${type} me-2"></i>${message}`;
         document.body.appendChild(toast);
-        
+
         // Add entry animation
         toast.style.transform = 'translateY(20px)';
         toast.style.opacity = '0';
         toast.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        
+
         requestAnimationFrame(() => {
             toast.style.transform = 'translateY(0)';
             toast.style.opacity = '1';
