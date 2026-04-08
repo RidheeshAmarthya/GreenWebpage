@@ -63,6 +63,7 @@ class GeminiOCR {
                GIE019: MOLESKEIN
                GIE020: BURN OUT FABRICS
                GIE021: LACE AND EMBROIDERY
+               SPECIAL OVERRIDE: If the scanned label mentions "JACQUARD", always use GIE016.
 
             2. ARTICLE NUMBER FORMATTING:
                - First, determine the GIE code from the table above based on composition.
