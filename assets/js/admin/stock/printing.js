@@ -91,37 +91,48 @@ async function generateStockPDF(id) {
                     box-sizing: border-box;
                 }
                 
-                .card-header { 
-                    background: #28a745; 
-                    padding: 30px 45px; 
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
+                .top-info {
+                    background: #28a745;
+                    padding: 16px 24px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: stretch;
+                    gap: 18px;
                     color: #fff;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
                 
-                .logo { height: 55px; }
-                .brand-title { font-weight: 900; letter-spacing: 1.5px; font-size: 24px; text-transform: uppercase; }
-                
-                .info-section { 
-                    padding: 35px 45px; 
-                    border-bottom: 2px dashed #eee; 
+                .brand-block { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 4px 0; }
+                .brand-middle { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; }
+                .logo-wrap {
+                    background: #1f7b34;
+                    border-radius: 10px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    border: 1px solid rgba(255, 255, 255, 0.35);
                 }
-                
-                .header-row { display: flex; gap: 40px; align-items: center; }
-                .header-left { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-                
-                .contact-row { font-size: 11px; line-height: 1.6; color: #444; font-weight: 500; }
-                .contact-row b { color: #111; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 8px; font-size: 11.5px; }
-                
-                .header-right { width: 380px; }
-                .label-preview-box img { width: 100%; height: auto; border: 1px solid #eee; }
+                .logo { height: 42px; display: block; }
+                .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 42px; text-transform: uppercase; line-height: 0.98; }
+                .article-no { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; }
+                .brand-site { font-size: 11.5px; font-weight: 700; letter-spacing: 0.45px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; text-transform: lowercase; }
+                .label-preview-box {
+                    width: 330px;
+                    max-width: 44%;
+                    flex-shrink: 0;
+                    background: #fff;
+                    border-radius: 8px;
+                    padding: 4px;
+                }
+                .label-preview-box img { width: 100%; height: auto; display: block; border-radius: 6px; }
                 
                 .image-section { 
-                    flex-grow: 1; 
-                    padding: 40px; 
+                    flex: 1; 
+                    min-height: 0;
+                    padding: 16px 24px 24px; 
                     background: #fff; 
                     display: flex; 
                     align-items: center; 
@@ -130,39 +141,74 @@ async function generateStockPDF(id) {
                 }
                 
                 .image-section img { 
-                    max-width: 100%; 
-                    max-height: 100%; 
+                    width: 100%;
+                    height: 100%;
                     object-fit: contain; 
                 }
+
+                .address-footer {
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 14px;
+                    padding: 12px 24px 16px;
+                    border-top: 1px solid #e7e7e7;
+                    background: #f8fbf8;
+                }
+                .footer-col-title {
+                    font-size: 10px;
+                    font-weight: 800;
+                    color: #1f7b34;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 4px;
+                }
+                .footer-col-text {
+                    font-size: 9.2px;
+                    line-height: 1.35;
+                    color: #333;
+                    font-weight: 500;
+                }
+                .footer-left { text-align: left; }
+                .footer-center { text-align: center; }
+                .footer-right { text-align: right; }
 
                 @media print {
                     @page { size: A4; margin: 0; }
                     body { background: #fff; }
                     .page-container { padding: 0; display: block; background: #fff; }
-                    .spec-card { box-shadow: none; width: 210mm; height: 100vh; page-break-after: always; }
+                    .spec-card { box-shadow: none; width: 210mm; height: 297mm; page-break-after: always; }
                     .spec-card:last-child { page-break-after: auto; }
                 }
             </style>
         </head>
         <body>
             <div class="spec-card">
-                <div class="card-header">
-                    <img class="logo" src="assets/images/green-logo.png">
-                    <div class="brand-title">Green International</div>
-                </div>
-                <div class="info-section">
-                    <div class="header-row">
-                        <div class="header-left">
-                            <div class="contact-row"><b>India Office:</b> 326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018</div>
-                            <div class="contact-row"><b>China Office:</b> Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China-213100</div>
-                            <div class="contact-row"><b>Contact:</b> +91 9810639056 | +91 0124-4799566 | sales@greeninternationalindia.com</div>
+                <div class="top-info">
+                    <div class="brand-block">
+                        <div class="logo-wrap"><img class="logo" src="assets/images/green-logo.png"></div>
+                        <div class="brand-middle">
+                            <div class="brand-title">Swatch Card</div>
+                            <div class="article-no">${item.article_no || 'N/A'}</div>
                         </div>
-                        <div class="header-right">
-                             <div class="label-preview-box"><img src="${labelImageUrl}"></div>
-                        </div>
+                        <div class="brand-site">greeninternationalindia.com</div>
                     </div>
+                    <div class="label-preview-box"><img src="${labelImageUrl}"></div>
                 </div>
                 <div class="image-section"><img src="${imgUrl}" crossorigin="anonymous"></div>
+                <div class="address-footer">
+                    <div class="footer-left">
+                        <div class="footer-col-title">India Office</div>
+                        <div class="footer-col-text">326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018</div>
+                    </div>
+                    <div class="footer-center">
+                        <div class="footer-col-title">Contact</div>
+                        <div class="footer-col-text">+91 9810639056 | +91 0124-4799566<br>sales@greeninternationalindia.com</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-col-title">China Office</div>
+                        <div class="footer-col-text">Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China 213100</div>
+                    </div>
+                </div>
             </div>
         </body>
         </html>
@@ -233,37 +279,48 @@ async function generateBatchStockPDF() {
                         box-sizing: border-box;
                     }
                     
-                    .card-header { 
-                        background: #28a745; 
-                        padding: 30px 45px; 
-                        display: flex; 
-                        justify-content: space-between; 
-                        align-items: center; 
+                    .top-info {
+                        background: #28a745;
+                        padding: 16px 24px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: stretch;
+                        gap: 18px;
                         color: #fff;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
                     }
                     
-                    .logo { height: 55px; }
-                    .brand-title { font-weight: 900; letter-spacing: 1.5px; font-size: 24px; text-transform: uppercase; }
-                    
-                    .info-section { 
-                        padding: 35px 45px; 
-                        border-bottom: 2px dashed #eee; 
+                    .brand-block { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 4px 0; }
+                    .brand-middle { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; }
+                    .logo-wrap {
+                        background: #1f7b34;
+                        border-radius: 10px;
+                        padding: 8px 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        border: 1px solid rgba(255, 255, 255, 0.35);
                     }
-                    
-                    .header-row { display: flex; gap: 40px; align-items: center; }
-                    .header-left { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-                    
-                    .contact-row { font-size: 11px; line-height: 1.6; color: #444; font-weight: 500; }
-                    .contact-row b { color: #111; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 8px; font-size: 11.5px; }
-                    
-                    .header-right { width: 380px; }
-                    .label-preview-box img { width: 100%; height: auto; border: 1px solid #eee; }
+                    .logo { height: 42px; display: block; }
+                    .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 42px; text-transform: uppercase; line-height: 0.98; }
+                    .article-no { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; }
+                    .brand-site { font-size: 11.5px; font-weight: 700; letter-spacing: 0.45px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; text-transform: lowercase; }
+                    .label-preview-box {
+                        width: 330px;
+                        max-width: 44%;
+                        flex-shrink: 0;
+                        background: #fff;
+                        border-radius: 8px;
+                        padding: 4px;
+                    }
+                    .label-preview-box img { width: 100%; height: auto; display: block; border-radius: 6px; }
                     
                     .image-section { 
-                        flex-grow: 1; 
-                        padding: 40px; 
+                        flex: 1; 
+                        min-height: 0;
+                        padding: 16px 24px 24px; 
                         background: #fff; 
                         display: flex; 
                         align-items: center; 
@@ -272,16 +329,42 @@ async function generateBatchStockPDF() {
                     }
                     
                     .image-section img { 
-                        max-width: 100%; 
-                        max-height: 100%; 
+                        width: 100%;
+                        height: 100%;
                         object-fit: contain; 
                     }
+
+                    .address-footer {
+                        display: grid;
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                        gap: 14px;
+                        padding: 12px 24px 16px;
+                        border-top: 1px solid #e7e7e7;
+                        background: #f8fbf8;
+                    }
+                    .footer-col-title {
+                        font-size: 10px;
+                        font-weight: 800;
+                        color: #1f7b34;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        margin-bottom: 4px;
+                    }
+                    .footer-col-text {
+                        font-size: 9.2px;
+                        line-height: 1.35;
+                        color: #333;
+                        font-weight: 500;
+                    }
+                    .footer-left { text-align: left; }
+                    .footer-center { text-align: center; }
+                    .footer-right { text-align: right; }
 
                     @media print {
                         @page { size: A4; margin: 0; }
                         body { background: #fff; }
                         .page-container { padding: 0; display: block; background: #fff; }
-                        .spec-card { box-shadow: none; width: 210mm; height: 100vh; page-break-after: always; }
+                        .spec-card { box-shadow: none; width: 210mm; height: 297mm; page-break-after: always; }
                         .spec-card:last-child { page-break-after: auto; }
                     }
                 </style>
@@ -290,24 +373,35 @@ async function generateBatchStockPDF() {
                 <div class="page-container">
                 ${selectedItems.map(item => `
                         <div class="spec-card">
-                            <div class="card-header">
-                                <img src="assets/images/green-logo.png" class="logo">
-                                <div class="brand-title">Green International</div>
-                            </div>
-                            <div class="info-section">
-                                <div class="header-row">
-                                    <div class="header-left">
-                                        <div class="contact-row"><b>India Office:</b> 326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018</div>
-                                        <div class="contact-row"><b>China Office:</b> Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China-213100</div>
-                                        <div class="contact-row"><b>Contact:</b> +91 9810639056 | +91 0124-4799566 | sales@greeninternationalindia.com</div>
+                            <div class="top-info">
+                                <div class="brand-block">
+                                    <div class="logo-wrap"><img src="assets/images/green-logo.png" class="logo"></div>
+                                    <div class="brand-middle">
+                                        <div class="brand-title">Swatch Card</div>
+                                        <div class="article-no">${item.article_no || 'N/A'}</div>
                                     </div>
-                                    <div class="header-right"><img src="${item.temp_rendered_label || ''}" style="width:100%"></div>
+                                    <div class="brand-site">greeninternationalindia.com</div>
                                 </div>
+                                <div class="label-preview-box"><img src="${item.temp_rendered_label || ''}"></div>
                             </div>
                             <div class="image-section"><img src="${item.resolved_url || placeholderImg}" crossorigin="anonymous"></div>
+                            <div class="address-footer">
+                                <div class="footer-left">
+                                    <div class="footer-col-title">India Office</div>
+                                    <div class="footer-col-text">326, 3rd Floor, Tower B, Spazedge, Sohna Road, Sector 47, Gurugram, India 122018</div>
+                                </div>
+                                <div class="footer-center">
+                                    <div class="footer-col-title">Contact</div>
+                                    <div class="footer-col-text">+91 9810639056 | +91 0124-4799566<br>sales@greeninternationalindia.com</div>
+                                </div>
+                                <div class="footer-right">
+                                    <div class="footer-col-title">China Office</div>
+                                    <div class="footer-col-text">Hutang Jiangcun, Gesi Industrial Zone, Wujin, Changzhou, China 213100</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
                 `).join('')}
+                </div>
             </body>
             </html>
         `);
