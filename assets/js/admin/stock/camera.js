@@ -303,7 +303,8 @@ async function captureForOCR() {
     // Only capturePhoto/file upload should populate image_data for persistence.
     if (el.imgDataField) el.imgDataField.value = '';
     if (el.imgSourceField) el.imgSourceField.value = '';
-    if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
+    // Keep retake hidden while OCR is processing.
+    if (el.retakeBtn) el.retakeBtn.style.display = 'none';
     if (el.startBtn) el.startBtn.style.display = 'none';
 
     // 4. Update Button State
