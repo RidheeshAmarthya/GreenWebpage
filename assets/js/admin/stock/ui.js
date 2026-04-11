@@ -13,7 +13,7 @@ function toggleStockView(mode) {
     if (gridView) gridView.style.display = mode === 'grid' ? 'flex' : 'none';
     if (listView) listView.style.display = mode === 'list' ? 'block' : 'none';
 
-    applyStockFilter(); // Re-render current data
+    fetchStock(); // Re-render current data without resetting page
 }
 
 function renderStockItems(items, totalCount = 0) {
