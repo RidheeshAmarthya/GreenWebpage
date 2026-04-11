@@ -8,6 +8,10 @@ const PrinterManager = {
     status: 'connecting', // 'online' (blue-detected), 'ready' (green-active), 'offline' (red), 'error' (gray)
     lastStatusMsg: '',
     isProcessing: false, // Atomic lock for ALL hardware commands
+    suppressChecksUntil: 0, // Temporarily pause discovery checks during print bursts
+    postJobRecheckTimer: null,
+    lastHandshakeAt: 0,
+    handshakeCooldownMs: 8000, // Skip repeated ~HS calls during rapid consecutive jobs
     idleTimeout: null,
     isIdle: false,
     isDebug: false, // DEBUG MODE: Logs to console instead of sending to hardware
@@ -101,10 +105,13 @@ const PrinterManager = {
             return;
         }
 
-        // If we are currently printing, don't interrupt with a scan
-        if (this.isProcessing) return;
+        // If we are currently printing (or just finished a burst), don't interrupt with discovery scans.
+        if (this.isProcessing || Date.now() < this.suppressChecksUntil) return;
 
         BrowserPrint.getLocalDevices((devices) => {
+            // Ignore stale callback if printing started while this async scan was in flight.
+            if (this.isProcessing || Date.now() < this.suppressChecksUntil) return;
+
             let zebraPrinters = (devices || []).filter(d => 
                 d.deviceType === 'printer' && 
                 (d.name.toLowerCase().includes('zebra') || d.name.toLowerCase().includes('zd'))
@@ -143,8 +150,30 @@ const PrinterManager = {
                 this.updateStatus('offline', 'No Printer Found');
             }
         }, (error) => {
+            if (this.isProcessing || Date.now() < this.suppressChecksUntil) return;
             this.updateStatus('error', 'App Not Running');
         }, "printer");
+    },
+
+    scheduleConnectionRecheck(delayMs = 3000) {
+        if (this.postJobRecheckTimer) {
+            clearTimeout(this.postJobRecheckTimer);
+            this.postJobRecheckTimer = null;
+        }
+        this.postJobRecheckTimer = setTimeout(() => {
+            this.postJobRecheckTimer = null;
+            this.checkConnection();
+        }, delayMs);
+    },
+
+    async waitForIdle(timeoutMs = 15000) {
+        const start = Date.now();
+        while (this.isProcessing) {
+            if (Date.now() - start > timeoutMs) {
+                throw new Error("Printer remained busy for too long. Please try again.");
+            }
+            await new Promise(resolve => setTimeout(resolve, 75));
+        }
     },
 
     /**
@@ -167,17 +196,34 @@ const PrinterManager = {
 
         if (!this.device) throw new Error("No Zebra printer detected. Please check cables.");
 
+        // Avoid hammering ~HS on rapid back-to-back prints (can destabilize some desktop units).
+        const recentlyHandshook = (Date.now() - this.lastHandshakeAt) < this.handshakeCooldownMs;
+        if (recentlyHandshook && (this.status === 'ready' || this.status === 'online')) {
+            return true;
+        }
+
         // Handshake: Send ~HS to verify the hardware is actually responsive
         return new Promise((resolve, reject) => {
             this.updateStatus('connecting', 'Waking Printer...');
             this.device.send("~HS", (s) => {
+                const hsText = String(s || '').toLowerCase();
+                if (hsText.includes('head open') || hsText.includes('top open')) {
+                    return reject(new Error("Printer reports top/head open."));
+                }
+                this.lastHandshakeAt = Date.now();
                 this.updateStatus('ready', 'PRINTER READY');
                 resolve(true);
             }, (err) => {
                 this.device = null; // Stale handle
-                reject(new Error("Printer not responding. Try again in 5 seconds."));
+                const msg = err ? (err.message || String(err)) : "Printer not responding. Try again in 5 seconds.";
+                reject(new Error(msg));
             });
         });
+    },
+
+    isTransientTopOpenError(error) {
+        const msg = String(error?.message || error || '').toLowerCase();
+        return msg.includes('head open') || msg.includes('top open');
     },
 
     async sendJob(zpl) {
@@ -206,34 +252,52 @@ const PrinterManager = {
             throw new Error("No Zebra printer detected. Please check that the USB cable is connected and the printer is powered on.");
         }
 
-        // ATOMIC LOCK: Prevent overlapping commands
+        // ATOMIC LOCK: serialize overlapping commands rather than failing immediately.
         if (this.isProcessing) {
-            console.warn("PrinterManager: Busy processing a previous request.");
-            throw new Error("Printer is currently busy processing another job. Please wait a second.");
+            console.warn("PrinterManager: Busy, waiting for previous request to finish...");
+            await this.waitForIdle();
         }
 
         try {
             this.isProcessing = true;
+            this.suppressChecksUntil = Date.now() + 2000;
 
-            // 1. Just-in-Time wake up
-            await this.ensureReady();
-
-            // 2. Send actual data (Exactly Once)
-            await new Promise((resolve, reject) => {
-                this.device.send(zpl, (s) => resolve(s), (err) => {
-                    const msg = err ? (err.message || String(err)) : "Disconnected mid-print";
-                    reject(new Error(msg));
-                });
-            });
+            // 1. Just-in-Time wake up + 2. Send data (with one retry for transient false head-open)
+            const maxAttempts = 2;
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    await this.ensureReady();
+                    await new Promise((resolve, reject) => {
+                        this.device.send(zpl, (s) => resolve(s), (err) => {
+                            const msg = err ? (err.message || String(err)) : "Disconnected mid-print";
+                            reject(new Error(msg));
+                        });
+                    });
+                    break;
+                } catch (attemptError) {
+                    const isRetryable = this.isTransientTopOpenError(attemptError);
+                    if (!isRetryable || attempt === maxAttempts) throw attemptError;
+                    console.warn("PrinterManager: transient top/head-open detected, retrying once...");
+                    this.device = null;
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                    await new Promise(resolve => {
+                        this.autoDiscover();
+                        setTimeout(resolve, 900);
+                    });
+                }
+            }
 
             this.updateStatus('ready', 'Success');
-            // Return to 'online' status after a short delay
-            setTimeout(() => { if (!this.isProcessing) this.checkConnection(); }, 3000);
+            // Debounced passive recheck after bursts settle
+            this.suppressChecksUntil = Date.now() + 2500;
+            this.scheduleConnectionRecheck(3500);
             return true;
         } catch (error) {
             console.error("PrinterManager V2 Error:", error);
             this.device = null; // Clear stale state
             this.updateStatus('error', error.message || 'Print Failed');
+            this.suppressChecksUntil = Date.now() + 2000;
+            this.scheduleConnectionRecheck(4000);
             throw error;
         } finally {
             this.isProcessing = false;
