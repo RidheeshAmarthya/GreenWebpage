@@ -15,6 +15,7 @@ const getCamElements = () => ({
     sourcesContent: document.getElementById('stock-sources-content'),
     captureActions: document.getElementById('capture-actions'),
     imgDataField: document.getElementById('stock-image-data'),
+    imgSourceField: document.getElementById('stock-image-source'),
     fileInput: document.getElementById('stock-file-input')
 });
 
@@ -167,6 +168,7 @@ async function capturePhoto() {
     if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
 
     if (el.imgDataField) el.imgDataField.value = dataUrl;
+    if (el.imgSourceField) el.imgSourceField.value = 'photo';
     stopWebcam();
 }
 
@@ -186,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el.sourcesContent) el.sourcesContent.style.display = 'block';
         
         if (el.imgDataField) el.imgDataField.value = '';
+        if (el.imgSourceField) el.imgSourceField.value = '';
         if (el.fileInput) el.fileInput.value = '';
 
         if (document.getElementById('cam-tab')?.classList.contains('active')) {
@@ -248,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (elLatest.retakeBtn) elLatest.retakeBtn.style.display = 'inline-block';
                 if (elLatest.startBtn) elLatest.startBtn.style.display = 'none';
                 if (elLatest.imgDataField) elLatest.imgDataField.value = dataUrl;
+                if (elLatest.imgSourceField) elLatest.imgSourceField.value = 'photo';
                 showLoading(false);
             };
             img.src = event.target.result;
@@ -298,6 +302,7 @@ async function captureForOCR() {
     // OCR image is temporary and must never become the saved article photo.
     // Only capturePhoto/file upload should populate image_data for persistence.
     if (el.imgDataField) el.imgDataField.value = '';
+    if (el.imgSourceField) el.imgSourceField.value = '';
     if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
     if (el.startBtn) el.startBtn.style.display = 'none';
 

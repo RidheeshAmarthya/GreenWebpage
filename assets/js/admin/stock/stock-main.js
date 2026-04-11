@@ -50,6 +50,7 @@ function resetStockModalUI() {
     if (form) form.reset();
     
     if (el.imgDataField) el.imgDataField.value = '';
+    if (el.imgSourceField) el.imgSourceField.value = '';
     if (el.fileInput) el.fileInput.value = '';
 
     // Reset preview area
@@ -259,15 +260,18 @@ async function saveStockItem(event, isRetry = false) {
     const stockData = Object.fromEntries(formData.entries());
     const itemId = stockData.id;
     const imageData = stockData.image_data;
+    const imageSource = stockData.image_source;
 
     delete stockData.id;
     delete stockData.image_data;
+    delete stockData.image_source;
 
     showLoading(true);
     try {
         let finalImageUrl = null;
 
-        if (imageData && imageData.startsWith('data:image')) {
+        // Only persist images explicitly captured/uploaded by user.
+        if (imageSource === 'photo' && imageData && imageData.startsWith('data:image')) {
             const fileName = `stock-${Date.now()}.webp`;
             const blob = (typeof dataURLToBlob === 'function') ? dataURLToBlob(imageData) : null;
 
