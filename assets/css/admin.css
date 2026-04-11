@@ -710,3 +710,22 @@ body {
     border-color: #4f46e5;
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
+
+@media (max-width: 576px) {
+    .stock-modal-actions {
+        flex-wrap: wrap;
+    }
+
+    .stock-modal-actions .btn {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 0;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        white-space: nowrap;
+        font-size: 0.85rem;
+    }
+
+    .stock-modal-actions #stock-modal-submit-btn {
+        flex-basis: 100%;
+    }
+}
