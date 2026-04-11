@@ -280,8 +280,8 @@ async function captureForOCR() {
     // 2. STOP CAMERA IMMEDIATELY as requested
     stopWebcam();
 
-    // 2.5 Prepare image for both AI and the Article Form (Resize & Compress)
-    // We target < 50KB to keep the DB/Storage light
+    // 2.5 Prepare image for AI only (Resize & Compress)
+    // We target < 50KB to keep OCR payload light
     const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
     const compressedDataUrl = await compressAndResizeImage(canvas, format, 48000);
 
@@ -295,8 +295,9 @@ async function captureForOCR() {
         if (el.webcamOverlay) el.webcamOverlay.classList.add('d-none');
     }
 
-    // Set the hidden field so the user's scan picture is actually saved to the article
-    if (el.imgDataField) el.imgDataField.value = compressedDataUrl;
+    // OCR image is temporary and must never become the saved article photo.
+    // Only capturePhoto/file upload should populate image_data for persistence.
+    if (el.imgDataField) el.imgDataField.value = '';
     if (el.retakeBtn) el.retakeBtn.style.display = 'inline-block';
     if (el.startBtn) el.startBtn.style.display = 'none';
 
