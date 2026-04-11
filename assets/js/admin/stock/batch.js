@@ -186,8 +186,8 @@ async function batchPrintStockLabels() {
                 failed.push({ article: item.article_no, error: err.message || err });
             }
 
-            // Tiny 100ms gap between jobs
-            await new Promise(r => setTimeout(r, 100));
+            // ZD230 is more stable with a slightly longer inter-job gap.
+            await new Promise(r => setTimeout(r, 300));
         }
 
         if (failed.length > 0) {

@@ -11,7 +11,9 @@ const PrinterManager = {
     suppressChecksUntil: 0, // Temporarily pause discovery checks during print bursts
     postJobRecheckTimer: null,
     lastHandshakeAt: 0,
-    handshakeCooldownMs: 8000, // Skip repeated ~HS calls during rapid consecutive jobs
+    handshakeCooldownMs: 2500, // Balance stability with frequent enough readiness checks
+    jobsSinceHandshake: 0,
+    maxJobsWithoutHandshake: 3,
     idleTimeout: null,
     isIdle: false,
     isDebug: false, // DEBUG MODE: Logs to console instead of sending to hardware
@@ -198,7 +200,11 @@ const PrinterManager = {
 
         // Avoid hammering ~HS on rapid back-to-back prints (can destabilize some desktop units).
         const recentlyHandshook = (Date.now() - this.lastHandshakeAt) < this.handshakeCooldownMs;
-        if (recentlyHandshook && (this.status === 'ready' || this.status === 'online')) {
+        if (
+            recentlyHandshook &&
+            this.jobsSinceHandshake < this.maxJobsWithoutHandshake &&
+            (this.status === 'ready' || this.status === 'online')
+        ) {
             return true;
         }
 
@@ -207,10 +213,15 @@ const PrinterManager = {
             this.updateStatus('connecting', 'Waking Printer...');
             this.device.send("~HS", (s) => {
                 const hsText = String(s || '').toLowerCase();
+                const warning = this.parsePrinterWarning(hsText);
+                if (warning) {
+                    return reject(new Error(`Printer warning: ${warning}`));
+                }
                 if (hsText.includes('head open') || hsText.includes('top open')) {
                     return reject(new Error("Printer reports top/head open."));
                 }
                 this.lastHandshakeAt = Date.now();
+                this.jobsSinceHandshake = 0;
                 this.updateStatus('ready', 'PRINTER READY');
                 resolve(true);
             }, (err) => {
@@ -219,6 +230,15 @@ const PrinterManager = {
                 reject(new Error(msg));
             });
         });
+    },
+
+    parsePrinterWarning(text) {
+        if (!text) return null;
+        if (text.includes('head open') || text.includes('top open') || text.includes('cover open')) return 'TOP/HEAD OPEN';
+        if (text.includes('pause')) return 'PAUSED (resume/feed on printer)';
+        if (text.includes('paper out') || text.includes('media out') || text.includes('label out')) return 'MEDIA OUT';
+        if (text.includes('ribbon out')) return 'RIBBON OUT';
+        return null;
     },
 
     isTransientTopOpenError(error) {
@@ -268,11 +288,18 @@ const PrinterManager = {
                 try {
                     await this.ensureReady();
                     await new Promise((resolve, reject) => {
-                        this.device.send(zpl, (s) => resolve(s), (err) => {
+                        this.device.send(zpl, (s) => {
+                            const warning = this.parsePrinterWarning(String(s || '').toLowerCase());
+                            if (warning) {
+                                return reject(new Error(`Printer warning: ${warning}`));
+                            }
+                            resolve(s);
+                        }, (err) => {
                             const msg = err ? (err.message || String(err)) : "Disconnected mid-print";
                             reject(new Error(msg));
                         });
                     });
+                    this.jobsSinceHandshake += 1;
                     break;
                 } catch (attemptError) {
                     const isRetryable = this.isTransientTopOpenError(attemptError);
