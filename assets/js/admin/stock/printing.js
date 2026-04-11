@@ -43,15 +43,12 @@ function previewStockLabel(id) {
     const item = stockItems.find(i => i.id === id);
     if (!item) return;
     const zpl = fillZPLTemplate(item);
-    const url = "https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/";
-    const encoder = new TextEncoder();
-    const data = encoder.encode(zpl);
-
-    fetch(url, { method: "POST", body: data }).then(response => {
-        if (!response.ok) throw new Error("Labelary API error");
-        return response.blob();
-    }).then(blob => {
-        const fileURL = URL.createObjectURL(blob);
+    LocalZplRenderer.renderZplToObjectUrl(zpl, {
+        dpi: '8dpmm',
+        widthInches: 4,
+        heightInches: 2,
+        index: 0
+    }).then(fileURL => {
         const win = window.open(fileURL, '_blank');
         if (!win) alert("Pop-up blocked! Please allow pop-ups to see the label preview.");
     }).catch(err => {
@@ -65,7 +62,17 @@ async function generateStockPDF(id) {
     if (!item) return;
 
     const zpl = fillZPLTemplate(item);
-    const labelImageUrl = `http://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`;
+    let labelImageUrl = '';
+    try {
+        labelImageUrl = await LocalZplRenderer.renderZplToDataUrl(zpl, {
+            dpi: '8dpmm',
+            widthInches: 4,
+            heightInches: 2,
+            index: 0
+        });
+    } catch (err) {
+        console.error('Failed to render label for PDF:', err);
+    }
     const imgUrl = item.resolved_url || placeholderImg;
 
     const printWindow = window.open('', '_blank', 'width=1000,height=800');
@@ -242,15 +249,12 @@ async function generateBatchStockPDF() {
                 }
 
                 const zpl = fillZPLTemplate(item);
-                const resp = await fetch(`https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`);
-                if (resp.ok) {
-                    const blob = await resp.blob();
-                    item.temp_rendered_label = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                }
+                item.temp_rendered_label = await LocalZplRenderer.renderZplToDataUrl(zpl, {
+                    dpi: '8dpmm',
+                    widthInches: 4,
+                    heightInches: 2,
+                    index: 0
+                });
             } catch (err) { console.error(err); }
             await new Promise(r => setTimeout(r, 150));
         }

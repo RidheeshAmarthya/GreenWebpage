@@ -92,15 +92,12 @@ async function updateModalLabelPreview(item = null, containerPrefix = 'modal-lab
 
     try {
         const zpl = fillZPLTemplate(finalItem);
-        const url = "https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/";
-        const encoder = new TextEncoder();
-        const data = encoder.encode(zpl);
-
-        const response = await fetch(url, { method: "POST", body: data });
-        if (!response.ok) throw new Error("API status: " + response.status);
-
-        const blob = await response.blob();
-        const localUrl = URL.createObjectURL(blob);
+        const localUrl = await LocalZplRenderer.renderZplToObjectUrl(zpl, {
+            dpi: '8dpmm',
+            widthInches: 4,
+            heightInches: 2,
+            index: 0
+        });
 
         if (previewImg) {
             previewImg.src = localUrl;
@@ -112,7 +109,7 @@ async function updateModalLabelPreview(item = null, containerPrefix = 'modal-lab
             placeholder.innerHTML = `
                 <div class="text-danger small fw-bold">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mb-1"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                    <br>Preview Failed (API)<br><span class="text-decoration-underline text-primary" style="cursor: pointer;">Click to Retry</span>
+                    <br>Preview Failed (Local Renderer)<br><span class="text-decoration-underline text-primary" style="cursor: pointer;">Click to Retry</span>
                 </div>`;
             placeholder.style.display = 'block';
             placeholder.onclick = (e) => {
