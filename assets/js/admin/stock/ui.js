@@ -28,6 +28,7 @@ function renderStockItems(items, totalCount = 0) {
 
     if (items.length === 0) {
         if (emptyState) emptyState.style.display = 'block';
+        renderStockPagination(0, 0);
         return;
     }
     if (emptyState) emptyState.style.display = 'none';
@@ -213,30 +214,98 @@ function createStockRow(item) {
 function renderStockPagination(totalItems, totalPages) {
     const container = document.getElementById('stock-pagination-container');
     if (!container) return;
-    const startRange = (stockCurrentPage - 1) * stockItemsPerPage + 1;
-    const endRange = Math.min(stockCurrentPage * stockItemsPerPage, totalItems);
+    if (totalItems === 0 || totalPages === 0) {
+        container.innerHTML = `
+            <div class="text-muted small text-center text-sm-start">
+                Showing <strong>0</strong> items
+            </div>
+        `;
+        return;
+    }
+
+    const safeCurrentPage = Math.min(Math.max(stockCurrentPage, 1), totalPages);
+    if (safeCurrentPage !== stockCurrentPage) stockCurrentPage = safeCurrentPage;
+
+    const startRange = (safeCurrentPage - 1) * stockItemsPerPage + 1;
+    const endRange = Math.min(safeCurrentPage * stockItemsPerPage, totalItems);
+
+    const windowSize = 5;
+    let pageStart = Math.max(1, safeCurrentPage - Math.floor(windowSize / 2));
+    let pageEnd = Math.min(totalPages, pageStart + windowSize - 1);
+    pageStart = Math.max(1, pageEnd - windowSize + 1);
+
+    const pageButtons = [];
+    for (let page = pageStart; page <= pageEnd; page++) {
+        pageButtons.push(`
+            <button
+                class="btn btn-sm ${page === safeCurrentPage ? 'btn-success text-white' : 'btn-outline-secondary'}"
+                style="width: 40px;"
+                onclick="changeStockPage(${page})"
+            >
+                ${page}
+            </button>
+        `);
+    }
 
     container.innerHTML = `
-        <div class="text-muted small text-center text-sm-start">
-            Showing <strong>${startRange}-${endRange}</strong> of <strong>${totalItems}</strong> items
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="small text-muted">Go to</span>
+                <input
+                    id="stock-page-jump-input"
+                    type="number"
+                    class="form-control form-control-sm"
+                    min="1"
+                    max="${totalPages}"
+                    value="${safeCurrentPage}"
+                    style="width: 78px;"
+                    onkeydown="if(event.key==='Enter'){ jumpToStockPage(${totalPages}); }"
+                >
+                <button class="btn btn-sm btn-outline-secondary" onclick="jumpToStockPage(${totalPages})">Go</button>
+            </div>
+            <div class="text-muted small text-center text-sm-start">
+                Showing <strong>${startRange}-${endRange}</strong> of <strong>${totalItems}</strong> items
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary" ${stockCurrentPage === 1 ? 'disabled' : ''} onclick="changeStockPage(${stockCurrentPage - 1})">
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-2">
+            <button class="btn btn-sm btn-outline-secondary" ${safeCurrentPage === 1 ? 'disabled' : ''} onclick="changeStockPage(1)">
+                First
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" ${safeCurrentPage === 1 ? 'disabled' : ''} onclick="changeStockPage(${safeCurrentPage - 1})">
                 Previous
             </button>
-            <div class="d-flex align-items-center px-2 small fw-bold text-success">
-                Page ${stockCurrentPage} of ${totalPages}
-            </div>
-            <button class="btn btn-sm btn-outline-secondary" ${stockCurrentPage === totalPages ? 'disabled' : ''} onclick="changeStockPage(${stockCurrentPage + 1})">
+            ${pageButtons.join('')}
+            <button class="btn btn-sm btn-outline-secondary" ${safeCurrentPage === totalPages ? 'disabled' : ''} onclick="changeStockPage(${safeCurrentPage + 1})">
                 Next
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" ${safeCurrentPage === totalPages ? 'disabled' : ''} onclick="changeStockPage(${totalPages})">
+                Last
             </button>
         </div>
     `;
 }
 
 function changeStockPage(page) {
-    stockCurrentPage = page;
+    if (!Number.isFinite(page)) return;
+    stockCurrentPage = Math.max(1, page);
     fetchStock();
+}
+
+function jumpToStockPage(totalPages) {
+    const input = document.getElementById('stock-page-jump-input');
+    if (!input) return;
+
+    const requestedPage = parseInt(input.value, 10);
+    if (isNaN(requestedPage)) {
+        input.value = String(stockCurrentPage);
+        return;
+    }
+
+    const targetPage = Math.min(Math.max(requestedPage, 1), totalPages);
+    input.value = String(targetPage);
+    if (targetPage !== stockCurrentPage) {
+        changeStockPage(targetPage);
+    }
 }
 
 function openBigView(src) {
