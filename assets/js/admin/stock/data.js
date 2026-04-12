@@ -5,8 +5,6 @@ async function fetchStock() {
 
     const rawSearch = (document.querySelector('#stock-search')?.value || '')
         .replace(/gsm/gi, '');
-    const fuzzySearch = rawSearch.trim().replace(/[^a-zA-Z0-9]+/g, '%');
-    const searchTerm = `%${fuzzySearch}%`;
 
     const typeFilter = document.querySelector('#stock-type-filter')?.value || 'all';
     const statusFilter = document.querySelector('#stock-status-filter')?.value || 'all';
@@ -35,18 +33,31 @@ async function fetchStock() {
     if (searchTerms.length > 0) {
         searchTerms.forEach(term => {
             const clean = term.replace(/[^a-z0-9]+/g, '');
-            let variants = [clean];
-            
-            // Expand with synonyms
-            if (synonymMap[clean]) variants.push(synonymMap[clean]);
-            
-            // Robust Fuzzy conditions
-            const conditions = variants.map(v => {
-                const fuzzy = v.length > 3 ? `%${v.substring(0, v.length - 1)}%` : `%${v}%`;
-                return `article_no.ilike.${fuzzy},content.ilike.${fuzzy},item.ilike.${fuzzy},finish.ilike.${fuzzy},remark.ilike.${fuzzy},count.ilike.${fuzzy},width.ilike.${fuzzy},weight.ilike.${fuzzy}`;
-            }).join(',');
+            const tokenized = term.split(/[^a-z0-9]+/).filter(Boolean);
+            const separatorTolerant = tokenized.length ? `%${tokenized.join('%')}%` : '';
 
-            query = query.or(conditions);
+            let variants = [];
+            if (term) variants.push(`%${term}%`);
+            if (separatorTolerant && separatorTolerant !== `%${term}%`) variants.push(separatorTolerant);
+            if (clean) variants.push(clean.length > 3 ? `%${clean.substring(0, clean.length - 1)}%` : `%${clean}%`);
+
+            // Expand with synonyms
+            if (clean && synonymMap[clean]) variants.push(`%${synonymMap[clean]}%`);
+
+            // Deduplicate variants to keep the query compact
+            variants = [...new Set(variants)];
+
+            // Build OR conditions for text-searchable fields
+            const conditions = variants.map(v =>
+                `article_no.ilike.${v},content.ilike.${v},item.ilike.${v},finish.ilike.${v},remark.ilike.${v},count.ilike.${v},width.ilike.${v},weight.ilike.${v}`
+            ).join(',');
+
+            // Barcode is often numeric in DB views; use exact match instead of ilike.
+            if (/^\d+$/.test(clean)) {
+                query = query.or(`${conditions},barcode.eq.${clean}`);
+            } else {
+                query = query.or(conditions);
+            }
         });
     }
 
