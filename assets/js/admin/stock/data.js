@@ -65,6 +65,30 @@ async function fetchStock() {
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
     if (statusFilter === 'IN_STOCK') query = query.gt('available', 0);
     if (statusFilter === 'OUT_OF_STOCK') query = query.eq('available', 0);
+    if (statusFilter === 'CHECKED_OUT') {
+        const { data: activeCheckouts, error: checkoutError } = await supabaseClient
+            .from('Stock_Checkouts')
+            .select('barcode')
+            .is('returned_at', null);
+
+        if (checkoutError) {
+            showLoading(false);
+            console.error(checkoutError);
+            return;
+        }
+
+        const activeBarcodes = [...new Set((activeCheckouts || []).map(c => c.barcode).filter(b => b !== null && b !== undefined && b !== ''))];
+
+        // No active checkout means no checked-out stock to show.
+        if (activeBarcodes.length === 0) {
+            showLoading(false);
+            stockItems = [];
+            renderStockItems([], 0);
+            return;
+        }
+
+        query = query.in('barcode', activeBarcodes);
+    }
 
     // 3. Weight (GSM/MM/OZ) Filters using View's numeric column
     if (gsmMin) {
