@@ -113,19 +113,22 @@ function renderColors(colors) {
             const dateDiff = new Date(b.date) - new Date(a.date);
             if (dateDiff !== 0) return dateDiff;
             return new Date(b.created_at) - new Date(a.created_at);
-        }).map(log => `
+                }).map(log => {
+            // Safe JSON for attribute
+            const safeLog = JSON.stringify(log).replace(/'/g, "&apos;");
+            return `
             <div class="timeline-item-match">
                 <div class="timeline-date">${formatDate(log.date)}</div>
                 <div class="timeline-dot"></div>
                 <div class="timeline-content-match">
                     <div class="timeline-note">${linkifyTracking(log.note)}</div>
                     <div class="log-actions">
-                        <button class="btn btn-sm btn-light px-2" style="font-size: 1.1rem;" onclick='editLogPrompt(${JSON.stringify(log)})' title="Edit Status">✎</button>
+                        <button class="btn btn-sm btn-light px-2 js-edit-log" style="font-size: 1.1rem;" data-log='${safeLog}' title="Edit Status">✎</button>
                         <button class="btn btn-sm btn-light px-2 text-danger" style="font-size: 1.1rem;" onclick="deleteLog('${log.color_logs_uuid}')" title="Delete Status">×</button>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         colorDiv.innerHTML = `
             <div class="color-card-header">
@@ -151,6 +154,14 @@ function renderColors(colors) {
             </div>
         `;
         container.appendChild(colorDiv);
+
+        // Attach event listeners to the edit buttons (Safer than inline onclick)
+        colorDiv.querySelectorAll('.js-edit-log').forEach(btn => {
+            btn.onclick = () => {
+                const logData = JSON.parse(btn.dataset.log);
+                editLogPrompt(logData);
+            };
+        });
     });
 }
 
@@ -288,7 +299,14 @@ function initTemplates() {
         document.querySelectorAll('.template-dropdown-menu').forEach(menu => {
             options.forEach(opt => {
                 const li = document.createElement('li');
-                li.innerHTML = `<a class="dropdown-item py-2" href="#" style="border-bottom: 1px solid #f0f0f0; white-space: normal;" onclick="const container=this.closest('.mb-3'); const i=container?container.querySelector('textarea, input'):null; if(i){i.value=this.dataset.val; i.focus();} return false;" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</a>`;
+                const safeOpt = opt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                li.innerHTML = `<a class="dropdown-item py-2" href="#" style="border-bottom: 1px solid #f0f0f0; white-space: normal;" data-val="${safeOpt}">${safeOpt}</a>`;
+                li.querySelector('a').onclick = function() {
+                    const container = this.closest('.mb-3') || this.parentElement.closest('.modal-content');
+                    const i = container ? container.querySelector('textarea, input') : null;
+                    if (i) { i.value = this.dataset.val; i.focus(); }
+                    return false;
+                };
                 menu.appendChild(li);
             });
         });
