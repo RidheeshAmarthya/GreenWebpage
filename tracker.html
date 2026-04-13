@@ -63,6 +63,7 @@
 
     <link rel="stylesheet" href="assets/css/common.css">
     <link rel="stylesheet" href="assets/css/tracker.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
@@ -127,6 +128,9 @@
                 <div class="search-box">
                     <input type="text" id="order-id-input" placeholder="Tracking Number" autocomplete="off">
                     <button id="track-btn">Track</button>
+                </div>
+                <div id="turnstile-container" class="mt-4 d-flex justify-content-center">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAC8qtP_bidRys_gg"></div>
                 </div>
                 <div id="loading-spinner" class="spinner-border text-success" role="status">
                     <span class="visually-hidden">Loading...</span>

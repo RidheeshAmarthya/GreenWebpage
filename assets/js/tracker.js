@@ -35,6 +35,13 @@ async function trackOrder() {
 
     showLoading(true);
 
+    // Get Turnstile token
+    const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse() : null;
+    if (!captchaToken) {
+        showError('Please complete the security check.');
+        return;
+    }
+
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -42,11 +49,15 @@ async function trackOrder() {
                 'apikey': API_KEY,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ p_order_id: orderId })
+            body: JSON.stringify({ 
+                p_order_id: orderId,
+                p_captcha_token: captchaToken
+            })
         });
 
         if (!response.ok) {
-            throw new Error('Failed to fetch order details. Please try again later.');
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.message || 'Failed to fetch order details. Please try again later.');
         }
 
         const data = await response.json();
