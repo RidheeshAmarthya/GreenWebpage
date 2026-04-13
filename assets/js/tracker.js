@@ -25,6 +25,24 @@ function getTurnstileToken() {
     return (typeof turnstile !== 'undefined') ? turnstile.getResponse() : null;
 }
 
+function isCaptchaErrorMessage(message) {
+    if (!message) return false;
+    const normalized = String(message).toLowerCase();
+    return normalized.includes('captcha') ||
+        normalized.includes('turnstile') ||
+        normalized.includes('token') ||
+        normalized.includes('timeout-or-duplicate');
+}
+
+function resetTurnstileWidget() {
+    if (typeof turnstile === 'undefined' || typeof turnstile.reset !== 'function') return;
+    try {
+        turnstile.reset();
+    } catch (err) {
+        console.warn('Turnstile reset failed:', err);
+    }
+}
+
 async function trackOrder() {
     const orderId = orderInput.value.trim().toUpperCase();
     if (!orderId) {
@@ -46,6 +64,7 @@ async function trackOrder() {
     const captchaToken = getTurnstileToken();
     if (!captchaToken) {
         setTurnstileVisibility(true);
+        resetTurnstileWidget();
         showError('Please complete the security check.');
         return;
     }
@@ -73,7 +92,13 @@ async function trackOrder() {
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.message || 'Failed to fetch order details. Please try again later.');
+            const serverMessage = errData.message || errData.error || '';
+            if (isCaptchaErrorMessage(serverMessage) || response.status === 401 || response.status === 403) {
+                setTurnstileVisibility(true);
+                resetTurnstileWidget();
+                throw new Error('Security check expired. Please verify again.');
+            }
+            throw new Error(serverMessage || 'Failed to fetch order details. Please try again later.');
         }
 
         const data = await response.json();
@@ -104,6 +129,12 @@ async function trackOrder() {
         console.error('API Error:', error);
         if (error.name === 'AbortError') {
             showError('The request timed out. Please try again.');
+            return;
+        }
+        if (isCaptchaErrorMessage(error.message)) {
+            setTurnstileVisibility(true);
+            resetTurnstileWidget();
+            showError('Security check expired. Please verify again.');
             return;
         }
         showError(error.message);
@@ -633,5 +664,6 @@ window.onTurnstileVerified = () => {
 
 window.onTurnstileExpired = () => {
     setTurnstileVisibility(true);
+    resetTurnstileWidget();
     showError('Security check expired. Please verify again.');
 };
