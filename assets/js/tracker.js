@@ -17,6 +17,12 @@ const tnaTimeline = document.getElementById('tna-timeline');
 
 
 let currentOrderData = null;
+let pendingAutoTrackId = null;
+const REQUEST_TIMEOUT_MS = 20000;
+
+function getTurnstileToken() {
+    return (typeof turnstile !== 'undefined') ? turnstile.getResponse() : null;
+}
 
 async function trackOrder() {
     const orderId = orderInput.value.trim().toUpperCase();
@@ -36,24 +42,32 @@ async function trackOrder() {
     showLoading(true);
 
     // Get Turnstile token
-    const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse() : null;
+    const captchaToken = getTurnstileToken();
     if (!captchaToken) {
         showError('Please complete the security check.');
         return;
     }
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'apikey': API_KEY,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                p_order_id: orderId,
-                p_captcha_token: captchaToken
-            })
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        let response;
+        try {
+            response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'apikey': API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    p_order_id: orderId,
+                    p_captcha_token: captchaToken
+                })
+            });
+        } finally {
+            clearTimeout(timeoutId);
+        }
 
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
@@ -85,6 +99,10 @@ async function trackOrder() {
 
     } catch (error) {
         console.error('API Error:', error);
+        if (error.name === 'AbortError') {
+            showError('The request timed out. Please try again.');
+            return;
+        }
         showError(error.message);
     } finally {
         showLoading(false);
@@ -583,7 +601,25 @@ window.addEventListener('load', () => {
         const orderInput = document.getElementById('order-id-input');
         if (orderInput) {
             orderInput.value = targetId;
-            trackOrder();
+            const captchaToken = getTurnstileToken();
+            if (captchaToken) {
+                trackOrder();
+            } else {
+                pendingAutoTrackId = targetId;
+            }
         }
     }
 });
+
+window.onTurnstileVerified = () => {
+    if (!pendingAutoTrackId) return;
+    const inputVal = orderInput.value.trim();
+    if (!inputVal) return;
+    hideError();
+    pendingAutoTrackId = null;
+    trackOrder();
+};
+
+window.onTurnstileExpired = () => {
+    showError('Security check expired. Please verify again.');
+};

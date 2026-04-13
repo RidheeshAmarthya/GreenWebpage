@@ -130,7 +130,8 @@
                     <button id="track-btn">Track</button>
                 </div>
                 <div id="turnstile-container" class="mt-4 d-flex justify-content-center">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAC8qtP_bidRys_gg"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAC8qtP_bidRys_gg"
+                        data-callback="onTurnstileVerified" data-expired-callback="onTurnstileExpired"></div>
                 </div>
                 <div id="loading-spinner" class="spinner-border text-success" role="status">
                     <span class="visually-hidden">Loading...</span>
