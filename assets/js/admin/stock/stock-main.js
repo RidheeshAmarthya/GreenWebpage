@@ -101,7 +101,7 @@ function openStockModal(id = null) {
             if (qtyField) qtyField.value = lastQty;
         } else {
             const qtyField = form.querySelector('[name="quantity"]');
-            if (qtyField) qtyField.value = "1.00";
+            if (qtyField) qtyField.value = "1";
         }
         
         const lastWeightUnit = localStorage.getItem('last_article_weight_unit');
