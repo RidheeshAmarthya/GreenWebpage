@@ -412,6 +412,8 @@ function clearStockFilters() {
     });
     const typeFilter = document.getElementById('stock-type-filter');
     if (typeFilter) typeFilter.value = 'all';
+    const gieFilter = document.getElementById('gie-quality-filter');
+    if (gieFilter) gieFilter.value = 'all';
     const statusFilter = document.getElementById('stock-status-filter');
     if (statusFilter) statusFilter.value = 'all';
     const unitFilter = document.getElementById('weight-unit-filter');
@@ -432,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    ['stock-type-filter', 'stock-status-filter', 'weight-unit-filter'].forEach(id => {
+    ['stock-type-filter', 'gie-quality-filter', 'stock-status-filter', 'weight-unit-filter'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', () => {
             stockCurrentPage = 1;
             if (typeof applyStockFilter === 'function') applyStockFilter();

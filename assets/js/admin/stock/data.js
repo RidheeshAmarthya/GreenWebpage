@@ -8,6 +8,7 @@ async function fetchStock() {
 
     const typeFilter = document.querySelector('#stock-type-filter')?.value || 'all';
     const statusFilter = document.querySelector('#stock-status-filter')?.value || 'all';
+    const gieFilter = document.querySelector('#gie-quality-filter')?.value || 'all';
     const gsmMin = document.querySelector('#gsm-min-filter')?.value;
     const gsmMax = document.getElementById('gsm-max-filter')?.value;
     const unitFilter = document.querySelector('#weight-unit-filter')?.value || 'All';
@@ -63,6 +64,7 @@ async function fetchStock() {
 
     // 2. Basic Structured Filters
     if (typeFilter !== 'all') query = query.eq('type', typeFilter);
+    if (gieFilter !== 'all') query = query.ilike('article_no', `${gieFilter}-%`);
     if (statusFilter === 'IN_STOCK') query = query.gt('available', 0);
     if (statusFilter === 'OUT_OF_STOCK') query = query.eq('available', 0);
     if (statusFilter === 'CHECKED_OUT') {
