@@ -114,6 +114,7 @@ async function trackOrder() {
 
 function displayOrder(data) {
     currentOrderData = data;
+    setTurnstileVisibility(false);
 
     document.getElementById('disp-order-id').textContent = `Green Order ID: ${data.order_id}`;
     document.getElementById('disp-pi-date').textContent = formatDate(data.pi_date);
@@ -230,7 +231,9 @@ function hideError() {
 
 function setTurnstileVisibility(show) {
     if (!turnstileContainer) return;
-    turnstileContainer.style.display = show ? 'flex' : 'none';
+    turnstileContainer.classList.toggle('d-none', !show);
+    turnstileContainer.classList.toggle('d-flex', show);
+    turnstileContainer.hidden = !show;
 }
 
 trackBtn.addEventListener('click', trackOrder);
