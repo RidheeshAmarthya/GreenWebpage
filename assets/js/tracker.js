@@ -1,4 +1,4 @@
-const API_URL = `${window.ENV.SUPABASE_URL}/rest/v1/rpc/get_order_details`;
+const API_URL = `${window.ENV.SUPABASE_URL}/functions/v1/order-tracker`;
 const API_KEY = window.ENV.SUPABASE_KEY;
 
 // Cache to minimize API calls
