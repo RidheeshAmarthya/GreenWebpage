@@ -21,7 +21,6 @@ const AdminSettings = {
     },
 
     save(settings) {
-        localStorage.setItem(this.storageKey);
         localStorage.setItem(this.storageKey, JSON.stringify(settings));
     },
 
