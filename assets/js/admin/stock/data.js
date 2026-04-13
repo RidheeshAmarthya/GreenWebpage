@@ -50,7 +50,7 @@ async function fetchStock() {
 
             // Build OR conditions for text-searchable fields
             const conditions = variants.map(v =>
-                `article_no.ilike.${v},content.ilike.${v},item.ilike.${v},finish.ilike.${v},remark.ilike.${v},count.ilike.${v},width.ilike.${v},weight.ilike.${v}`
+                `article_no.ilike.${v},content.ilike.${v},item.ilike.${v},finish.ilike.${v},remark.ilike.${v},count.ilike.${v},density.ilike.${v},width.ilike.${v},weight.ilike.${v}`
             ).join(',');
 
             // Barcode is often numeric in DB views; use exact match instead of ilike.
@@ -67,11 +67,20 @@ async function fetchStock() {
     if (gieFilter !== 'all') query = query.ilike('article_no', `${gieFilter}-%`);
     if (statusFilter === 'IN_STOCK') query = query.gt('available', 0);
     if (statusFilter === 'OUT_OF_STOCK') query = query.eq('available', 0);
-    if (statusFilter === 'CHECKED_OUT') {
-        const { data: activeCheckouts, error: checkoutError } = await supabaseClient
+
+    // 4. Partner or General Checked Out Filter
+    const partnerSearch = window.currentPartnerFilter || null;
+    if (statusFilter === 'CHECKED_OUT' || partnerSearch) {
+        let checkoutQuery = supabaseClient
             .from('Stock_Checkouts')
             .select('barcode')
             .is('returned_at', null);
+        
+        if (partnerSearch) {
+            checkoutQuery = checkoutQuery.ilike('company', `%${partnerSearch}%`);
+        }
+
+        const { data: activeCheckouts, error: checkoutError } = await checkoutQuery;
 
         if (checkoutError) {
             showLoading(false);
@@ -126,6 +135,7 @@ async function fetchStock() {
     showLoading(false);
     stockItems = paginatedItems;
     renderStockItems(stockItems, totalCount);
+    if (typeof updateFilterHighlights === 'function') updateFilterHighlights();
 }
 
 function applyStockFilter() {

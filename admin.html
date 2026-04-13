@@ -30,6 +30,9 @@
 
     <link rel="stylesheet" href="assets/css/common.css">
     <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="assets/css/admin/stats.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         #stockItemModal .nav-pills .nav-link.active {
             background-color: var(--primary-green) !important;
@@ -95,6 +98,18 @@
                             border: 1px solid #dee2e6 !important;
                             box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
                         }
+                    }
+
+                    .filter-highlight {
+                        background-color: #f6fff8 !important; /* Extremely light green tint */
+                        border-color: #28a745 !important;
+                        box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.2) !important;
+                        color: #28a745 !important;
+                        font-weight: 600;
+                    }
+                    
+                    select.filter-highlight {
+                        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2328a745' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
                     }
                 </style>
                 <!-- Printer Status Indicator -->
@@ -162,8 +177,8 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-5 col-lg-4">
-                        <div class="card h-100 card-hub text-center border-0 shadow-sm" onclick="goToStock()"
-                            style="cursor: pointer; border-radius: 20px; transition: transform 0.3s ease;">
+                        <div class="card h-100 card-hub text-center border-0 shadow-sm"
+                            style="border-radius: 20px; transition: transform 0.3s ease;">
                             <div class="card-body p-5">
                                 <div class="icon-circle mx-auto mb-4"
                                     style="background: rgba(255, 133, 27, 0.1); color: #ff851b; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -174,12 +189,14 @@
                                         <line x1="9" y1="21" x2="9" y2="9" />
                                     </svg>
                                 </div>
-                                <h2 class="h4 fw-bold mb-3">Stock Manager</h2>
-                                <p class="text-muted mb-4 small">Manage swatchcards, hangers, and dead stock with
-                                    barcode-based checkout.</p>
-                                <button class="btn w-100 py-3 text-white fw-bold shadow-sm"
-                                    style="background: #ff851b; border-radius: 12px; border: none;">Open Stock
-                                    Manager</button>
+                                <h2 class="h4 fw-bold mb-3">Stock Management</h2>
+                                <p class="text-muted mb-4 small">Manage physical inventory levels or view real-time analytics.</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn flex-fill py-3 text-white fw-bold shadow-sm" onclick="goToStock()"
+                                        style="background: #ff851b; border-radius: 12px; border: none; font-size: 0.85rem;">Stock Manager</button>
+                                    <button class="btn flex-fill py-3 fw-bold text-nowrap" onclick="showStats()"
+                                        style="border-radius: 12px; border: 2px solid rgba(255, 133, 27, 0.4); color: #ff851b; background: transparent; font-size: 0.85rem;">Stock Insights</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -216,6 +233,205 @@
                                         </svg>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Insights View -->
+            <div id="stats-view" style="display: none;">
+                <!-- Header with Filters -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+                    <div>
+                        <button class="btn btn-link text-muted p-0 mb-2 shadow-none text-decoration-none d-flex align-items-center" onclick="showHub()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2"><polyline points="15 18 9 12 15 6"/></svg>
+                            Back to Hub
+                        </button>
+                        <h1 class="display-6 fw-bold m-0" style="letter-spacing: -1px;">Stock Insights</h1>
+                        <p class="text-muted m-0">Real-time inventory and checkout analytics</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select id="stats-gie-filter" class="form-select bg-white border-0 shadow-sm" 
+                            style="height: 48px; border-radius: 12px; width: auto; min-width: 200px; font-size: 0.85rem; font-weight: 600;">
+                            <option value="all">Filter by GIE: ALL</option>
+                            <option value="GIE001">GIE001: 100% COTTON</option>
+                            <option value="GIE002">GIE002: COTTON POLY</option>
+                            <option value="GIE003">GIE003: COTTON NYLON</option>
+                            <option value="GIE004">GIE004: 100% POLYESTER</option>
+                            <option value="GIE005">GIE005: VELVETTE</option>
+                            <option value="GIE006">GIE006: LINEN BLENDS</option>
+                            <option value="GIE007">GIE007: RAYON / VISCOSE</option>
+                            <option value="GIE008">GIE008: POLY RAYON</option>
+                            <option value="GIE009">GIE009: SILK BLENDS</option>
+                            <option value="GIE010">GIE010: COTTON RAYON</option>
+                            <option value="GIE011">GIE011: TENCEL BLENDS</option>
+                            <option value="GIE012">GIE012: KNITTS</option>
+                            <option value="GIE013">GIE013: DENIMS</option>
+                            <option value="GIE014">GIE014: CORDUROY</option>
+                            <option value="GIE015">GIE015: COATED FABRICS</option>
+                            <option value="GIE016">GIE016: MULTI / JACQUARD</option>
+                            <option value="GIE017">GIE017: BOUCKLE / BONDED</option>
+                            <option value="GIE018">GIE018: WOOL BLENDS</option>
+                            <option value="GIE019">GIE019: MOLESKEIN</option>
+                            <option value="GIE020">GIE020: BURN OUT</option>
+                            <option value="GIE021">GIE021: LACE / EMB</option>
+                        </select>
+                        <button class="btn btn-white shadow-sm" onclick="refreshStats()" style="height: 48px; border-radius: 12px; width: 48px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="row g-4 mb-5" id="stats-kpi-grid">
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Stock Units</label>
+                            <div class="h2 fw-bold m-0" id="stat-total-units">0</div>
+                            <div class="mt-2"><span class="badge bg-success-light text-success fw-bold p-1 px-2" style="font-size: 0.6rem;">+ INVENTORY</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Unique Articles</label>
+                            <div class="h2 fw-bold m-0" id="stat-total-articles">0</div>
+                            <div class="mt-2"><span class="badge bg-primary-light text-primary fw-bold p-1 px-2" style="font-size: 0.6rem;">CATALOG SIZE</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Active Checkouts</label>
+                            <div class="h2 fw-bold m-0" id="stat-active-checkouts">0</div>
+                            <div class="mt-2"><span class="badge bg-warning-light text-warning fw-bold p-1 px-2" style="font-size: 0.6rem;">OUT WITH PARTNERS</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="stat-card p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Restock Needed</label>
+                            <div class="h2 fw-bold m-0 text-danger" id="stat-restock-needed">0</div>
+                            <div class="mt-2"><span class="badge bg-danger-light text-danger fw-bold p-1 px-2" style="font-size: 0.6rem;">0 QUANTITY</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Charts Area -->
+                <div class="row g-4 mb-5">
+                    <!-- Stock Composition -->
+                    <div class="col-12 col-lg-4">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4">Stock Composition</h6>
+                            <div style="height: 300px;"><canvas id="chart-stock-mix"></canvas></div>
+                        </div>
+                    </div>
+                    <!-- GIE Distribution -->
+                    <div class="col-12 col-lg-8">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4 d-flex justify-content-between align-items-center">
+                                Quality Distribution (GIE)
+                                <span class="badge bg-light text-muted fw-bold p-1 px-2" style="font-size: 0.6rem;">ARTICLE PREFIXES</span>
+                            </h6>
+                            <div style="height: 300px;"><canvas id="chart-gie-mix"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <!-- Weight Distribution -->
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4">Weight (GSM) Distribution</h6>
+                            <div style="height: 350px;"><canvas id="chart-weights"></canvas></div>
+                        </div>
+                    </div>
+                    <!-- Fabric Finish Spotlight -->
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4">Fabric Finish Spotlight</h6>
+                            <div style="height: 350px;"><canvas id="chart-finishes"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <!-- Fabric Composition -->
+                    <div class="col-12">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4">Fiber Composition Breakdown</h6>
+                            <div style="height: 400px;"><canvas id="chart-composition"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <!-- Partner Analysis -->
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4">Top Checkout Partners</h6>
+                            <div style="height: 300px;"><canvas id="chart-partners"></canvas></div>
+                        </div>
+                    </div>
+                    <!-- Data Health -->
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-container p-4 rounded-4 shadow-sm bg-white border-0 h-100">
+                            <h6 class="fw-bold mb-4 text-primary">Data Integrity Audit</h6>
+                            <div style="height: 300px;"><canvas id="chart-data-health"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fabric DNA & Technical Spotlight -->
+                <div class="row g-4 mb-5">
+                    <div class="col-12">
+                        <div class="p-4 rounded-4 shadow-sm bg-white border-0">
+                            <div class="d-flex align-items-center gap-2 mb-4">
+                                <h5 class="fw-bold mb-0">Technical Specifications Analytics</h5>
+                            </div>
+                            
+                            <div class="row g-4">
+                                <!-- Construction Profiles -->
+                                <div class="col-12 col-md-4">
+                                    <div class="bg-light p-3 rounded-4 h-100">
+                                        <h6 class="small fw-bold text-muted mb-3">CONSTRUCTION PROFILES (COUNT/DE)</h6>
+                                        <div id="tech-construction-profiles" class="d-flex flex-column gap-2">
+                                            <!-- Injected -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Width Distribution -->
+                                <div class="col-12 col-md-4">
+                                    <div class="bg-light p-3 rounded-4 h-100">
+                                        <h6 class="small fw-bold text-muted mb-3">MOST COMMON WIDTHS</h6>
+                                        <div id="tech-width-dist" class="d-flex flex-column gap-2">
+                                            <!-- Injected -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Composition-Finish Matrix -->
+                                <div class="col-12 col-md-4">
+                                    <div class="bg-light p-3 rounded-4 h-100">
+                                        <h6 class="small fw-bold text-muted mb-3">COMPOSITION & FINISH HITS</h6>
+                                        <div id="tech-composition-finish" class="d-flex flex-column gap-2">
+                                            <!-- Injected -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insights & Lists -->
+                <div class="row g-4 pb-5">
+                    <div class="col-12">
+                        <div class="p-4 rounded-4 shadow-sm bg-white border-0">
+                            <h6 class="fw-bold mb-4 d-flex justify-content-between">
+                                Critical Restock Alerts
+                                <span class="badge bg-danger text-white rounded-pill" id="badge-restock-count">0</span>
+                            </h6>
+                            <div id="list-restock-alerts" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                                <!-- Items will be injected here -->
+                                <div class="text-center py-5 text-muted small w-100">Loading insights...</div>
                             </div>
                         </div>
                     </div>
@@ -393,11 +609,12 @@
             <!-- Stock Manager View -->
             <!-- Stock Manager View -->
             <div id="stock-manager-view" style="display: none;">
-                <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb">
+                <nav aria-label="breadcrumb" class="mb-4 d-flex align-items-center">
+                    <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="#" onclick="showHub(); return false;">Dashboard</a></li>
                         <li class="breadcrumb-item active">Stock Manager</li>
                     </ol>
+                    <div id="partner-filter-badge-area" class="ms-3"></div>
                 </nav>
 
                 <!-- Modern Header Section -->
@@ -1958,6 +2175,7 @@
     <script src="assets/js/admin/stock/batch.js" defer></script>
     <script src="assets/js/admin/stock/printer-manager.js" defer></script>
     <script src="assets/js/admin/stock/printing.js" defer></script>
+    <script src="assets/js/admin/stock/stats.js" defer></script>
     <script src="assets/js/admin/stock/stock-main.js" defer></script>
     <script src="assets/js/admin/label-printer.js" defer></script>
 

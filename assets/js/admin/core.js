@@ -132,6 +132,7 @@ function showHub(push = true) {
     ordersListView.style.display = 'none';
     orderDetailView.style.display = 'none';
     stockManagerView.style.display = 'none';
+    document.getElementById('stats-view').style.display = 'none';
     selectedOrder = null;
     if (push && window.location.hash !== '#hub') {
         history.pushState({ view: 'hub', scroll: 0 }, '', '#hub');
@@ -141,6 +142,7 @@ function showHub(push = true) {
 function goToOrders() {
     if (ordersListView.style.display === 'block') return; // Avoid scroll reset
     updateCurrentScrollState();
+    document.getElementById('stats-view').style.display = 'none';
     fetchOrders(); // This will fetch and then handle navigation
     if (window.location.hash !== '#orders') {
         history.pushState({ view: 'list', scroll: 0 }, '', '#orders');
@@ -155,6 +157,7 @@ function returnToOrdersList(e, push = true) {
     ordersListView.style.display = 'block';
     orderDetailView.style.display = 'none';
     stockManagerView.style.display = 'none';
+    document.getElementById('stats-view').style.display = 'none';
     selectedOrder = null;
 
     if (push && window.location.hash !== '#orders') {
@@ -238,12 +241,16 @@ window.addEventListener('popstate', (event) => {
         returnToOrdersList(null, false);
     } else if (state && state.view === 'stock') {
         if (typeof goToStock === 'function') goToStock(false);
+    } else if (state && state.view === 'stats') {
+        if (typeof showStats === 'function') showStats(false);
     } else if (state && state.view === 'hub') {
         showHub(false);
     } else {
         const hash = window.location.hash;
         if (hash === '#stock') {
             if (typeof goToStock === 'function') goToStock(false);
+        } else if (hash === '#stats') {
+            if (typeof showStats === 'function') showStats(false);
         } else if (hash === '#orders') {
             returnToOrdersList(null, false);
         } else if (hash === '#hub' || hash === '') {

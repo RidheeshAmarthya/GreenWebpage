@@ -405,7 +405,7 @@ async function shareStockItem(id) {
     } catch (err) { console.error(err); }
 }
 
-function clearStockFilters() {
+function clearStockFilters(shouldFetch = true) {
     ['stock-search', 'gsm-min-filter', 'gsm-max-filter'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -421,9 +421,43 @@ function clearStockFilters() {
     const sortSelect = document.getElementById('stock-sort-select');
     if (sortSelect) sortSelect.value = 'created_at-desc';
 
+    // Clear Partner Filter
+    window.currentPartnerFilter = null;
+    if (typeof updatePartnerBadge === 'function') updatePartnerBadge(null);
+
     stockCurrentPage = 1;
-    if (typeof applyStockFilter === 'function') applyStockFilter();
+    if (shouldFetch && typeof applyStockFilter === 'function') applyStockFilter();
 }
+
+function updateFilterHighlights() {
+    const filters = [
+        { id: 'stock-search', default: '' },
+        { id: 'stock-type-filter', default: 'all' },
+        { id: 'gie-quality-filter', default: 'all' },
+        { id: 'gsm-min-filter', default: '' },
+        { id: 'gsm-max-filter', default: '' },
+        { id: 'stock-status-filter', default: 'all' },
+        { id: 'weight-unit-filter', default: 'All' },
+        { id: 'stock-sort-select', default: 'created_at-desc' }
+    ];
+
+    filters.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (el) {
+            const isActive = el.value !== f.default;
+            el.classList.toggle('filter-highlight', isActive);
+        }
+    });
+
+    // Handle special partner filter case
+    const partnerBadge = document.getElementById('partner-filter-badge-area');
+    if (partnerBadge) {
+        const hasPartner = !!window.currentPartnerFilter;
+        // The badge area itself is the highlight, but we can style the surrounding area if needed.
+    }
+}
+
+window.updateFilterHighlights = updateFilterHighlights;
 
 // Search & Filter Listeners (delegate if needed or wait for DOM)
 document.addEventListener('DOMContentLoaded', () => {
