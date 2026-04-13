@@ -9,6 +9,7 @@ const trackBtn = document.getElementById('track-btn');
 const loadingSpinner = document.getElementById('loading-spinner');
 const errorBox = document.getElementById('error-box');
 const resultCard = document.getElementById('result-card');
+const turnstileContainer = document.getElementById('turnstile-container');
 const colorSelect = document.getElementById('color-select');
 const timeline = document.getElementById('timeline');
 const tnaBtn = document.getElementById('tna-btn');
@@ -44,6 +45,7 @@ async function trackOrder() {
     // Get Turnstile token
     const captchaToken = getTurnstileToken();
     if (!captchaToken) {
+        setTurnstileVisibility(true);
         showError('Please complete the security check.');
         return;
     }
@@ -91,6 +93,7 @@ async function trackOrder() {
 
         orderCache.set(orderId, normalizedData);
         displayOrder(normalizedData);
+        setTurnstileVisibility(false);
 
         // Update URL to match current order
         // Using ?id= format for 100% compatibility with GitHub Pages static hosting
@@ -223,6 +226,11 @@ function showError(msg) {
 
 function hideError() {
     errorBox.style.display = 'none';
+}
+
+function setTurnstileVisibility(show) {
+    if (!turnstileContainer) return;
+    turnstileContainer.style.display = show ? 'flex' : 'none';
 }
 
 trackBtn.addEventListener('click', trackOrder);
@@ -621,5 +629,6 @@ window.onTurnstileVerified = () => {
 };
 
 window.onTurnstileExpired = () => {
+    setTurnstileVisibility(true);
     showError('Security check expired. Please verify again.');
 };
