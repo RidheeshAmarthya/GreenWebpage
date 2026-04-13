@@ -28,34 +28,42 @@ function formatDate(dateStr) {
 function linkifyTracking(text) {
     if (!text) return '';
     
+    // XSS Protection: Escape HTML characters first
+    const escapedText = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
     const linkStyle = 'color: #007bff; text-decoration: underline; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;';
     const icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 
-    // DHL Detection: DHL + 10-11 digit number (Case Insensitive)
+    // DHL Detection: DHL + 10-11 digit number
     const dhlRegex = /\b(DHL)\b[^\d]*?(\d{10,11})\b/gi;
-    let linkedText = text.replace(dhlRegex, (match, p1, p2) => {
+    let linkedText = escapedText.replace(dhlRegex, (match, p1, p2) => {
         return `<a href="https://www.dhl.com/en/express/tracking.html?AWB=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
     });
     
-    // FedEx Detection: FedEx + 12-22 digit number (Case Insensitive)
+    // FedEx Detection: FedEx + 12-22 digit number
     const fedexRegex = /\b(FedEx)\b[^\d]*?(\d{12,22})\b/gi;
     linkedText = linkedText.replace(fedexRegex, (match, p1, p2) => {
         return `<a href="https://www.fedex.com/fedextrack/?trknbr=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
     });
 
-    // Fardar Detection: Fardar + 10-12 digit number (Case Insensitive)
+    // Fardar Detection: Fardar + 10-12 digit number
     const fardarRegex = /\b(Fardar)\b(?![^0-9]*?booking)[^\d]*?(\d{10,12})\b/gi;
     linkedText = linkedText.replace(fardarRegex, (match, p1, p2) => {
         return `<a href="http://43.247.68.241:8028/queryEn.aspx?TrackNum=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
     });
 
-    // Pionexxco Detection: Pionexxco + 10 digit number (Case Insensitive)
+    // Pionexxco Detection: Pionexxco + 10 digit number
     const pionexxcoRegex = /\b(Pionexxco)\b[^\d]*?(\d{10})\b/gi;
     linkedText = linkedText.replace(pionexxcoRegex, (match, p1, p2) => {
         return `<a href="https://www.pionexxco.net/Track?awb=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
     });
 
-    // DTDC Detection: DTDC + Tracking Number (Case Insensitive)
+    // DTDC Detection: DTDC + Tracking Number
     const dtdcRegex = /\b(DTDC)\b[^\d]*?([A-Z]{1,2}\d{7,11})\b/gi;
     linkedText = linkedText.replace(dtdcRegex, (match, p1, p2) => {
         return `<a href="https://www.dtdc.com/track-your-shipment/?awb=${p2}" target="_blank" style="${linkStyle}">${match} ${icon}</a>`;
