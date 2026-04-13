@@ -104,7 +104,9 @@ async function fetchStock() {
     }
 
     // 4. Sorting
-    query = query.order(column, { ascending: order === 'asc' });
+    let sortColumn = column;
+    if (column === 'weight') sortColumn = 'weight_numeric';
+    query = query.order(sortColumn, { ascending: order === 'asc', nullsFirst: false });
 
     // 5. Server-side Pagination
     const from = (stockCurrentPage - 1) * stockItemsPerPage;
