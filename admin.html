@@ -70,6 +70,9 @@
                     <input type="password" id="admin-password" class="form-control" required
                         autocomplete="current-password">
                 </div>
+                <div id="admin-turnstile-container" class="d-none justify-content-center mb-3">
+                    <div id="admin-turnstile-widget"></div>
+                </div>
                 <button type="submit" class="btn btn-green w-100">Login</button>
             </form>
             <div id="login-error" class="text-danger mt-3 text-center" style="display:none;"></div>
@@ -1932,6 +1935,7 @@
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/common.js"></script>
     <script src="assets/js/env.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="assets/js/admin/core.js"></script>
     <script src="assets/js/admin/auth.js"></script>
     <script src="assets/js/admin/orders.js"></script>

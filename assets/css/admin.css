@@ -32,6 +32,10 @@ body {
     padding: 40px;
 }
 
+#admin-turnstile-container {
+    min-height: 65px;
+}
+
 @media (max-width: 576px) {
     #login-container {
         margin: 50px 20px;
