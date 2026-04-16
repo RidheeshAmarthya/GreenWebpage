@@ -319,6 +319,7 @@ async function saveStockItem(event, isRetry = false) {
 
         if (stockItemModal) stockItemModal.hide();
         if (typeof fetchStock === 'function') fetchStock();
+        if (typeof fetchUniqueCounts === 'function') fetchUniqueCounts();
     } catch (err) {
         // AUTOMATIC RETRY FOR SAFARI "LOAD FAILED"
         if (!isRetry && err.message && err.message.toLowerCase().includes('load failed')) {
@@ -406,7 +407,7 @@ async function shareStockItem(id) {
 }
 
 function clearStockFilters(shouldFetch = true) {
-    ['stock-search', 'gsm-min-filter', 'gsm-max-filter'].forEach(id => {
+    ['stock-search', 'gsm-min-filter', 'gsm-max-filter', 'stock-count-filter'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -437,6 +438,7 @@ function updateFilterHighlights() {
         { id: 'gsm-min-filter', default: '' },
         { id: 'gsm-max-filter', default: '' },
         { id: 'stock-status-filter', default: 'all' },
+        { id: 'stock-count-filter', default: '' },
         { id: 'weight-unit-filter', default: 'All' },
         { id: 'stock-sort-select', default: 'created_at-desc' }
     ];
@@ -475,12 +477,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    ['gsm-min-filter', 'gsm-max-filter'].forEach(id => {
+    ['gsm-min-filter', 'gsm-max-filter', 'stock-count-filter'].forEach(id => {
         document.getElementById(id)?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { 
                 stockCurrentPage = 1; 
                 if (typeof fetchStock === 'function') fetchStock(); 
             }
         });
+        
+        // Also trigger on change (for datalist selection)
+        if (id === 'stock-count-filter') {
+            let countSearchTimeout;
+            document.getElementById(id)?.addEventListener('input', () => {
+                clearTimeout(countSearchTimeout);
+                countSearchTimeout = setTimeout(() => {
+                    stockCurrentPage = 1;
+                    if (typeof fetchStock === 'function') fetchStock();
+                }, 400); // 400ms debounce
+            });
+        }
     });
 });

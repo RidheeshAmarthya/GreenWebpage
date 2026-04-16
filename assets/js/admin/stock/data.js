@@ -12,6 +12,7 @@ async function fetchStock() {
     const gsmMin = document.querySelector('#gsm-min-filter')?.value;
     const gsmMax = document.getElementById('gsm-max-filter')?.value;
     const unitFilter = document.querySelector('#weight-unit-filter')?.value || 'All';
+    const countFilter = document.querySelector('#stock-count-filter')?.value || '';
     const sortVal = document.querySelector('#stock-sort-select')?.value || 'created_at-desc';
     const [column, order] = sortVal.split('-');
 
@@ -67,6 +68,10 @@ async function fetchStock() {
     if (gieFilter !== 'all') query = query.ilike('article_no', `${gieFilter}-%`);
     if (statusFilter === 'IN_STOCK') query = query.gt('available', 0);
     if (statusFilter === 'OUT_OF_STOCK') query = query.eq('available', 0);
+    if (countFilter) {
+        const fuzzyCount = countFilter.trim().replace(/\s+/g, '%');
+        query = query.ilike('count', `%${fuzzyCount}%`);
+    }
 
     // 4. Partner or General Checked Out Filter
     const partnerSearch = window.currentPartnerFilter || null;
@@ -194,3 +199,40 @@ async function fetchStockItemByArticleNo(articleNo) {
 
     return (data && data.length > 0) ? data[0] : null;
 }
+
+/**
+ * Fetches unique count values for the search suggestions.
+ */
+async function fetchUniqueCounts() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('Stock')
+            .select('count')
+            .not('count', 'is', null)
+            .not('count', 'eq', '')
+            .order('count');
+
+        if (error) throw error;
+
+        // Deduplicate locally to avoid complex PG grouping if many rows
+        const uniqueCounts = [...new Set(data.map(item => item.count))].sort();
+        populateCountSuggestions(uniqueCounts);
+    } catch (err) {
+        console.warn("Failed to fetch unique counts:", err);
+    }
+}
+
+function populateCountSuggestions(counts) {
+    const list = document.getElementById('stock-count-list');
+    if (!list) return;
+    
+    list.innerHTML = counts.map(c => `<option value="${c}">`).join('');
+}
+
+// Initialize count suggestions
+document.addEventListener('DOMContentLoaded', () => {
+    // Only fetch if we are on a page that might have the stock manager (admin)
+    if (document.getElementById('stock-count-filter')) {
+        fetchUniqueCounts();
+    }
+});
