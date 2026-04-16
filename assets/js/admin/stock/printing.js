@@ -123,7 +123,7 @@ async function generateStockPDF(id) {
                     border: 1px solid rgba(255, 255, 255, 0.35);
                 }
                 .logo { height: 42px; display: block; }
-                .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 42px; text-transform: uppercase; line-height: 0.98; }
+                .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 36px; text-transform: uppercase; line-height: 0.98; }
                 .article-no { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; }
                 .brand-site { font-size: 11.5px; font-weight: 700; letter-spacing: 0.45px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; text-transform: lowercase; }
                 .label-preview-box {
@@ -194,7 +194,7 @@ async function generateStockPDF(id) {
                     <div class="brand-block">
                         <div class="logo-wrap"><img class="logo" src="assets/images/green-logo.png"></div>
                         <div class="brand-middle">
-                            <div class="brand-title">Swatch Card</div>
+                            <div class="brand-title">Quality Sample</div>
                             <div class="article-no">${item.article_no || 'N/A'}</div>
                         </div>
                         <div class="brand-site">greeninternationalindia.com</div>
@@ -308,7 +308,7 @@ async function generateBatchStockPDF() {
                         border: 1px solid rgba(255, 255, 255, 0.35);
                     }
                     .logo { height: 42px; display: block; }
-                    .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 42px; text-transform: uppercase; line-height: 0.98; }
+                    .brand-title { font-weight: 900; letter-spacing: 1px; font-size: 36px; text-transform: uppercase; line-height: 0.98; }
                     .article-no { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; }
                     .brand-site { font-size: 11.5px; font-weight: 700; letter-spacing: 0.45px; color: rgba(255, 255, 255, 0.95); line-height: 1.1; text-transform: lowercase; }
                     .label-preview-box {
@@ -381,7 +381,7 @@ async function generateBatchStockPDF() {
                                 <div class="brand-block">
                                     <div class="logo-wrap"><img src="assets/images/green-logo.png" class="logo"></div>
                                     <div class="brand-middle">
-                                        <div class="brand-title">Swatch Card</div>
+                                        <div class="brand-title">Quality Sample</div>
                                         <div class="article-no">${item.article_no || 'N/A'}</div>
                                     </div>
                                     <div class="brand-site">greeninternationalindia.com</div>

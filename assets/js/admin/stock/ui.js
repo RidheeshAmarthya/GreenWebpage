@@ -182,7 +182,7 @@ function createStockRow(item) {
         </td>
         <td class="text-end pe-4">
             <div class="d-flex justify-content-end gap-1">
-                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); generateStockPDF('${item.id}')" title="Print Swatch">
+                <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); generateStockPDF('${item.id}')" title="Print Quality Sample">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 </button>
                 <button class="btn btn-light btn-sm p-1 px-2 border rounded-3 pulse-on-hover" onclick="event.stopPropagation(); shareStockItem('${item.id}')" title="Copy Details">
