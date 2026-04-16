@@ -186,6 +186,28 @@ async function generateStockPDF(id) {
                     .spec-card { box-shadow: none; width: 210mm; height: 297mm; page-break-after: always; }
                     .spec-card:last-child { page-break-after: auto; }
                 }
+
+                #manual-print-btn {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 50px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    font-family: inherit;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s;
+                }
+                #manual-print-btn:hover { background: #1f7b34; transform: translateY(-2px); }
+                @media print { #manual-print-btn { display: none !important; } }
             </style>
         </head>
         <body>
@@ -217,6 +239,17 @@ async function generateStockPDF(id) {
                     </div>
                 </div>
             </div>
+            <button id="manual-print-btn" onclick="window.print()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                PRINT / SAVE PDF
+            </button>
+            <script>
+                window.onload = () => {
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                };
+            </script>
         </body>
         </html>
     `);
@@ -371,6 +404,28 @@ async function generateBatchStockPDF() {
                         .spec-card { box-shadow: none; width: 210mm; height: 297mm; page-break-after: always; }
                         .spec-card:last-child { page-break-after: auto; }
                     }
+
+                    #manual-print-btn {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 50px;
+                        font-weight: 800;
+                        cursor: pointer;
+                        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+                        z-index: 10000;
+                        font-family: inherit;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        transition: all 0.3s;
+                    }
+                    #manual-print-btn:hover { background: #1f7b34; transform: translateY(-2px); }
+                    @media print { #manual-print-btn { display: none !important; } }
                 </style>
             </head>
             <body>
@@ -406,6 +461,17 @@ async function generateBatchStockPDF() {
                         </div>
                 `).join('')}
                 </div>
+                <button id="manual-print-btn" onclick="window.print()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    PRINT / SAVE PDF
+                </button>
+                <script>
+                    window.onload = () => {
+                        setTimeout(() => {
+                            window.print();
+                        }, 500);
+                    };
+                </script>
             </body>
             </html>
         `);
