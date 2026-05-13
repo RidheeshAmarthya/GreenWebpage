@@ -511,6 +511,7 @@
                                     <th class="sortable-header" onclick="handleSort('commercial')">
                                         Commercial Status <span id="sort-commercial" class="sort-icon">⇅</span>
                                     </th>
+                                    <th>Description</th>
                                     <th class="text-end pe-4">Actions</th>
                                 </tr>
                             </thead>
@@ -586,6 +587,10 @@
                         <div class="info-item">
                             <label>Estimated Goods Ready</label>
                             <span id="detail-goods-ready" style="color: var(--primary-green); font-weight: 800;"></span>
+                        </div>
+                        <div class="info-item" style="grid-column: span 2;">
+                            <label>Description</label>
+                            <span id="detail-description" class="text-muted" style="font-style: italic;">No description provided.</span>
                         </div>
                         <div class="info-item">
                             <button id="detail-tna-btn" class="btn btn-share-box fw-bold w-100"
@@ -1077,6 +1082,11 @@
                             <input type="text" name="commercial" class="form-control" required
                                 placeholder="e.g. Pending" autocomplete="off">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label text-success fw-bold">Description</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="e.g. Special packaging required or specific client notes..."></textarea>
+                        </div>
                         <hr>
                         <hr>
                         <h6>TNA Plan</h6>
@@ -1176,6 +1186,11 @@
                             <label class="form-label">Commercial Status</label>
                             <input type="text" name="commercial" id="edit-commercial" class="form-control" required
                                 autocomplete="off">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-success fw-bold">Description</label>
+                            <textarea name="description" id="edit-description" class="form-control" rows="3"
+                                placeholder="Enter notes here..."></textarea>
                         </div>
                         <hr>
                         <hr>

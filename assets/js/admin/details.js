@@ -12,6 +12,13 @@ async function showOrderDetail(order, push = true) {
     document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
     document.getElementById('detail-goods-ready').textContent = formatDate(order.goods_ready);
     document.getElementById('detail-commercial').textContent = order.commercial;
+    
+    const descEl = document.getElementById('detail-description');
+    if (descEl) {
+        descEl.textContent = order.description || 'No description provided.';
+        descEl.className = order.description ? '' : 'text-muted';
+        descEl.style.fontStyle = order.description ? 'normal' : 'italic';
+    }
 
     fetchColors(order.order_uuid);
 
@@ -72,6 +79,8 @@ document.getElementById('edit-order-btn') ? (document.getElementById('edit-order
     document.getElementById('edit-order-id').value = selectedOrder.order_id;
     document.getElementById('edit-company').value = selectedOrder.company || '';
     document.getElementById('edit-commercial').value = selectedOrder.commercial;
+    const descInput = document.getElementById('edit-description');
+    if (descInput) descInput.value = selectedOrder.description || '';
 
     TNA_FIELDS.forEach(field => {
         const el = document.getElementById(`edit-${field.key}`);

@@ -120,6 +120,9 @@ function renderOrdersTable(dataToRender) {
             <td>${formatDate(order.pi_date)}</td>
             <td>${formatDate(order.goods_ready)}</td>
             <td>${order.commercial}</td>
+            <td class="small text-muted" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${order.description || ''}">
+                ${order.description || '<span class="opacity-50">-</span>'}
+            </td>
             <td class="text-end pe-4 text-nowrap">
                 <button class="btn btn-sm btn-outline-dark me-2" onclick="printOrderFromTable('${order.order_id}', event)">Print Full Report</button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder('${order.order_uuid}', event)">Delete</button>
