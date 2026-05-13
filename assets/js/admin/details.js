@@ -10,7 +10,7 @@ async function showOrderDetail(order, push = true) {
     document.getElementById('detail-order-id').textContent = `Green Order ID: ${order.order_id}`;
     document.getElementById('detail-company').textContent = order.company || 'N/A';
     document.getElementById('detail-pi-date').textContent = formatDate(order.pi_date);
-    document.getElementById('detail-delivery-date').textContent = formatDate(order.goods_ready);
+    document.getElementById('detail-goods-ready').textContent = formatDate(order.goods_ready);
     document.getElementById('detail-commercial').textContent = order.commercial;
 
     fetchColors(order.order_uuid);

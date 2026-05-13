@@ -190,6 +190,22 @@ document.getElementById('regenerate-order-id')?.addEventListener('click', () => 
     document.getElementById('add-order-id').value = generateOrderID();
 });
 
+// Field Syncing for Add Order Modal
+const addOrderPiDate = document.getElementById('add-order-pi-date');
+const addTnaPiDate = document.getElementById('add-tna-pi-date');
+const addOrderGoodsReady = document.getElementById('add-order-goods-ready');
+const addTnaGoodsReady = document.getElementById('add-tna-goods-ready');
+
+if (addOrderPiDate && addTnaPiDate) {
+    addOrderPiDate.addEventListener('input', () => { addTnaPiDate.value = addOrderPiDate.value; });
+    addTnaPiDate.addEventListener('input', () => { addOrderPiDate.value = addTnaPiDate.value; });
+}
+
+if (addOrderGoodsReady && addTnaGoodsReady) {
+    addOrderGoodsReady.addEventListener('input', () => { addTnaGoodsReady.value = addOrderGoodsReady.value; });
+    addTnaGoodsReady.addEventListener('input', () => { addOrderGoodsReady.value = addTnaGoodsReady.value; });
+}
+
 // Add Order
 document.getElementById('add-order-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();

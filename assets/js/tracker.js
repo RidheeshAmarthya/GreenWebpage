@@ -149,7 +149,7 @@ function displayOrder(data) {
 
     document.getElementById('disp-order-id').textContent = `Green Order ID: ${data.order_id}`;
     document.getElementById('disp-pi-date').textContent = formatDate(data.pi_date);
-    document.getElementById('disp-delivery-date').textContent = formatDate(data.goods_ready);
+    document.getElementById('disp-goods-ready').textContent = formatDate(data.goods_ready);
     document.getElementById('disp-commercial').textContent = data.commercial;
 
     // Setup color selector
