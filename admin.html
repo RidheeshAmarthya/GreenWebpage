@@ -383,6 +383,128 @@
                     </div>
                 </div>
 
+                <!-- Partner Demand Analytics & Spotlight -->
+                <div class="row g-4 mb-5">
+                    <div class="col-12">
+                        <div class="p-4 rounded-4 shadow-sm bg-white border-0">
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-1">Partner Demand Analytics</h5>
+                                <p class="text-muted small mb-0">High-level brand activity overview. Select any partner to explore their favorite fabric qualities.</p>
+                            </div>
+                            
+                            <style>
+                            .partner-row-item:hover {
+                                transform: translateY(-2px);
+                                border-color: #ced4da !important;
+                                box-shadow: 0 .25rem .75rem rgba(0,0,0,.08)!important;
+                            }
+                            #partner-overview-list::-webkit-scrollbar {
+                                width: 6px;
+                            }
+                            #partner-overview-list::-webkit-scrollbar-track {
+                                background: #f8f9fa;
+                            }
+                            #partner-overview-list::-webkit-scrollbar-thumb {
+                                background: #dee2e6;
+                                border-radius: 4px;
+                            }
+                            #partner-overview-list::-webkit-scrollbar-thumb:hover {
+                                background: #ced4da;
+                            }
+                            @media (min-width: 992px) {
+                                .border-end-lg {
+                                    border-right: 1px solid #dee2e6 !important;
+                                }
+                            }
+                            </style>
+
+                            <div class="row g-4">
+                                <!-- Left side: List of all partners -->
+                                <div class="col-12 col-lg-5 border-end-lg">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="small fw-bold text-muted text-uppercase mb-0" style="letter-spacing: 0.5px;">All Partners / Brands</h6>
+                                        <span class="badge bg-light text-dark rounded-pill fw-bold" id="partner-list-count">0</span>
+                                    </div>
+                                    <!-- Search input for partner list -->
+                                    <div class="mb-3">
+                                        <input type="text" id="partner-search-input" class="form-control form-control-sm bg-light border-0 shadow-none" placeholder="Search brand..." style="border-radius: 8px; font-size: 0.75rem;">
+                                    </div>
+                                    <!-- Scrollable list container -->
+                                    <div id="partner-overview-list" class="pe-2" style="max-height: 380px; overflow-y: auto;">
+                                        <div class="text-center py-5 text-muted small">Loading partners...</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right side: Spotlight for selected partner -->
+                                <div class="col-12 col-lg-7">
+                                    <div id="partner-spotlight-content" class="d-none">
+                                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+                                            <h5 class="fw-bold mb-0 text-dark" id="spotlight-partner-name">Partner Name</h5>
+                                            <button class="btn btn-sm btn-green fw-bold px-3 py-2" id="partner-view-holdings-btn" style="border-radius: 8px; font-size: 0.75rem;">
+                                                View Holdings in Stock Manager
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="row g-3">
+                                            <!-- Mini KPIs -->
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="bg-light p-3 rounded-3 text-center border shadow-sm h-100 d-flex flex-column justify-content-center">
+                                                    <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.55rem; letter-spacing: 0.5px;">Outstanding</label>
+                                                    <div class="h3 fw-bold text-primary mb-0" id="partner-kpi-outstanding">0</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="bg-light p-3 rounded-3 text-center border shadow-sm h-100 d-flex flex-column justify-content-center">
+                                                    <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.55rem; letter-spacing: 0.5px;">Return Rate</label>
+                                                    <div class="h3 fw-bold text-success mb-0" id="partner-kpi-return-rate">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="bg-light p-3 rounded-3 text-center border shadow-sm h-100 d-flex flex-column justify-content-center">
+                                                    <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.55rem; letter-spacing: 0.5px;">Avg. Hold Time</label>
+                                                    <div class="h3 fw-bold text-dark mb-0" id="partner-kpi-avg-duration">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="bg-light p-3 rounded-3 text-center border shadow-sm h-100 d-flex flex-column justify-content-center">
+                                                    <label class="small text-muted fw-bold text-uppercase d-block mb-1" style="font-size: 0.55rem; letter-spacing: 0.5px;">Favorite Type</label>
+                                                    <div class="h4 fw-bold text-dark mb-0 text-truncate" id="partner-kpi-favorite-type">-</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Favorite Quality Chart -->
+                                            <div class="col-12 mt-3">
+                                                <div class="border rounded-4 p-3 bg-white" style="height: 280px;">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h6 class="small fw-bold text-muted mb-0 text-uppercase" id="partner-chart-title" style="font-size: 0.65rem; letter-spacing: 0.5px;">Fabric Quality Spotlight (GIE Codes)</h6>
+                                                        <div class="btn-group btn-group-sm" role="group" aria-label="Partner Stat Toggle">
+                                                            <button type="button" class="btn btn-outline-success btn-sm active" id="btn-partner-gie" onclick="togglePartnerMetric('gie')" style="font-size: 0.65rem; padding: 2px 8px;">GIE</button>
+                                                            <button type="button" class="btn btn-outline-success btn-sm" id="btn-partner-gsm" onclick="togglePartnerMetric('gsm')" style="font-size: 0.65rem; padding: 2px 8px;">GSM</button>
+                                                            <button type="button" class="btn btn-outline-success btn-sm" id="btn-partner-type" onclick="togglePartnerMetric('type')" style="font-size: 0.65rem; padding: 2px 8px;">Type</button>
+                                                            <button type="button" class="btn btn-outline-success btn-sm" id="btn-partner-finish" onclick="togglePartnerMetric('finish')" style="font-size: 0.65rem; padding: 2px 8px;">Finish</button>
+                                                        </div>
+                                                    </div>
+                                                    <div style="height: 210px; position: relative;">
+                                                        <canvas id="chart-partner-gie"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="partner-spotlight-placeholder" class="text-center py-5 text-muted small h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-50 mb-2">
+                                            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <div class="fw-bold">No brand selected</div>
+                                        <div>Select a brand from the list on the left to visualize their preferences.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Fabric DNA & Technical Spotlight -->
                 <div class="row g-4 mb-5">
                     <div class="col-12">

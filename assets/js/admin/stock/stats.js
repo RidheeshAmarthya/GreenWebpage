@@ -132,6 +132,10 @@ document.getElementById('stats-gie-filter')?.addEventListener('change', (e) => {
     renderDashboard();
 });
 
+document.getElementById('partner-search-input')?.addEventListener('input', () => {
+    renderPartnerList(statsData);
+});
+
 function renderDashboard() {
     // Filter data based on global dashboard GIE filter
     let filtered = statsData;
@@ -165,6 +169,10 @@ function renderDashboard() {
 
     // 5. Update Restock List
     renderRestockList(filtered);
+
+    // 6. Render Partner Spotlight List and Update Spotlight
+    renderPartnerList(statsData);
+    updatePartnerSpotlight();
 }
 
 function updateKPIs(data) {
@@ -414,7 +422,7 @@ function updateChart(canvasId, type, dataArray, datasetLabel = 'Count', horizont
                             let res = `${label}: ${value}`;
                             
                             // For GIE chart, add the common name
-                            if (canvasId === 'chart-gie-mix') {
+                            if (canvasId === 'chart-gie-mix' || canvasId === 'chart-partner-gie') {
                                 const gieCode = context.label;
                                 const name = GIE_NAMES[gieCode] || GIE_NAMES[gieCode.replace('00', '0')] || '';
                                 if (name) return [res, `Quality: ${name}`];
@@ -466,6 +474,26 @@ function handleChartClick(canvasId, label, value) {
     if (canvasId === 'chart-finishes') filters.search = label;
     if (canvasId === 'chart-composition') filters.search = label;
     if (canvasId === 'chart-partners') filters.partner = label;
+    if (canvasId === 'chart-partner-gie') {
+        const partner = selectedPartner;
+        if (partner) filters.partner = partner;
+        
+        if (currentPartnerMetric === 'gie') {
+            filters.gie = label;
+        } else if (currentPartnerMetric === 'gsm') {
+            if (label === '300+') {
+                filters.gsmMin = 300;
+            } else {
+                const parts = label.split('-');
+                filters.gsmMin = parseInt(parts[0]);
+                filters.gsmMax = parseInt(parts[1]);
+            }
+        } else if (currentPartnerMetric === 'type') {
+            filters.type = label;
+        } else if (currentPartnerMetric === 'finish') {
+            filters.search = label;
+        }
+    }
     if (canvasId === 'chart-weights') {
         if (label === '300+') { filters.gsmMin = 300; }
         else {
@@ -625,6 +653,335 @@ function renderRestockList(data) {
     `).join('');
 
     list.innerHTML = itemsHtml + extraCardHtml;
+}
+
+let partnerGieChart = null;
+
+let selectedPartner = null;
+let currentPartnerMetric = 'gie';
+
+function togglePartnerMetric(metric) {
+    currentPartnerMetric = metric;
+    
+    // Update active class on buttons
+    ['gie', 'gsm', 'type', 'finish'].forEach(m => {
+        const btn = document.getElementById(`btn-partner-${m}`);
+        if (btn) {
+            if (m === metric) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    });
+    
+    updatePartnerSpotlight();
+}
+
+function renderPartnerList(data) {
+    const listContainer = document.getElementById('partner-overview-list');
+    if (!listContainer) return;
+    
+    const searchVal = document.getElementById('partner-search-input')?.value?.toLowerCase() || '';
+
+    // Aggregate stats per partner
+    const partnerStats = {};
+    data.forEach(item => {
+        if (item.checkouts && Array.isArray(item.checkouts)) {
+            item.checkouts.forEach(c => {
+                if (!c.company) return;
+                const partnerName = c.company.trim();
+                
+                if (!partnerStats[partnerName]) {
+                    partnerStats[partnerName] = {
+                        name: partnerName,
+                        outstanding: 0,
+                        returned: 0,
+                        total: 0
+                    };
+                }
+                
+                partnerStats[partnerName].total++;
+                if (!c.returned_at) {
+                    partnerStats[partnerName].outstanding++;
+                } else {
+                    partnerStats[partnerName].returned++;
+                }
+            });
+        }
+    });
+
+    const partnerArray = Object.values(partnerStats)
+        .filter(p => p.name.toLowerCase().includes(searchVal))
+        .sort((a, b) => b.outstanding - a.outstanding || b.total - a.total);
+
+    document.getElementById('partner-list-count').textContent = partnerArray.length;
+
+    if (partnerArray.length === 0) {
+        listContainer.innerHTML = '<div class="text-center py-4 text-muted small">No partners match search.</div>';
+        return;
+    }
+
+    listContainer.innerHTML = partnerArray.map(p => {
+        const returnRate = p.total > 0 ? Math.round((p.returned / p.total) * 100) : 0;
+        const isActive = selectedPartner === p.name;
+        
+        return `
+            <div class="partner-row-item p-3 mb-2 rounded-3 border d-flex justify-content-between align-items-center shadow-sm"
+                 onclick="selectPartnerSpotlight('${p.name.replace(/'/g, "\\'")}')" 
+                 style="cursor: pointer; transition: all 0.2s ease; ${isActive ? 'background: rgba(40,167,69,0.08); border-color: #28a745 !important;' : 'background: #fff;'}">
+                <div class="text-truncate me-2">
+                    <div class="fw-bold text-dark small text-truncate">${p.name}</div>
+                    <div class="text-muted text-truncate" style="font-size: 0.65rem;">
+                        ${p.total} total &bull; ${returnRate}% return rate
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <span class="badge ${p.outstanding > 0 ? 'bg-danger-subtle text-danger' : 'bg-light text-muted'}" style="font-size: 0.65rem; padding: 4px 8px; border-radius: 6px;">
+                        ${p.outstanding} ACTIVE
+                    </span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-50"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectPartnerSpotlight(partnerName) {
+    selectedPartner = partnerName;
+    renderPartnerList(statsData);
+    updatePartnerSpotlight();
+}
+
+function updatePartnerSpotlight() {
+    const partner = selectedPartner;
+    const content = document.getElementById('partner-spotlight-content');
+    const placeholder = document.getElementById('partner-spotlight-placeholder');
+    
+    if (!content || !placeholder) return;
+
+    if (!partner) {
+        content.classList.add('d-none');
+        placeholder.classList.remove('d-none');
+        return;
+    }
+
+    content.classList.remove('d-none');
+    placeholder.classList.add('d-none');
+
+    // Set the partner name in right column header
+    const partnerHeader = document.getElementById('spotlight-partner-name');
+    if (partnerHeader) partnerHeader.textContent = partner;
+
+    let outstanding = 0;
+    let returnedCount = 0;
+    let totalReturnTimeMs = 0;
+    let totalCheckoutsCount = 0;
+    
+    const gieCounts = {};
+    const gsmRanges = { '0-100': 0, '101-150': 0, '151-200': 0, '201-250': 0, '251-300': 0, '300+': 0 };
+    const typeCounts = {};
+    const finishCounts = {};
+
+    statsData.forEach(item => {
+        if (item.checkouts && Array.isArray(item.checkouts)) {
+            item.checkouts.forEach(c => {
+                if (c.company && c.company.trim() === partner) {
+                    totalCheckoutsCount++;
+                    if (!c.returned_at) {
+                        outstanding++;
+                    } else {
+                        returnedCount++;
+                        const checkoutDate = new Date(c.created_at);
+                        const returnDate = new Date(c.returned_at);
+                        if (!isNaN(checkoutDate.getTime()) && !isNaN(returnDate.getTime())) {
+                            totalReturnTimeMs += Math.max(0, returnDate - checkoutDate);
+                        }
+                    }
+
+                    // Count GIE code preference
+                    if (item.article_no) {
+                        const match = item.article_no.match(/^(GIE\d+)/);
+                        const gie = match ? match[1] : 'Other';
+                        gieCounts[gie] = (gieCounts[gie] || 0) + 1;
+                    }
+
+                    // Count GSM
+                    const gsm = parseFloat(item.weight_numeric);
+                    if (gsm) {
+                        if (gsm <= 100) gsmRanges['0-100']++;
+                        else if (gsm <= 150) gsmRanges['101-150']++;
+                        else if (gsm <= 200) gsmRanges['151-200']++;
+                        else if (gsm <= 250) gsmRanges['201-250']++;
+                        else if (gsm <= 300) gsmRanges['251-300']++;
+                        else gsmRanges['300+']++;
+                    }
+
+                    // Count category/type preference
+                    const type = item.type || 'Unknown';
+                    typeCounts[type] = (typeCounts[type] || 0) + 1;
+
+                    // Count finish preference
+                    if (item.finish) {
+                        const finish = item.finish.trim().toUpperCase();
+                        finishCounts[finish] = (finishCounts[finish] || 0) + 1;
+                    }
+                }
+            });
+        }
+    });
+
+    // Calculate return rate & average duration
+    const returnRate = totalCheckoutsCount > 0 ? Math.round((returnedCount / totalCheckoutsCount) * 100) : 0;
+    
+    let avgDurationStr = 'N/A';
+    if (returnedCount > 0) {
+        const avgMs = totalReturnTimeMs / returnedCount;
+        const avgDays = Math.round(avgMs / (1000 * 60 * 60 * 24));
+        avgDurationStr = `${avgDays} ${avgDays === 1 ? 'day' : 'days'}`;
+    }
+
+    // Update UI elements
+    const kpiOutstanding = document.getElementById('partner-kpi-outstanding');
+    const kpiReturnRate = document.getElementById('partner-kpi-return-rate');
+    const kpiAvgDuration = document.getElementById('partner-kpi-avg-duration');
+    const kpiFavoriteType = document.getElementById('partner-kpi-favorite-type');
+    const viewBtn = document.getElementById('partner-view-holdings-btn');
+
+    if (kpiOutstanding) kpiOutstanding.textContent = outstanding.toLocaleString();
+    if (kpiReturnRate) kpiReturnRate.textContent = `${returnRate}%`;
+    if (kpiAvgDuration) kpiAvgDuration.textContent = avgDurationStr;
+
+    let favoriteType = '-';
+    let maxTypeCount = 0;
+    Object.entries(typeCounts).forEach(([type, count]) => {
+        if (count > maxTypeCount) {
+            maxTypeCount = count;
+            favoriteType = type;
+        }
+    });
+    if (kpiFavoriteType) kpiFavoriteType.textContent = favoriteType;
+
+    if (viewBtn) {
+        viewBtn.onclick = () => goToStock(true, { partner: partner });
+    }
+
+    // Determine current chart source based on currentPartnerMetric
+    let sortedData = [];
+    let titleText = 'Fabric Quality Spotlight (GIE Codes)';
+
+    if (currentPartnerMetric === 'gie') {
+        titleText = 'Fabric Quality Spotlight (GIE Codes)';
+        sortedData = Object.entries(gieCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([label, val]) => ({ label, value: val }));
+    } else if (currentPartnerMetric === 'gsm') {
+        titleText = 'Fabric Weight Spotlight (GSM Ranges)';
+        sortedData = Object.entries(gsmRanges)
+            .filter(([_, val]) => val > 0)
+            .map(([label, val]) => ({ label, value: val }));
+    } else if (currentPartnerMetric === 'type') {
+        titleText = 'Fabric Category Preference (Types)';
+        sortedData = Object.entries(typeCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([label, val]) => ({ label, value: val }));
+    } else if (currentPartnerMetric === 'finish') {
+        titleText = 'Fabric Finish Preference (Treatments)';
+        sortedData = Object.entries(finishCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([label, val]) => ({ label, value: val }));
+    }
+
+    const titleEl = document.getElementById('partner-chart-title');
+    if (titleEl) titleEl.textContent = titleText;
+
+    const ctx = document.getElementById('chart-partner-gie');
+    if (!ctx) return;
+
+    const labels = sortedData.map(d => d.label);
+    const values = sortedData.map(d => d.value);
+
+    if (partnerGieChart) {
+        partnerGieChart.data.labels = labels;
+        partnerGieChart.data.datasets[0].data = values;
+        partnerGieChart.update();
+    } else {
+        partnerGieChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Requests',
+                    data: values,
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: '#28a745',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onHover: (evt, elements, chart) => {
+                    const active = chart.getElementsAtEventForMode(evt, 'index', { intersect: false }, true);
+                    evt.native.target.style.cursor = (active && active.length > 0) ? 'pointer' : 'default';
+                },
+                onClick: (evt, elements, chart) => {
+                    const activeElements = chart.getElementsAtEventForMode(evt, 'index', { intersect: false }, true);
+                    if (activeElements && activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        const label = chart.data.labels[index];
+                        const value = chart.data.datasets[0].data[index];
+                        handleChartClick('chart-partner-gie', label, value);
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#555',
+                        anchor: 'end',
+                        align: 'end',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (val) => val.toLocaleString()
+                    },
+                    tooltip: {
+                        padding: 12,
+                        borderRadius: 8,
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 12 },
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.formattedValue;
+                                let res = `${label}: ${value}`;
+                                
+                                if (currentPartnerMetric === 'gie') {
+                                    const gieCode = context.label;
+                                    const name = GIE_NAMES[gieCode] || GIE_NAMES[gieCode.replace('00', '0')] || '';
+                                    if (name) return [res, `Quality: ${name}`];
+                                }
+                                return res;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } },
+                        grace: '15%'
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
 }
 
 function viewArticle(id) {
