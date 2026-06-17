@@ -584,12 +584,36 @@ function renderRestockList(data) {
     const list = document.getElementById('list-restock-alerts');
     const outOfStock = data.filter(item => (parseFloat(item.available) || 0) <= 0);
     
+    const viewAllBtn = document.getElementById('btn-view-all-restock');
+    if (viewAllBtn) {
+        viewAllBtn.style.display = outOfStock.length > 12 ? 'inline-block' : 'none';
+    }
+
     if (outOfStock.length === 0) {
         list.innerHTML = '<div class="text-center py-5 text-muted small w-100"><div class="h4 mb-2">🎉</div>All items are in stock.</div>';
         return;
     }
 
-    list.innerHTML = outOfStock.map(item => `
+    const maxVisible = 12;
+    let itemsToRender = outOfStock;
+    let extraCardHtml = '';
+
+    if (outOfStock.length > maxVisible) {
+        itemsToRender = outOfStock.slice(0, 11);
+        const remaining = outOfStock.length - 11;
+        extraCardHtml = `
+            <div class="col">
+                <div class="restock-item-card p-3 rounded-3 bg-light border h-100 d-flex flex-column align-items-center justify-content-center text-center shadow-sm" 
+                     onclick="goToStock(true, {status: 'OUT_OF_STOCK'})" 
+                     style="cursor: pointer; border-left: 4px dashed #dc3545 !important; min-height: 80px;">
+                    <div class="text-danger fw-bold mb-1" style="font-size: 0.8rem;">+${remaining} More Items</div>
+                    <div class="text-muted" style="font-size: 0.65rem;">View all in Stock Manager</div>
+                </div>
+            </div>
+        `;
+    }
+
+    const itemsHtml = itemsToRender.map(item => `
         <div class="col">
             <div class="restock-item-card p-3 rounded-3 bg-white border h-100 d-flex flex-column justify-content-center shadow-sm" 
                  onclick="goToStock(true, {search: '${item.article_no}'})" style="cursor: pointer;">
@@ -599,6 +623,8 @@ function renderRestockList(data) {
             </div>
         </div>
     `).join('');
+
+    list.innerHTML = itemsHtml + extraCardHtml;
 }
 
 function viewArticle(id) {
