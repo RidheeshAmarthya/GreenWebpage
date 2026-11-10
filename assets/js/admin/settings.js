@@ -4,34 +4,73 @@
 const AdminSettings = {
     storageKey: 'green_admin_settings',
 
+    // Bump this (and add a step to migrate()) when saved settings must change in every browser
+    version: 2,
+
     defaults: {
         gemini_api_key: '',
-        gemini_model_name: 'gemini-3.1-flash-lite-preview',
+        gemini_model_name: 'gemini-3.5-flash-lite',
         printer_debug_mode: false // Default to false
     },
+
+    // The label scanner falls back to this model when the main one is busy,
+    // over its free limit or no longer available
+    gemini_backup_model: 'gemini-3.1-flash-lite',
 
     load() {
         try {
             const saved = localStorage.getItem(this.storageKey);
-            return saved ? JSON.parse(saved) : { ...this.defaults };
+            return saved ? this.migrate(JSON.parse(saved)) : {};
         } catch (e) {
             console.error("Failed to load settings:", e);
-            return { ...this.defaults };
+            return {};
         }
     },
 
+    /**
+     * Brings settings saved by an older version of this page up to date.
+     * Runs once per browser; after that the saved version matches and nothing changes.
+     */
+    migrate(settings) {
+        if ((settings.settings_version || 1) >= this.version) return settings;
+
+        // v2: the old default (gemini-3.1-flash-lite-preview) and the models the old
+        // settings hint suggested (gemini-1.5-flash, gemini-2.0-flash-exp) are shut down.
+        // Drop every saved model name so this browser uses the current default.
+        delete settings.gemini_model_name;
+
+        try {
+            this.save(settings);
+        } catch (e) {
+            console.error("Failed to save migrated settings:", e);
+        }
+        return settings;
+    },
+
     save(settings) {
+        settings.settings_version = this.version;
+        // A model name equal to the default isn't stored, so a later default change reaches this browser too
+        if (settings.gemini_model_name === this.defaults.gemini_model_name) {
+            delete settings.gemini_model_name;
+        }
         localStorage.setItem(this.storageKey, JSON.stringify(settings));
     },
 
     get(key) {
         const settings = this.load();
-        return settings[key] !== undefined ? settings[key] : this.defaults[key];
+        const value = settings[key];
+        return value !== undefined && value !== '' ? value : this.defaults[key];
     },
 
     set(key, value) {
         const settings = this.load();
         settings[key] = value;
+        this.save(settings);
+    },
+
+    remove(key) {
+        const settings = this.load();
+        delete settings[key];
         this.save(settings);
     }
 };
@@ -45,11 +84,16 @@ function saveAdminSettings() {
     const debugField = document.getElementById('printer-debug-mode-field');
 
     const key = keyField ? keyField.value.trim() : '';
-    const model = modelField ? modelField.value.trim() : AdminSettings.defaults.gemini_model_name;
+    const model = modelField ? modelField.value.trim() : '';
     const isDebug = debugField ? debugField.checked : AdminSettings.defaults.printer_debug_mode;
 
     AdminSettings.set('gemini_api_key', key);
-    AdminSettings.set('gemini_model_name', model || AdminSettings.defaults.gemini_model_name);
+    // Blank means "use the default"; save() also drops a name equal to the default
+    if (model) {
+        AdminSettings.set('gemini_model_name', model);
+    } else {
+        AdminSettings.remove('gemini_model_name');
+    }
     AdminSettings.set('printer_debug_mode', isDebug);
 
     window.dispatchEvent(new CustomEvent('settingsUpdated', {

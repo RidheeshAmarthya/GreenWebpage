@@ -325,7 +325,12 @@ async function captureForOCR() {
         if (typeof geminiOCR === 'undefined') throw new Error("OCR Module not loaded");
 
         // 5. Call AI
-        const data = await geminiOCR.scanImage(compressedDataUrl);
+        // Shows "GEMINI BUSY, RETRYING..." etc. on the button while the scanner retries or falls back
+        const data = await geminiOCR.scanImage(compressedDataUrl, {
+            onStatus: (status) => {
+                ocrBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${status}`;
+            }
+        });
         
         // 5.5 Safety Check: If user closed the modal while we were waiting, discard result
         const modal = document.getElementById('stockItemModal');

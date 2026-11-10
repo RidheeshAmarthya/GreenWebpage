@@ -1687,7 +1687,7 @@
                                             id="retake-photo-btn" style="display: none;">CHANGE PHOTO / RETAKE</button>
 
                                         <div class="d-flex justify-content-between align-items-center mt-2 px-1">
-                                            <small class="text-muted" style="font-size: 0.6rem;">Gemini OCR v1.5</small>
+                                            <small class="text-muted" style="font-size: 0.6rem;">Gemini OCR v2</small>
                                             <a href="javascript:void(0)" data-bs-toggle="modal"
                                                 data-bs-target="#adminSettingsModal"
                                                 class="text-decoration-none small text-primary fw-bold"
@@ -2310,8 +2310,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <!-- Settings & OCR Modules -->
-    <script src="assets/js/admin/settings.js" defer></script>
-    <script src="assets/js/admin/stock/ocr.js" defer></script>
+    <script src="assets/js/admin/settings.js?v=2" defer></script>
+    <script src="assets/js/admin/stock/ocr.js?v=2" defer></script>
 
     <!-- Stock Manager Module -->
     <script src="assets/js/admin/stock/constants.js" defer></script>
@@ -2322,7 +2322,7 @@
     <script src="assets/js/admin/stock/navigation.js" defer></script>
     <script src="assets/js/admin/stock/ui.js" defer></script>
     <script src="assets/js/admin/stock/modals.js" defer></script>
-    <script src="assets/js/admin/stock/camera.js" defer></script>
+    <script src="assets/js/admin/stock/camera.js?v=2" defer></script>
     <script src="assets/js/admin/stock/barcode.js" defer></script>
     <script src="assets/js/admin/stock/checkout.js" defer></script>
     <script src="assets/js/admin/stock/checkin.js" defer></script>
@@ -2373,10 +2373,11 @@
                         <label class="form-label small fw-bold text-uppercase text-muted"
                             style="font-size: 0.65rem; letter-spacing: 0.5px;">Gemini Model Name</label>
                         <input type="text" id="gemini-model-name-field" class="form-control bg-light"
-                            placeholder="e.g., gemini-1.5-flash-latest" style="border-radius: 10px; font-size: 0.8rem;">
+                            placeholder="gemini-3.5-flash-lite" style="border-radius: 10px; font-size: 0.8rem;">
                         <div class="form-text mt-2" style="font-size: 0.65rem; color: #777;">
-                            Default: <code>gemini-3.1-flash-lite-preview</code>. Try <code>gemini-1.5-flash</code> or
-                            <code>gemini-2.0-flash-exp</code>.
+                            Default: <code>gemini-3.5-flash-lite</code>. Leave blank to use the default. If the model
+                            is busy or over its free limit, the scanner retries and then falls back to
+                            <code>gemini-3.1-flash-lite</code>.
                         </div>
                     </div>
 
